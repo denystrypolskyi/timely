@@ -30,9 +30,10 @@ export const useMe = () => {
   return {
     data,
     isLoading,
+    isLoggingIn: loginMutation.isPending,
     isError,
     login: loginMutation.mutateAsync,
     logout,
     isSuccess,
   };
-}
+};
