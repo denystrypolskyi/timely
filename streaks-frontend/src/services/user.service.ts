@@ -5,6 +5,7 @@ class UserService {
   async getUser(): Promise<{ username: string | undefined }> {
     try {
       const token = localStorage.getItem("jwtToken");
+      
       if (!token) {
         return { username: undefined };
       }

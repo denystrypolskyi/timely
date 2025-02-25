@@ -13,9 +13,9 @@ export const useMe = () => {
 
   const loginMutation = useMutation({
     mutationFn: authService.login,
-    onSuccess: (data: LoginResponse) => {
+    onSuccess: async (data: LoginResponse) => {
       localStorage.setItem("jwtToken", data.token);
-      queryClient.invalidateQueries({ queryKey: ["me"] });
+      await queryClient.refetchQueries({ queryKey: ["me"] });
     },
     onError: (error: any) => {
       console.error("Login failed:", error);

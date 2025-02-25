@@ -1,10 +1,10 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import styles from "./Register.module.css";
 import { RegisterFormData } from "../../types/auth.types";
 import authService from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 import { useMe } from "../../hooks/useMe";
+import { ClipLoader } from "react-spinners";
 
 function Register() {
   const {
@@ -12,7 +12,7 @@ function Register() {
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>();
-  const { login } = useMe();
+  const { login, isLoggingIn } = useMe();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -29,54 +29,67 @@ function Register() {
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.formWrapper}>
-        <h2>Register</h2>
-        <form onSubmit={handleSubmit(onSubmit)}>
-          <div>
-            <label htmlFor="username">Username:</label>
-            <input
-              id="username"
-              type="text"
-              {...register("username", { required: "Username is required" })}
-            />
-            {errors.username && (
-              <p>{errors.username.message as React.ReactNode}</p>
-            )}
-          </div>
+    <div className="container">
+      {isLoggingIn ? (
+        <ClipLoader size={20} color="#fff" />
+      ) : (
+        <div className="formWrapper">
+          <h2>Register</h2>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <div className="form-group">
+              <input
+                placeholder="Username"
+                id="username"
+                type="text"
+                className="input"
+                {...register("username", { required: "Username is required" })}
+              />
+              {errors.username && <p>{errors.username.message}</p>}
+            </div>
 
-          <div>
-            <label htmlFor="password">Password:</label>
-            <input
-              id="password"
-              type="password"
-              {...register("password", { required: "Password is required" })}
-            />
-            {errors.password && (
-              <p>{errors.password.message as React.ReactNode}</p>
-            )}
-          </div>
+            <div className="form-group">
+              <input
+                placeholder="Password"
+                id="password"
+                type="password"
+                className="input"
+                {...register("password", { required: "Password is required" })}
+              />
+              {errors.password && <p>{errors.password.message}</p>}
+            </div>
 
-          <div>
-            <label htmlFor="confirmPassword">Confirm Password:</label>
-            <input
-              id="confirmPassword"
-              type="password"
-              {...register("confirmPassword", {
-                required: "Confirm Password is required",
-              })}
-            />
-            {errors.confirmPassword && (
-              <p>{errors.confirmPassword.message as React.ReactNode}</p>
-            )}
-          </div>
+            <div className="form-group">
+              <input
+                placeholder="Confirm password"
+                id="confirmPassword"
+                type="password"
+                className="input"
+                {...register("confirmPassword", {
+                  required: "Confirm Password is required",
+                })}
+              />
+              {errors.confirmPassword && (
+                <p>{errors.confirmPassword.message}</p>
+              )}
+            </div>
 
-          <button type="submit">Register</button>
-          <a onClick={() => navigate("/login")}>Already have an account?</a>
-        </form>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <button className="button" type="submit">
+                Register
+              </button>
+              <a onClick={() => navigate("/login")}>Already have an account?</a>
+            </div>
+          </form>
 
-        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-      </div>
+          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+        </div>
+      )}
     </div>
   );
 }

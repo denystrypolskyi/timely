@@ -1,11 +1,82 @@
-body {
-  padding: 0px;
-  margin: 0px;
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  background: black;
+  color: white;
+  font-family: "Inter", sans-serif;
+}
+* {
   box-sizing: border-box;
 }
 
-a {
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.formWrapper {
+  background-color: #1e1e1e;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  width: 100%;
+  max-width: 400px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: 500;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: white;
+  border: 1px solid #333;
   cursor: pointer;
-  text-decoration: underline;
-  color: blue;
+  transition: all 0.2s ease-in-out;
+}
+
+.button:hover {
+  background-color: #2a2a2a;
+}
+
+.button:active {
+  background-color: #333;
+}
+
+.button:focus {
+  outline: 2px solid #4a90e2;
+  outline-offset: 2px;
+}
+
+.input {
+  width: 100%;
+  padding: 10px 14px;
+  font-size: 16px;
+  border-radius: 8px;
+  background-color: #1e1e1e;
+  color: white;
+  border: 1px solid #333;
+  outline: none;
+  transition: all 0.2s ease-in-out;
+}
+
+.input:focus {
+  border-color: #4a90e2;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
+}
+
+.input::placeholder {
+  color: #888;
+}
+
+.form-group {
+  margin-bottom: 16px;
 }

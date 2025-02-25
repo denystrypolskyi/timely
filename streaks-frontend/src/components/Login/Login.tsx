@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { LoginFormData } from "../../types/auth.types";
-import styles from "./Login.module.css";
 import { useMe } from "../../hooks/useMe";
 import { useNavigate } from "react-router-dom";
 import { ClipLoader } from "react-spinners";
@@ -16,8 +15,6 @@ function Login() {
   const { login, isLoggingIn } = useMe();
   const navigate = useNavigate();
 
-  // const isLoggingIn = true;
-
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login(data);
@@ -28,35 +25,43 @@ function Login() {
   };
 
   return (
-    <div className={styles.container}>
+    <div className="container">
       {isLoggingIn ? (
-        <ClipLoader size={20} color="#000" />
+        <ClipLoader size={20} color="#fff" />
       ) : (
-        <div className={styles.formWrapper}>
+        <div className="formWrapper">
           <h2>Login</h2>
           <form onSubmit={handleSubmit(onSubmit)}>
-            <div>
-              <label htmlFor="username">Username:</label>
+            <div className="form-group">
               <input
+                placeholder="Username"
                 id="username"
                 type="text"
+                className="input"
                 {...register("username", { required: "Username is required" })}
               />
               {errors.username && <p>{errors.username.message}</p>}
             </div>
 
-            <div>
-              <label htmlFor="password">Password:</label>
+            <div className="form-group">
               <input
+                placeholder="Password"
                 id="password"
                 type="password"
+                className="input"
                 {...register("password", { required: "Password is required" })}
               />
               {errors.password && <p>{errors.password.message}</p>}
             </div>
 
-            <button type="submit">Login</button>
-            <a onClick={() => navigate("/register")}>Don't have an account?</a>
+            <div style={{display: "flex",justifyContent: "space-between", alignItems: "center"}}>
+              <button className="button" type="submit">
+                Login
+              </button>
+              <a onClick={() => navigate("/register")}>
+                Don't have an account?
+              </a>
+            </div>
           </form>
 
           {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}

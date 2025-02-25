@@ -1,12 +1,16 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.TokenDTO;
+import com.example.demo.dto.UserResponseDTO;
+import com.example.demo.dto.UserUpdatePasswordDTO;
+import com.example.demo.dto.UserUpdateUsernameDTO;
+import com.example.demo.dto.UserAuthDTO;
 import com.example.demo.model.User;
-import com.example.demo.model.UserDTO;
 import com.example.demo.service.AuthService;
 import com.example.demo.service.UserService;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -25,13 +29,20 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.register(user);
+    public Map<String, String> createUser(@RequestBody UserAuthDTO user) {
+        userService.createUser(user);
+        return Map.of("message", "User registered successfully");
+    }
+
+    @DeleteMapping("/{userId}")
+    public Map<String, String> deleteUserById(@PathVariable("userId") Long userId) {
+        userService.deleteUserById(userId);
+        return Map.of("message", "User deleted successfully");
     }
 
     @PostMapping("/login")
-    public TokenDTO login(@RequestBody User user) {
-        String token = authService.verify(user);
+    public TokenDTO login(@RequestBody UserAuthDTO loginDTO) {
+        String token = authService.verify(loginDTO);
         return new TokenDTO(token);
     }
 
@@ -40,24 +51,35 @@ public class UserController {
         return userService.getUsers();
     }
 
-    @DeleteMapping("/{userId}")
-    public List<User> deleteUserById(@PathVariable("userId") Long userId) {
-        userService.deleteUserById(userId);
-        return userService.getUsers();
+    @PatchMapping("/username")
+    public Map<String, String> updateUsername(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody UserUpdateUsernameDTO dto) {
+        String token = authorizationHeader.split(" ")[1];
+        Long userId = authService.getUserIdFromToken(token);
+
+        userService.updateUsername(userId, dto);
+        return Map.of("message", "Username updated successfully");
     }
 
-    @PutMapping("/{userId}")
-    public User editUser(@PathVariable("userId") Long userId, @RequestBody User updatedUser) {
-        return userService.updateUser(userId, updatedUser);
+    @PatchMapping("/password")
+    public Map<String, String> updatePassword(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @RequestBody UserUpdatePasswordDTO dto) {
+        String token = authorizationHeader.split(" ")[1];
+        Long userId = authService.getUserIdFromToken(token);
+
+        userService.updatePassword(userId, dto);
+        return Map.of("message", "Password updated successfully");
     }
 
     @GetMapping("/profile")
-    public UserDTO getLoggedInUser(@RequestHeader("Authorization") String authorizationHeader) {
+    public UserResponseDTO getLoggedInUser(@RequestHeader("Authorization") String authorizationHeader) {
         String token = authorizationHeader.split(" ")[1];
         Long userId = authService.getUserIdFromToken(token);
         User user = userService.getUserById(userId);
 
-        UserDTO userDTO = new UserDTO(user.getId(), user.getUsername(), user.getRole());
+        UserResponseDTO userDTO = new UserResponseDTO(user.getId(), user.getUsername(), user.getRole());
         return userDTO;
     }
 }

@@ -1,11 +1,11 @@
-package com.example.demo.model;
+package com.example.demo.dto;
 
-public class UserDTO {
+public class UserResponseDTO {
     private Long id;
     private String username;
     private String role;
 
-    public UserDTO(Long id, String username, String role) {
+    public UserResponseDTO(Long id, String username, String role) {
         this.id = id;
         this.username = username;
         this.role = role;
