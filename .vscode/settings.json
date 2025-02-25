@@ -1,5 +1,0 @@
-{
-	"java.compile.nullAnalysis.mode": "automatic",
-	"prettier.tabWidth": 4,
-	"prettier.useTabs": true
-}
