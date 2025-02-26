@@ -16,7 +16,7 @@ html {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh; 
+  height: 100vh;
 }
 
 .formWrapper {
@@ -55,6 +55,26 @@ html {
   outline: 2px solid #4a90e2;
   outline-offset: 2px;
 }
+
+.buttonDestructive {
+  background-color: #6d1515; 
+  border-color: #871818;
+  color: white;
+}
+
+.buttonDestructive:hover {
+  background-color: #871818; 
+}
+
+.buttonDestructive:active {
+  background-color: #5a1010; 
+}
+
+.buttonDestructive:focus {
+  outline: 2px solid #d14343; 
+  outline-offset: 2px;
+}
+
 
 .input {
   width: 100%;
@@ -97,16 +117,21 @@ html {
 }
 
 .secondaryButton:hover {
-  background-color: #f0f0f0; 
+  background-color: #f0f0f0;
 }
 
 .secondaryButton:active {
-  background-color: #e0e0e0; 
+  background-color: #e0e0e0;
 }
 
 .secondaryButton:focus {
   outline: 2px solid #4a90e2;
   outline-offset: 2px;
+}
+
+.error {
+  color: red;
+  text-decoration: underline;
 }
 
 a {

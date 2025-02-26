@@ -1,9 +1,12 @@
 import { userData } from "./user.types";
 
-export interface hoursData {
-  id: number;
+export interface AddHoursData {
   shiftStart: string;
   shiftEnd: string;
+}
+
+export interface hoursData extends AddHoursData {
+  id: number;
   user: userData;
-  workedHours: number;
+  workedHours: string;
 }

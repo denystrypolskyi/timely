@@ -28,6 +28,9 @@ public class Hours {
     }
 
     public Hours(User user, LocalDateTime shiftStart, LocalDateTime shiftEnd) {
+        if (shiftStart != null && shiftEnd.isBefore(shiftStart)) {
+            throw new IllegalArgumentException("Shift end cannot be earlier than shift start");
+        }
         this.user = user;
         this.shiftStart = shiftStart;
         this.shiftEnd = shiftEnd;
@@ -63,6 +66,9 @@ public class Hours {
     }
 
     public void setShiftEnd(LocalDateTime shiftEnd) {
+        if (shiftStart != null && shiftEnd.isBefore(shiftStart)) {
+            throw new IllegalArgumentException("Shift end cannot be earlier than shift start");
+        }
         this.shiftEnd = shiftEnd;
         this.workedHours = calculateWorkedHours();
     }

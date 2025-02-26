@@ -40,7 +40,7 @@ const Login = () => {
                 className="input"
                 {...register("username", { required: "Username is required" })}
               />
-              {errors.username && <p>{errors.username.message}</p>}
+              {errors.username && <p className="error">{errors.username.message}</p>}
             </div>
 
             <div className="form-group">
@@ -51,7 +51,7 @@ const Login = () => {
                 className="input"
                 {...register("password", { required: "Password is required" })}
               />
-              {errors.password && <p>{errors.password.message}</p>}
+              {errors.password && <p className="error">{errors.password.message}</p>}
             </div>
 
             <div

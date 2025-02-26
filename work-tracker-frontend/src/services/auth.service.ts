@@ -1,4 +1,3 @@
-import axios from "axios";
 import {
   LoginRequest,
   LoginResponse,
@@ -17,11 +16,7 @@ class AuthService {
 
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data.message || "Login failed");
-      } else {
-        throw new Error("Login failed");
-      }
+      throw new Error("Login failed");
     }
   }
 
@@ -34,11 +29,7 @@ class AuthService {
 
       return response.data;
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        throw new Error(error.response?.data.message || "Registration failed");
-      } else {
-        throw new Error("Registration failed");
-      }
+      throw new Error("Registration failed");
     }
   }
 }

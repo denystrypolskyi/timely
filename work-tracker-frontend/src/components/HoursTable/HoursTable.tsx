@@ -22,7 +22,7 @@ const HoursTable = ({ hours }: HoursTableProps) => {
               <tr key={index}>
                 <td>{new Date(hour.shiftStart).toLocaleString()}</td>
                 <td>{new Date(hour.shiftEnd).toLocaleString()}</td>
-                <td>{hour.workedHours} h.</td>
+                <td>{hour.workedHours}</td>
               </tr>
             ))
           ) : (
