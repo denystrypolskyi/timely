@@ -7,6 +7,7 @@ html {
   background: black;
   color: white;
   font-family: "Inter", sans-serif;
+  font-weight: bold;
 }
 * {
   box-sizing: border-box;
@@ -29,52 +30,58 @@ html {
 }
 
 .button {
+  min-width: 75px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 10px 16px;
+  padding: 12px 16px;
   font-size: 16px;
-  font-weight: 500;
   border-radius: 8px;
-  background-color: #1e1e1e;
-  color: white;
+  background: white;
+  color: black;
   border: 1px solid #333;
   cursor: pointer;
   transition: all 0.2s ease-in-out;
+  font-weight: bold;
 }
 
 .button:hover {
-  background-color: #2a2a2a;
+  background-color: #f4f4f5a9;
 }
 
-.button:active {
-  background-color: #333;
+.outlineButton {
+  background-color: transparent;
+  color: white;
+  border: 1px solid #333;
 }
 
-.button:focus {
-  outline: 2px solid #4a90e2;
-  outline-offset: 2px;
+.outlineButton:hover {
+  background-color: #27272a;
+}
+
+.secondaryButton {
+  background-color: #2b2b2b;
+  color: white;
+  border: none;
+}
+
+.secondaryButton:hover {
+  background-color: #3c3c3c; 
 }
 
 .buttonDestructive {
-  background-color: #6d1515; 
-  border-color: #871818;
+  background-color: #6d1515;
   color: white;
+  border: none;
 }
 
 .buttonDestructive:hover {
-  background-color: #871818; 
+  background-color: #871818;
 }
 
 .buttonDestructive:active {
-  background-color: #5a1010; 
+  background-color: #5a1010;
 }
-
-.buttonDestructive:focus {
-  outline: 2px solid #d14343; 
-  outline-offset: 2px;
-}
-
 
 .input {
   width: 100%;
@@ -86,6 +93,7 @@ html {
   border: 1px solid #333;
   outline: none;
   transition: all 0.2s ease-in-out;
+  font-weight: bold;
 }
 
 .input:focus {
@@ -101,34 +109,6 @@ html {
   margin-bottom: 16px;
 }
 
-.secondaryButton {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 10px 16px;
-  font-size: 16px;
-  font-weight: 500;
-  border-radius: 8px;
-  background-color: white;
-  color: black;
-  border: 1px solid #ccc;
-  cursor: pointer;
-  transition: all 0.2s ease-in-out;
-}
-
-.secondaryButton:hover {
-  background-color: #f0f0f0;
-}
-
-.secondaryButton:active {
-  background-color: #e0e0e0;
-}
-
-.secondaryButton:focus {
-  outline: 2px solid #4a90e2;
-  outline-offset: 2px;
-}
-
 .error {
   color: red;
   text-decoration: underline;
@@ -137,4 +117,22 @@ html {
 a {
   cursor: pointer;
   text-decoration: underline;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: 8px;
+  margin-top: 5px;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background: #2a2a2a;
+  color: white;
+  font-weight: bold;
+  text-align: center;
+}
+
+.react-datepicker__input-container input:focus {
+  border-color: #4a90e2;
+  outline: none;
+  box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
 }

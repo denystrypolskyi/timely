@@ -1,4 +1,4 @@
-import axiosInstance from "./axiosInterceptor";
+import axiosInstance from "./axiosPrivate";
 import { userData } from "@/types/user.types";
 
 class UserService {

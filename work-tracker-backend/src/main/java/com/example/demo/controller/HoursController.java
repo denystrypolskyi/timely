@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -37,8 +38,10 @@ public class HoursController {
             @RequestBody Map<String, String> requestBody) {
         try {
             Long userId = extractUserIdFromHeader(authorizationHeader);
-            LocalDateTime shiftStart = LocalDateTime.parse(requestBody.get("shiftStart"));
-            LocalDateTime shiftEnd = LocalDateTime.parse(requestBody.get("shiftEnd"));
+
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm");
+            LocalDateTime shiftStart = LocalDateTime.parse(requestBody.get("shiftStart"), formatter);
+            LocalDateTime shiftEnd = LocalDateTime.parse(requestBody.get("shiftEnd"), formatter);
 
             Optional<Hours> loggedHours = hoursService.logWorkHours(userId, shiftStart, shiftEnd);
 

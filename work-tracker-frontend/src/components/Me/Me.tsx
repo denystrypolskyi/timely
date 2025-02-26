@@ -1,80 +1,68 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useMe } from "../../hooks/useMe";
+import { useHours } from "../../hooks/useHours";
 import styles from "./Me.module.css";
-import hoursService from "../../services/hours.service";
-import { hoursData } from "../../types/hours.types";
 import HoursTable from "../HoursTable/HoursTable";
 import AddHoursModal from "../AddHoursModal/AddHoursModal";
+import TopBar from "../TopBar/TopBar";
+import { ClipLoader } from "react-spinners";
 
 function Me() {
   const { logout } = useMe();
-  const [hours, setHours] = useState<hoursData[]>([]);
+  const { hours, totalMinutes, isLoading, error, addHours } = useHours();
   const [isModalOpen, setIsModalOpen] = useState(false);
-
-  useEffect(() => {
-    const fetchHours = async () => {
-      try {
-        const data = await hoursService.getWorkHours();
-        const newData = data.map((record) => {
-          const totalMinutes = parseInt(record.workedHours);
-          const hours = Math.floor(totalMinutes / 60);
-          const minutes = totalMinutes % 60;
-
-          return {
-            id: record.id,
-            shiftStart: record.shiftStart,
-            shiftEnd: record.shiftEnd,
-            user: record.user,
-            workedHours: `${hours}h ${minutes}m`,
-          };
-        });
-
-        setHours(newData);
-      } catch (error) {
-        console.error("Error fetching work hours:", error);
-      }
-    };
-    fetchHours();
-  }, []);
+  const hourlyRate = 30.5;
 
   const handleAddHours = async (newRecord: {
     shiftStart: string;
     shiftEnd: string;
   }) => {
     try {
-      const addedHour = await hoursService.addWorkHours(newRecord);
-
-      const totalMinutes = parseInt(addedHour.workedHours);
-      const hours = Math.floor(totalMinutes / 60);
-      const minutes = totalMinutes % 60;
-
-      const formattedAddedHour = {
-        ...addedHour,
-        workedHours: `${hours}h ${minutes}m`,
-      };
-
-      setHours((prev) => [...prev, formattedAddedHour]);
-    } catch (error) {
-      console.error("Failed to add work hours:", error);
+      await addHours(newRecord);
+      setIsModalOpen(false);
+    } catch (err) {
+      console.error("Failed to add work hours:", err);
     }
   };
 
+  if (isLoading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          height: "100vh",
+        }}
+      >
+        <ClipLoader size={20} color="#fff" />
+      </div>
+    );
+  }
+
   return (
     <div className={`container ${styles.meContainer}`}>
+      {error && <p className="error">Error fetching work hours</p>}
+      <TopBar
+        totalMinutes={totalMinutes}
+        hourlyRate={hourlyRate}
+        onLogout={logout}
+      />
       <HoursTable hours={hours} />
-      <div className={styles.buttonContainer}>
-        <button
-          className="secondaryButton"
-          onClick={() => setIsModalOpen(true)}
-        >
+      <div className={styles.tableBottomPanel}>
+        <button className="button" onClick={() => setIsModalOpen(true)}>
           Add
         </button>
-        <button
-          className={`button buttonDestructive ${styles.logoutButton}`}
-          onClick={logout}
-        >
-          Logout
-        </button>
+        <div className={styles.statsContainer}>
+          <div className={`button outlineButton`} style={{ cursor: "default" }}>
+            <span>{((totalMinutes / 60) * hourlyRate).toFixed(2)}zł</span>
+          </div>
+          <div className={`button outlineButton`} style={{ cursor: "default" }}>
+            <span>
+              {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
+            </span>
+          </div>
+        </div>
       </div>
 
       {isModalOpen && (

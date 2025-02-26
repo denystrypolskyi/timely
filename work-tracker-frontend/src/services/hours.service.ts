@@ -1,5 +1,5 @@
 import { AddHoursData, hoursData } from "@/types/hours.types";
-import axiosInstance from "./axiosInterceptor";
+import axiosInstance from "./axiosPrivate";
 
 class WorkHoursService {
   async getWorkHours(): Promise<hoursData[]> {
@@ -10,7 +10,7 @@ class WorkHoursService {
       throw new Error("Failed to fetch work hours");
     }
   }
-  
+
   async addWorkHours(data: AddHoursData): Promise<hoursData> {
     try {
       const response = await axiosInstance.post<hoursData>("/hours", data);

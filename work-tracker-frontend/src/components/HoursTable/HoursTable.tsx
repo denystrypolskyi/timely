@@ -11,9 +11,9 @@ const HoursTable = ({ hours }: HoursTableProps) => {
       <table className={styles.table}>
         <thead>
           <tr>
-            <th>Shift Start</th>
-            <th>Shift End</th>
-            <th>Worked Hours</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Hours</th>
           </tr>
         </thead>
         <tbody>
@@ -28,7 +28,7 @@ const HoursTable = ({ hours }: HoursTableProps) => {
           ) : (
             <tr>
               <td colSpan={3} className={styles.noData}>
-                No work hours recorded
+                No records
               </td>
             </tr>
           )}

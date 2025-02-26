@@ -36,7 +36,7 @@ label {
   text-align: left;
 }
 
-input {
+.datePickerInput {
   width: 100%;
   padding: 8px;
   margin-top: 5px;
@@ -44,6 +44,7 @@ input {
   border: 1px solid #444;
   background: #2a2a2a;
   color: white;
+  font-weight: bold;
 }
 
 .buttonGroup {

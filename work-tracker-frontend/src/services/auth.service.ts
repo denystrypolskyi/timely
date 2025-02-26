@@ -4,12 +4,12 @@ import {
   RegisterRequest,
   RegisterResponse,
 } from "../types/auth.types";
-import axiosInstance from "./axiosInterceptor";
+import axiosPublic from "./axiosPublic"; 
 
 class AuthService {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
     try {
-      const response = await axiosInstance.post<LoginResponse>(
+      const response = await axiosPublic.post<LoginResponse>(
         "/users/login",
         credentials
       );
@@ -22,7 +22,7 @@ class AuthService {
 
   async register(credentials: RegisterRequest): Promise<RegisterResponse> {
     try {
-      const response = await axiosInstance.post<RegisterResponse>(
+      const response = await axiosPublic.post<RegisterResponse>(
         "/users/register",
         credentials
       );

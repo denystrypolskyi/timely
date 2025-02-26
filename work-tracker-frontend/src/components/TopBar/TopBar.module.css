@@ -1,20 +1,16 @@
-.meContainer {
-  flex-direction: column;
-  justify-content: start;
-  align-items: start;
-  gap: 12px;
-  padding: 60px;
-}
-
-.tableBottomPanel {
+.topBar {
+  position: absolute;
+  top: 20px;
+  right: 20px;
   display: flex;
-  justify-content: space-between;
-  width: 600px;
+  align-items: center;
+  gap: 16px;
 }
 
 .statsContainer {
   display: flex;
-  gap: 15px;
+  align-items: center;
+  gap: 16px;
 }
 
 .box {
@@ -30,7 +26,7 @@
 }
 
 .box:hover {
-  background-color: #f4f4f5a9;
+  background-color: #f4f4f5a9; 
   box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
-  cursor: default;
+  cursor: default
 }

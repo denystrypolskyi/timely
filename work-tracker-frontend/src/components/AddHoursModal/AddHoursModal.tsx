@@ -1,5 +1,8 @@
 import { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import styles from "./AddHoursModal.module.css";
+import { format } from "date-fns";
 
 interface AddHoursModalProps {
   onClose: () => void;
@@ -7,66 +10,66 @@ interface AddHoursModalProps {
 }
 
 const AddHoursModal = ({ onClose, onSubmit }: AddHoursModalProps) => {
-  const [shiftStart, setStartShift] = useState("");
-  const [shiftEnd, setEndShift] = useState("");
+  const [shiftStart, setShiftStart] = useState<Date | null>(new Date());
+  const [shiftEnd, setShiftEnd] = useState<Date | null>(new Date());
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (new Date(shiftEnd) < new Date(shiftStart)) {
+    if (!shiftStart || !shiftEnd) {
+      setError("Both shift start and end times are required.");
+      return;
+    }
+
+    if (shiftEnd < shiftStart) {
       setError("Shift end cannot be earlier than shift start");
       return;
     }
 
     setError("");
-    onSubmit({ shiftStart, shiftEnd });
+    onSubmit({
+      shiftStart: format(shiftStart, "dd.MM.yyyy HH:mm"),
+      shiftEnd: format(shiftEnd, "dd.MM.yyyy HH:mm"),
+    });
+
     onClose();
   };
-
-  const handleStartChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setStartShift(e.target.value);
-  };
-  
-  const handleEndChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setEndShift(e.target.value);
-  };
-  
 
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
         <form onSubmit={handleSubmit}>
-          <label>
-            Shift Start:
-            <input
-              type="datetime-local"
-              value={shiftStart}
-              onChange={handleStartChange}
-              required
-            />
-          </label>
-          <label>
-            Shift End:
-            <input
-              type="datetime-local"
-              value={shiftEnd}
-              onChange={handleEndChange}
-              required
-            />
-          </label>
-          {error && <p className={`error`}>{error}</p>}
+          <label>Start Time:</label>
+          <DatePicker
+            selected={shiftStart}
+            onChange={(date) => setShiftStart(date)}
+            showTimeSelect
+            timeFormat="HH:mm"
+            dateFormat="dd.MM.yyyy HH:mm"
+          />
+
+          <label style={{ marginTop: "10px" }}>End Time:</label>
+          <DatePicker
+            selected={shiftEnd}
+            onChange={(date) => setShiftEnd(date)}
+            showTimeSelect
+            timeFormat="HH:mm"
+            dateFormat="dd.MM.yyyy HH:mm"
+          />
+
+          {error && <p className={styles.error}>{error}</p>}
           <div className={styles.buttonGroup}>
             <button
               type="submit"
-              className={`button secondaryButton ${styles.modalButton}`}
+              className={`button ${styles.modalButton}`}
               style={{ marginRight: "8px" }}
             >
               Confirm
             </button>
             <button
               type="button"
-              className={`button ${styles.modalButton}`}
+              className={`button secondaryButton ${styles.modalButton}`}
               onClick={onClose}
             >
               Close
