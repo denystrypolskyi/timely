@@ -66,7 +66,7 @@ const Login = () => {
               alignItems: "center",
             }}
           >
-            <button className="button" type="submit">
+            <button className="button" type="submit" disabled={isLoggingIn}>
               Login
             </button>
             <a onClick={() => navigate("/register")}>Don't have an account?</a>

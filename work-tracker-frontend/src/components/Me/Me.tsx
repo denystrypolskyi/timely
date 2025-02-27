@@ -76,9 +76,6 @@ const Me = () => {
           </span>
         </div>
         <a onClick={logout}>Switch Account</a>
-        {/* <button className={`button buttonDestructive`} onClick={logout}>
-          Logout
-        </button> */}
       </div>
 
       <ShiftsTable shifts={shifts} onDelete={handleDeleteShift} />

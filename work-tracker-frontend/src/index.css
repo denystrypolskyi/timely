@@ -110,8 +110,8 @@ html {
 }
 
 .error {
-  color: red;
-  text-decoration: underline;
+  color: rgb(220, 20, 60);
+  margin-top: 10px;
 }
 
 a {

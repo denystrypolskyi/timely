@@ -43,7 +43,10 @@ const AddHoursModal = ({ onClose, onSubmit }: AddHoursModalProps) => {
           <label>Start Time:</label>
           <DatePicker
             selected={shiftStart}
-            onChange={(date) => setShiftStart(date)}
+            onChange={(date) => {
+              setShiftStart(date);
+              setShiftEnd(date);
+            }}
             showTimeSelect
             timeFormat="HH:mm"
             dateFormat="dd.MM.yyyy HH:mm"
