@@ -22,10 +22,20 @@ class ShiftService {
 
   async getShiftsForMonth(year: number, month: number): Promise<ShiftData[]> {
     try {
-      const response = await axiosInstance.get<ShiftData[]>(`/shifts/user/${year}/${month}`);
+      const response = await axiosInstance.get<ShiftData[]>(
+        `/shifts/user/${year}/${month}`
+      );
       return response.data;
     } catch (error) {
       throw new Error("Failed to fetch shifts for the specified month");
+    }
+  }
+
+  async deleteShift(id: number): Promise<void> {
+    try {
+      await axiosInstance.delete(`/shifts/${id}`);
+    } catch (error) {
+      throw new Error("Failed to delete shift");
     }
   }
 }

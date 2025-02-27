@@ -2,39 +2,42 @@ import styles from "./ShiftsTable.module.css";
 import { ShiftData } from "../../types/shifts.types";
 
 interface ShiftsTableProps {
-  hours: ShiftData[];
+  shifts: ShiftData[];
+  onDelete: (id: number) => void; // New prop for delete handler
 }
 
-const ShiftsTable = ({ hours }: ShiftsTableProps) => {
+const ShiftsTable = ({ shifts, onDelete }: ShiftsTableProps) => {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
-        {/* <thead>
-          <tr>
-            <th style={{ textAlign: "center" }} colSpan={3}>
-              February
-            </th>
-          </tr>
-        </thead> */}
         <thead>
           <tr>
             <th>Start</th>
             <th>End</th>
             <th>Hours</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {hours.length > 0 ? (
-            hours.map((hour, index) => (
+          {shifts.length > 0 ? (
+            shifts.map((shift, index) => (
               <tr key={index}>
-                <td>{new Date(hour.shiftStart).toLocaleString()}</td>
-                <td>{new Date(hour.shiftEnd).toLocaleString()}</td>
-                <td>{hour.shiftDurationMinutes}</td>
+                <td>{new Date(shift.shiftStart).toLocaleString()}</td>
+                <td>{new Date(shift.shiftEnd).toLocaleString()}</td>
+                <td>{shift.shiftDurationMinutes}</td>
+                <td>
+                  <button 
+                    className="button buttonDestructive" 
+                    onClick={() => onDelete(shift.id)}
+                  >
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))
           ) : (
             <tr>
-              <td colSpan={3} className={styles.noData}>
+              <td colSpan={4} className={styles.noData}>
                 No records
               </td>
             </tr>

@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import hoursService from "../services/shifts.service";
+import shiftService from "../services/shifts.service";
 import { ShiftData } from "../types/shifts.types";
 
 const formatMinutesToHours = (minutes: number) => {
@@ -13,24 +13,27 @@ const getCurrentYearMonth = () => {
   const now = new Date();
   return {
     year: now.getFullYear(),
-    month: now.getMonth() + 1 
+    month: now.getMonth() + 1,
   };
 };
 
-export const useHours = () => {
+export const useShifts = () => {
   const queryClient = useQueryClient();
   const { year, month } = getCurrentYearMonth();
   const [currentYear, setCurrentYear] = useState(year);
   const [currentMonth, setCurrentMonth] = useState(month);
 
   const {
-    data: hours = [],
+    data: shifts = [],
     isLoading,
     error,
   } = useQuery({
     queryKey: ["shifts", currentYear, currentMonth],
     queryFn: async () => {
-      const data = await hoursService.getShiftsForMonth(currentYear, currentMonth);
+      const data = await shiftService.getShiftsForMonth(
+        currentYear,
+        currentMonth
+      );
       return data.map((record) => {
         const totalMinutes = parseInt(record.shiftDurationMinutes);
         return {
@@ -42,13 +45,13 @@ export const useHours = () => {
     },
   });
 
-  const totalMinutes = hours.reduce(
+  const totalMinutes = shifts.reduce(
     (sum, record) => sum + record.totalMinutes,
     0
   );
 
-  const addHoursMutation = useMutation({
-    mutationFn: hoursService.addShift,
+  const addShiftMutation = useMutation({
+    mutationFn: shiftService.addShift,
     onSuccess: (newRecord) => {
       const newRecordDate = new Date(newRecord.shiftStart);
       const newRecordYear = newRecordDate.getFullYear();
@@ -56,15 +59,29 @@ export const useHours = () => {
 
       if (newRecordYear === currentYear && newRecordMonth === currentMonth) {
         const totalMinutes = parseInt(newRecord.shiftDurationMinutes);
-        queryClient.setQueryData(["shifts", currentYear, currentMonth], (oldData: ShiftData[] = []) => [
-          ...oldData,
-          {
-            ...newRecord,
-            totalMinutes,
-            workedHours: formatMinutesToHours(totalMinutes),
-          },
-        ]);
+        queryClient.setQueryData(
+          ["shifts", currentYear, currentMonth],
+          (oldData: ShiftData[] = []) => [
+            ...oldData,
+            {
+              ...newRecord,
+              totalMinutes,
+              shiftDurationMinutes: formatMinutesToHours(totalMinutes),
+            },
+          ]
+        );
       }
+    },
+  });
+
+  const deleteShiftMutation = useMutation({
+    mutationFn: shiftService.deleteShift,
+    onSuccess: (_, id) => {
+      queryClient.setQueryData(
+        ["shifts", currentYear, currentMonth],
+        (oldData: ShiftData[] = []) =>
+          oldData.filter((record) => record.id !== id)
+      );
     },
   });
 
@@ -74,11 +91,12 @@ export const useHours = () => {
   };
 
   return {
-    hours,
+    shifts,
     totalMinutes,
     isLoading,
     error,
-    addHours: addHoursMutation.mutateAsync,
+    addShift: addShiftMutation.mutateAsync,
+    deleteShift: deleteShiftMutation.mutateAsync,
     setMonth,
     currentYear,
     currentMonth,

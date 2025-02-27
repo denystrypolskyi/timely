@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useHours } from "../../hooks/useShifts";
+import { useShifts } from "../../hooks/useShifts";
 import { useMe } from "../../hooks/useMe";
 import styles from "./Me.module.css";
 import ShiftsTable from "../ShiftsTable/ShiftsTable";
@@ -7,17 +7,38 @@ import AddHoursModal from "../AddHoursModal/AddHoursModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 const Me = () => {
-  const { hours, totalMinutes, isLoading, error, addHours, setMonth, currentYear, currentMonth } = useHours();
+  const {
+    shifts,
+    totalMinutes,
+    isLoading,
+    error,
+    addShift,
+    deleteShift,
+    setMonth,
+    currentYear,
+    currentMonth,
+  } = useShifts();
   const { logout } = useMe();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const hourlyRate = 30.5;
 
-  const handleAddHours = async (newRecord: { shiftStart: string; shiftEnd: string; }) => {
+  const handleAddShift = async (newRecord: {
+    shiftStart: string;
+    shiftEnd: string;
+  }) => {
     try {
-      await addHours(newRecord);
+      await addShift(newRecord);
       setIsModalOpen(false);
     } catch (err) {
-      console.error("Failed to add work hours:", err);
+      console.error("Failed to add shift:", err);
+    }
+  };
+
+  const handleDeleteShift = async (id: number) => {
+    try {
+      await deleteShift(id);
+    } catch (err) {
+      console.error("Failed to delete shift:", err);
     }
   };
 
@@ -42,18 +63,25 @@ const Me = () => {
       {error && <p className="error">Error fetching work hours</p>}
       <div className={`${styles.tablePanel}`}>
         <div style={{ display: "flex", gap: "16px" }}>
-          <button className="button" onClick={handlePreviousMonth}>Previous</button>
-          <button className="button" onClick={handleNextMonth}>Next</button>
+          <button className="button" onClick={handlePreviousMonth}>
+            Previous
+          </button>
+          <button className="button" onClick={handleNextMonth}>
+            Next
+          </button>
           <span className="button outlineButton" style={{ cursor: "default" }}>
-            {new Date(currentYear, currentMonth - 1).toLocaleString('default', { month: 'long' })}
+            {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
+              month: "long",
+            })}
           </span>
         </div>
-        <button className={`button buttonDestructive`} onClick={logout}>
+        <a onClick={logout}>Switch Account</a>
+        {/* <button className={`button buttonDestructive`} onClick={logout}>
           Logout
-        </button>
+        </button> */}
       </div>
 
-      <ShiftsTable hours={hours} />
+      <ShiftsTable shifts={shifts} onDelete={handleDeleteShift} />
       <div className={styles.tablePanel}>
         <button className="button" onClick={() => setIsModalOpen(true)}>
           Add
@@ -73,7 +101,7 @@ const Me = () => {
       {isModalOpen && (
         <AddHoursModal
           onClose={() => setIsModalOpen(false)}
-          onSubmit={handleAddHours}
+          onSubmit={handleAddShift}
         />
       )}
     </div>
