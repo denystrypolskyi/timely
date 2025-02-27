@@ -5,8 +5,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "hours")
-public class Hours {
+@Table(name = "shifts")
+public class Shift {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,20 +21,20 @@ public class Hours {
     @Column(name = "shift_end", nullable = false)
     private LocalDateTime shiftEnd;
 
-    @Column(name = "worked_hours")
-    private Long workedHours;
+    @Column(name = "shift_duration_minutes")
+    private Long shiftDurationMinutes;
 
-    public Hours() {
+    public Shift() {
     }
 
-    public Hours(User user, LocalDateTime shiftStart, LocalDateTime shiftEnd) {
+    public Shift(User user, LocalDateTime shiftStart, LocalDateTime shiftEnd) {
         if (shiftStart != null && shiftEnd.isBefore(shiftStart)) {
             throw new IllegalArgumentException("Shift end cannot be earlier than shift start");
         }
         this.user = user;
         this.shiftStart = shiftStart;
         this.shiftEnd = shiftEnd;
-        this.workedHours = calculateWorkedHours();
+        this.shiftDurationMinutes = calculateShiftDurationMinutes();
     }
 
     public Long getId() {
@@ -70,14 +70,14 @@ public class Hours {
             throw new IllegalArgumentException("Shift end cannot be earlier than shift start");
         }
         this.shiftEnd = shiftEnd;
-        this.workedHours = calculateWorkedHours();
+        this.shiftDurationMinutes = calculateShiftDurationMinutes();
     }
 
-    public Long getWorkedHours() {
-        return workedHours;
+    public Long getShiftDurationMinutes() {
+        return shiftDurationMinutes;
     }
 
-    private Long calculateWorkedHours() {
+    private Long calculateShiftDurationMinutes() {
         if (shiftStart != null && shiftEnd != null) {
             return Duration.between(shiftStart, shiftEnd).toMinutes();
         }

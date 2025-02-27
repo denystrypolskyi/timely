@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { useHours } from "../../hooks/useHours";
+import { useHours } from "../../hooks/useShifts";
 import { useMe } from "../../hooks/useMe";
 import styles from "./Me.module.css";
-import HoursTable from "../HoursTable/HoursTable";
+import ShiftsTable from "../ShiftsTable/ShiftsTable";
 import AddHoursModal from "../AddHoursModal/AddHoursModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
@@ -53,7 +53,7 @@ const Me = () => {
         </button>
       </div>
 
-      <HoursTable hours={hours} />
+      <ShiftsTable hours={hours} />
       <div className={styles.tablePanel}>
         <button className="button" onClick={() => setIsModalOpen(true)}>
           Add

@@ -1,8 +1,8 @@
 package com.example.demo.controller;
 
-import com.example.demo.model.Hours;
+import com.example.demo.model.Shift;
 import com.example.demo.service.AuthService;
-import com.example.demo.service.HoursService;
+import com.example.demo.service.ShiftService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -13,18 +13,18 @@ import java.util.Map;
 import java.util.Optional;
 
 @RestController
-@RequestMapping("/api/hours")
-public class HoursController {
-    private final HoursService hoursService;
+@RequestMapping("/api/shifts")
+public class ShiftController {
+    private final ShiftService hoursService;
     private final AuthService authService;
 
-    public HoursController(HoursService hoursService, AuthService authService) {
+    public ShiftController(ShiftService hoursService, AuthService authService) {
         this.hoursService = hoursService;
         this.authService = authService;
     }
 
     @GetMapping("/user")
-    public ResponseEntity<List<Hours>> getHoursForCurrentUser(
+    public ResponseEntity<List<Shift>> getHoursForCurrentUser(
             @RequestHeader("Authorization") String authorizationHeader) {
         Long userId = extractUserIdFromHeader(authorizationHeader);
         return hoursService.getHoursByUser(userId)
@@ -33,7 +33,7 @@ public class HoursController {
     }
 
     @PostMapping
-    public ResponseEntity<Hours> logWorkHours(
+    public ResponseEntity<Shift> logWorkHours(
             @RequestHeader("Authorization") String authorizationHeader,
             @RequestBody Map<String, String> requestBody) {
         try {
@@ -43,7 +43,7 @@ public class HoursController {
             LocalDateTime shiftStart = LocalDateTime.parse(requestBody.get("shiftStart"), formatter);
             LocalDateTime shiftEnd = LocalDateTime.parse(requestBody.get("shiftEnd"), formatter);
 
-            Optional<Hours> loggedHours = hoursService.logWorkHours(userId, shiftStart, shiftEnd);
+            Optional<Shift> loggedHours = hoursService.createShift(userId, shiftStart, shiftEnd);
 
             return loggedHours.map(ResponseEntity::ok)
                     .orElseGet(() -> ResponseEntity.notFound().build());
@@ -53,8 +53,8 @@ public class HoursController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteWorkHours(@PathVariable Long id) {
-        return hoursService.deleteWorkHours(id) ? ResponseEntity.noContent().build()
+    public ResponseEntity<Void> deleteShift(@PathVariable Long id) {
+        return hoursService.deleteShift(id) ? ResponseEntity.noContent().build()
                 : ResponseEntity.notFound().build();
     }
 
@@ -64,12 +64,12 @@ public class HoursController {
     }
 
     @GetMapping("/user/{year}/{month}")
-    public ResponseEntity<List<Hours>> getHoursForSpecificMonth(
+    public ResponseEntity<List<Shift>> getHoursForSpecificMonth(
             @RequestHeader("Authorization") String authorizationHeader,
             @PathVariable int year,
             @PathVariable int month) {
         Long userId = extractUserIdFromHeader(authorizationHeader);
-        return hoursService.getHoursByUserAndMonth(userId, year, month)
+        return hoursService.getShiftsByUserAndMonth(userId, year, month)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }

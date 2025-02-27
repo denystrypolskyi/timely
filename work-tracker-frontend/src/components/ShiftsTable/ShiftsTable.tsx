@@ -1,11 +1,11 @@
-import styles from "./HoursTable.module.css";
-import { hoursData } from "../../types/hours.types";
+import styles from "./ShiftsTable.module.css";
+import { ShiftData } from "../../types/shifts.types";
 
-interface HoursTableProps {
-  hours: hoursData[];
+interface ShiftsTableProps {
+  hours: ShiftData[];
 }
 
-const HoursTable = ({ hours }: HoursTableProps) => {
+const ShiftsTable = ({ hours }: ShiftsTableProps) => {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
@@ -29,7 +29,7 @@ const HoursTable = ({ hours }: HoursTableProps) => {
               <tr key={index}>
                 <td>{new Date(hour.shiftStart).toLocaleString()}</td>
                 <td>{new Date(hour.shiftEnd).toLocaleString()}</td>
-                <td>{hour.workedHours}</td>
+                <td>{hour.shiftDurationMinutes}</td>
               </tr>
             ))
           ) : (
@@ -45,4 +45,4 @@ const HoursTable = ({ hours }: HoursTableProps) => {
   );
 };
 
-export default HoursTable;
+export default ShiftsTable;

@@ -1,9 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import hoursService from "../services/hours.service";
-import { hoursData } from "../types/hours.types";
+import hoursService from "../services/shifts.service";
+import { ShiftData } from "../types/shifts.types";
 
-const formatWorkedHours = (minutes: number) => {
+const formatMinutesToHours = (minutes: number) => {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
   return `${hours}h ${remainingMinutes}m`;
@@ -28,15 +28,15 @@ export const useHours = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["workHours", currentYear, currentMonth],
+    queryKey: ["shifts", currentYear, currentMonth],
     queryFn: async () => {
-      const data = await hoursService.getWorkHoursForMonth(currentYear, currentMonth);
+      const data = await hoursService.getShiftsForMonth(currentYear, currentMonth);
       return data.map((record) => {
-        const totalMinutes = parseInt(record.workedHours);
+        const totalMinutes = parseInt(record.shiftDurationMinutes);
         return {
           ...record,
           totalMinutes,
-          workedHours: formatWorkedHours(totalMinutes),
+          shiftDurationMinutes: formatMinutesToHours(totalMinutes),
         };
       });
     },
@@ -48,20 +48,20 @@ export const useHours = () => {
   );
 
   const addHoursMutation = useMutation({
-    mutationFn: hoursService.addWorkHours,
+    mutationFn: hoursService.addShift,
     onSuccess: (newRecord) => {
       const newRecordDate = new Date(newRecord.shiftStart);
       const newRecordYear = newRecordDate.getFullYear();
       const newRecordMonth = newRecordDate.getMonth() + 1;
 
       if (newRecordYear === currentYear && newRecordMonth === currentMonth) {
-        const totalMinutes = parseInt(newRecord.workedHours);
-        queryClient.setQueryData(["workHours", currentYear, currentMonth], (oldData: hoursData[] = []) => [
+        const totalMinutes = parseInt(newRecord.shiftDurationMinutes);
+        queryClient.setQueryData(["shifts", currentYear, currentMonth], (oldData: ShiftData[] = []) => [
           ...oldData,
           {
             ...newRecord,
             totalMinutes,
-            workedHours: formatWorkedHours(totalMinutes),
+            workedHours: formatMinutesToHours(totalMinutes),
           },
         ]);
       }
