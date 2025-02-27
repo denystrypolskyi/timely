@@ -9,12 +9,19 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 600px;
+  width: 100%;
 }
 
-.statsContainer {
+.panelElements {
   display: flex;
-  gap: 15px;
+  gap: 16px;
+}
+
+.shiftsContainer {
+  max-width: 600px;
+  max-height: 600px;
+  width: 100%;
+  height: 100%;
 }
 
 .box {

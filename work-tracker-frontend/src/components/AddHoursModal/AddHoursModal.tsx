@@ -61,7 +61,11 @@ const AddHoursModal = ({ onClose, onSubmit }: AddHoursModalProps) => {
             dateFormat="dd.MM.yyyy HH:mm"
           />
 
-          {error && <p className={styles.error}>{error}</p>}
+          {error && (
+            <p className={`error`} style={{ textAlign: "start" }}>
+              {error}
+            </p>
+          )}
           <div className={styles.buttonGroup}>
             <button
               type="submit"

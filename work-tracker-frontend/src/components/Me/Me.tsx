@@ -5,6 +5,7 @@ import styles from "./Me.module.css";
 import ShiftsTable from "../ShiftsTable/ShiftsTable";
 import AddHoursModal from "../AddHoursModal/AddHoursModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Me = () => {
   const {
@@ -61,36 +62,50 @@ const Me = () => {
   return (
     <div className={`container ${styles.meContainer}`}>
       {error && <p className="error">Error fetching work hours</p>}
-      <div className={`${styles.tablePanel}`}>
-        <div style={{ display: "flex", gap: "16px" }}>
-          <button className="button" onClick={handlePreviousMonth}>
-            Previous
-          </button>
-          <button className="button" onClick={handleNextMonth}>
-            Next
-          </button>
-          <span className="button outlineButton" style={{ cursor: "default" }}>
-            {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
-              month: "long",
-            })}
-          </span>
-        </div>
-        <a onClick={logout}>Switch Account</a>
-      </div>
-
-      <ShiftsTable shifts={shifts} onDelete={handleDeleteShift} />
-      <div className={styles.tablePanel}>
-        <button className="button" onClick={() => setIsModalOpen(true)}>
-          Add
-        </button>
-        <div className={styles.statsContainer}>
-          <div className={`button outlineButton`} style={{ cursor: "default" }}>
-            <span>{((totalMinutes / 60) * hourlyRate).toFixed(2)}zł</span>
+      <div className={`${styles.shiftsContainer}`}>
+        <div
+          className={`${styles.tablePanel}`}
+          style={{ marginBottom: "10px" }}
+        >
+          <div className={`${styles.panelElements}`}>
+            <button className="button" onClick={handlePreviousMonth}>
+              <i className="fas fa-arrow-left"></i>
+            </button>
+            <div className="button outlineButton" style={{ cursor: "default" }}>
+              {new Date(currentYear, currentMonth - 1).toLocaleString(
+                "default",
+                {
+                  month: "long",
+                }
+              )}
+            </div>
+            <button className="button" onClick={handleNextMonth}>
+              <i className="fas fa-arrow-right"></i>
+            </button>
           </div>
-          <div className={`button outlineButton`} style={{ cursor: "default" }}>
-            <span>
-              {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
-            </span>
+          <a onClick={logout}>Switch Account</a>
+        </div>
+
+        <ShiftsTable shifts={shifts} onDelete={handleDeleteShift} />
+        <div className={styles.tablePanel} style={{ marginTop: "10px" }}>
+          <button className="button" onClick={() => setIsModalOpen(true)}>
+            New Record
+          </button>
+          <div className={styles.panelElements}>
+            <div
+              className={`button outlineButton`}
+              style={{ cursor: "default" }}
+            >
+              <div>{((totalMinutes / 60) * hourlyRate).toFixed(2)}zł</div>
+            </div>
+            <div
+              className={`button outlineButton`}
+              style={{ cursor: "default" }}
+            >
+              <div>
+                {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
+              </div>
+            </div>
           </div>
         </div>
       </div>

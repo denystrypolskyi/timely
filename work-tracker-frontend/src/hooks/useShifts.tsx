@@ -2,20 +2,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import shiftService from "../services/shifts.service";
 import { ShiftData } from "../types/shifts.types";
-
-const formatMinutesToHours = (minutes: number) => {
-  const hours = Math.floor(minutes / 60);
-  const remainingMinutes = minutes % 60;
-  return `${hours}h ${remainingMinutes}m`;
-};
-
-const getCurrentYearMonth = () => {
-  const now = new Date();
-  return {
-    year: now.getFullYear(),
-    month: now.getMonth() + 1,
-  };
-};
+import { formatMinutesToHours, getCurrentYearMonth } from "../utils/utils";
 
 export const useShifts = () => {
   const queryClient = useQueryClient();
@@ -43,6 +30,9 @@ export const useShifts = () => {
         };
       });
     },
+    staleTime: 1000 * 60 * 5, // Cache for 5 minutes
+    retry: false,
+    refetchOnWindowFocus: false,
   });
 
   const totalMinutes = shifts.reduce(
