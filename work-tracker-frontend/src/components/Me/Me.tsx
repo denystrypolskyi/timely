@@ -140,10 +140,10 @@ const Me = () => {
                 onMouseEnter={() => setHoveredDate(day)}
                 onMouseLeave={() => setHoveredDate(null)}
                 style={{
-                  backgroundColor: hasShift ? "lightgreen" : "black",
+                  backgroundColor: hasShift ? "#008b8b" : "black",
                   transition: "background-color 0.2s ease-in-out",
                   ...(hoveredDate === day && {
-                    backgroundColor: hasShift ? "green" : "#333",
+                    backgroundColor: hasShift ? "#007a99" : "#333",
                   }),
                 }}
               >
@@ -174,7 +174,7 @@ const Me = () => {
                 <p>⏳ Duration: {shift.shiftDurationMinutes}</p>
                 <button
                   className="button"
-                  onClick={() => deleteShift(shift.id)}
+                  onClick={() => handleDeleteShift(shift.id)}
                 >
                   🗑 Delete
                 </button>

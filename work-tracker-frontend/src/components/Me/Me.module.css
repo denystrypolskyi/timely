@@ -18,7 +18,7 @@
 
 .calendarDay {
   background: white;
-  border: 2px solid #333;
+  border: 1px solid #333;
   cursor: pointer;
   border-radius: 4px;
   padding: 6px;
