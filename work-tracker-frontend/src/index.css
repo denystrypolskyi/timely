@@ -30,7 +30,6 @@ html {
 }
 
 .button {
-  min-width: 75px;
   display: inline-flex;
   align-items: center;
   justify-content: center;

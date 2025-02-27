@@ -1,17 +1,22 @@
 import { useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import styles from "./AddHoursModal.module.css";
+import styles from "./AddShiftModal.module.css";
 import { format } from "date-fns";
 
-interface AddHoursModalProps {
+interface AddShiftModalProps {
   onClose: () => void;
   onSubmit: (data: { shiftStart: string; shiftEnd: string }) => void;
+  selectedDate: Date;
 }
 
-const AddHoursModal = ({ onClose, onSubmit }: AddHoursModalProps) => {
-  const [shiftStart, setShiftStart] = useState<Date | null>(new Date());
-  const [shiftEnd, setShiftEnd] = useState<Date | null>(new Date());
+const AddShiftModal = ({
+  onClose,
+  onSubmit,
+  selectedDate,
+}: AddShiftModalProps) => {
+  const [shiftStart, setShiftStart] = useState<Date | null>(selectedDate);
+  const [shiftEnd, setShiftEnd] = useState<Date | null>(selectedDate);
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -40,7 +45,7 @@ const AddHoursModal = ({ onClose, onSubmit }: AddHoursModalProps) => {
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
         <form onSubmit={handleSubmit}>
-          <label>Start Time:</label>
+          <label>Start</label>
           <DatePicker
             selected={shiftStart}
             onChange={(date) => {
@@ -52,7 +57,7 @@ const AddHoursModal = ({ onClose, onSubmit }: AddHoursModalProps) => {
             dateFormat="dd.MM.yyyy HH:mm"
           />
 
-          <label style={{ marginTop: "10px" }}>End Time:</label>
+          <label style={{ marginTop: "10px" }}>End</label>
           <DatePicker
             selected={shiftEnd}
             onChange={(date) => setShiftEnd(date)}
@@ -88,4 +93,4 @@ const AddHoursModal = ({ onClose, onSubmit }: AddHoursModalProps) => {
   );
 };
 
-export default AddHoursModal;
+export default AddShiftModal;
