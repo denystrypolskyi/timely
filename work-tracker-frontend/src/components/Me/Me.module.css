@@ -1,14 +1,14 @@
 .meContainer {
   flex-direction: column;
-  justify-content: start;
-  align-items: start;
+  justify-content: center;
+  align-items: center;
   gap: 12px;
-  padding: 60px;
 }
 
-.tableBottomPanel {
+.tablePanel {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   width: 600px;
 }
 

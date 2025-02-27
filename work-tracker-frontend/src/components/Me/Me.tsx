@@ -1,22 +1,18 @@
 import { useState } from "react";
-import { useMe } from "../../hooks/useMe";
 import { useHours } from "../../hooks/useHours";
+import { useMe } from "../../hooks/useMe";
 import styles from "./Me.module.css";
 import HoursTable from "../HoursTable/HoursTable";
 import AddHoursModal from "../AddHoursModal/AddHoursModal";
-import TopBar from "../TopBar/TopBar";
-import { ClipLoader } from "react-spinners";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
-function Me() {
+const Me = () => {
+  const { hours, totalMinutes, isLoading, error, addHours, setMonth, currentYear, currentMonth } = useHours();
   const { logout } = useMe();
-  const { hours, totalMinutes, isLoading, error, addHours } = useHours();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const hourlyRate = 30.5;
 
-  const handleAddHours = async (newRecord: {
-    shiftStart: string;
-    shiftEnd: string;
-  }) => {
+  const handleAddHours = async (newRecord: { shiftStart: string; shiftEnd: string; }) => {
     try {
       await addHours(newRecord);
       setIsModalOpen(false);
@@ -25,31 +21,40 @@ function Me() {
     }
   };
 
+  const handlePreviousMonth = () => {
+    const newMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+    const newYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+    setMonth(newYear, newMonth);
+  };
+
+  const handleNextMonth = () => {
+    const newMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+    const newYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+    setMonth(newYear, newMonth);
+  };
+
   if (isLoading) {
-    return (
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          height: "100vh",
-        }}
-      >
-        <ClipLoader size={20} color="#fff" />
-      </div>
-    );
+    return <LoadingSpinner />;
   }
 
   return (
     <div className={`container ${styles.meContainer}`}>
       {error && <p className="error">Error fetching work hours</p>}
-      <TopBar
-        totalMinutes={totalMinutes}
-        hourlyRate={hourlyRate}
-        onLogout={logout}
-      />
+      <div className={`${styles.tablePanel}`}>
+        <div style={{ display: "flex", gap: "16px" }}>
+          <button className="button" onClick={handlePreviousMonth}>Previous</button>
+          <button className="button" onClick={handleNextMonth}>Next</button>
+          <span className="button outlineButton" style={{ cursor: "default" }}>
+            {new Date(currentYear, currentMonth - 1).toLocaleString('default', { month: 'long' })}
+          </span>
+        </div>
+        <button className={`button buttonDestructive`} onClick={logout}>
+          Logout
+        </button>
+      </div>
+
       <HoursTable hours={hours} />
-      <div className={styles.tableBottomPanel}>
+      <div className={styles.tablePanel}>
         <button className="button" onClick={() => setIsModalOpen(true)}>
           Add
         </button>
@@ -73,6 +78,6 @@ function Me() {
       )}
     </div>
   );
-}
+};
 
 export default Me;

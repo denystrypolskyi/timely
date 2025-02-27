@@ -62,4 +62,15 @@ public class HoursController {
         String token = authorizationHeader.split(" ")[1];
         return authService.getUserIdFromToken(token);
     }
+
+    @GetMapping("/user/{year}/{month}")
+    public ResponseEntity<List<Hours>> getHoursForSpecificMonth(
+            @RequestHeader("Authorization") String authorizationHeader,
+            @PathVariable int year,
+            @PathVariable int month) {
+        Long userId = extractUserIdFromHeader(authorizationHeader);
+        return hoursService.getHoursByUserAndMonth(userId, year, month)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
 }

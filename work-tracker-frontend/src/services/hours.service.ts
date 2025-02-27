@@ -19,6 +19,20 @@ class WorkHoursService {
       throw new Error("Failed to add work hours");
     }
   }
+
+  async getWorkHoursForMonth(
+    year: number,
+    month: number
+  ): Promise<hoursData[]> {
+    try {
+      const response = await axiosInstance.get<hoursData[]>(
+        `/hours/user/${year}/${month}`
+      );
+      return response.data;
+    } catch (error) {
+      throw new Error("Failed to fetch work hours for the specified month");
+    }
+  }
 }
 
 export default new WorkHoursService();

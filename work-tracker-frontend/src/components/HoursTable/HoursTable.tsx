@@ -9,10 +9,17 @@ const HoursTable = ({ hours }: HoursTableProps) => {
   return (
     <div className={styles.tableWrapper}>
       <table className={styles.table}>
+        {/* <thead>
+          <tr>
+            <th style={{ textAlign: "center" }} colSpan={3}>
+              February
+            </th>
+          </tr>
+        </thead> */}
         <thead>
           <tr>
-            <th>Start Time</th>
-            <th>End Time</th>
+            <th>Start</th>
+            <th>End</th>
             <th>Hours</th>
           </tr>
         </thead>

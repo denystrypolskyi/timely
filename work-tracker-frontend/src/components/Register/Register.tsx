@@ -4,7 +4,7 @@ import { RegisterFormData } from "../../types/auth.types";
 import authService from "../../services/auth.service";
 import { useNavigate } from "react-router-dom";
 import { useMe } from "../../hooks/useMe";
-import { ClipLoader } from "react-spinners";
+import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 
 const Register = () => {
   const {
@@ -28,68 +28,66 @@ const Register = () => {
     }
   };
 
+  if (isLoggingIn) {
+    return <LoadingSpinner />;
+  }
+
   return (
     <div className="container">
-      {isLoggingIn ? (
-        <ClipLoader size={20} color="#fff" />
-      ) : (
-        <div className="formWrapper">
-          <h2>Register</h2>
-          <form onSubmit={handleSubmit(onSubmit)}>
-            <div className="form-group">
-              <input
-                placeholder="Username"
-                id="username"
-                type="text"
-                className="input"
-                {...register("username", { required: "Username is required" })}
-              />
-              {errors.username && <p>{errors.username.message}</p>}
-            </div>
+      <div className="formWrapper">
+        <h2>Register</h2>
+        <form onSubmit={handleSubmit(onSubmit)}>
+          <div className="form-group">
+            <input
+              placeholder="Username"
+              id="username"
+              type="text"
+              className="input"
+              {...register("username", { required: "Username is required" })}
+            />
+            {errors.username && <p>{errors.username.message}</p>}
+          </div>
 
-            <div className="form-group">
-              <input
-                placeholder="Password"
-                id="password"
-                type="password"
-                className="input"
-                {...register("password", { required: "Password is required" })}
-              />
-              {errors.password && <p>{errors.password.message}</p>}
-            </div>
+          <div className="form-group">
+            <input
+              placeholder="Password"
+              id="password"
+              type="password"
+              className="input"
+              {...register("password", { required: "Password is required" })}
+            />
+            {errors.password && <p>{errors.password.message}</p>}
+          </div>
 
-            <div className="form-group">
-              <input
-                placeholder="Confirm password"
-                id="confirmPassword"
-                type="password"
-                className="input"
-                {...register("confirmPassword", {
-                  required: "Confirm Password is required",
-                })}
-              />
-              {errors.confirmPassword && (
-                <p>{errors.confirmPassword.message}</p>
-              )}
-            </div>
+          <div className="form-group">
+            <input
+              placeholder="Confirm password"
+              id="confirmPassword"
+              type="password"
+              className="input"
+              {...register("confirmPassword", {
+                required: "Confirm Password is required",
+              })}
+            />
+            {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
+          </div>
 
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-              }}
-            >
-              <button className="button" type="submit">
-                Register
-              </button>
-              <a onClick={() => navigate("/login")}>Already have an account?</a>
-            </div>
-          </form>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+            }}
+          >
+            <button className="button" type="submit">
+              Register
+            </button>
+            <a onClick={() => navigate("/login")}>Already have an account?</a>
+          </div>
+        </form>
 
-          {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
-        </div>
-      )}
+        {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
+      </div>
     </div>
   );
 };
