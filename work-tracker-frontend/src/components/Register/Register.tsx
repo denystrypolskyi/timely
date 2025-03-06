@@ -23,7 +23,7 @@ const Register = () => {
       await login(loginData);
       navigate("/me");
     } catch (error: any) {
-      const message = error?.response?.data?.message || "Login failed";
+      const message = error?.response?.data?.message || "Registration failed";
       setErrorMessage(message);
     }
   };
