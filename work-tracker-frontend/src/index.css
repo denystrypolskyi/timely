@@ -25,8 +25,43 @@ html {
   padding: 20px;
   border-radius: 8px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
-  width: 100%;
-  max-width: 400px;
+  width: 95vw;
+}
+
+@media (min-width: 375px) {
+  .formWrapper {
+    width: 95vw;
+  }
+}
+
+@media (min-width: 425px) {
+  .formWrapper {
+    width: 80vw;
+  }
+}
+
+@media (min-width: 768px) {
+  .formWrapper {
+    width: 50vw;
+  }
+}
+
+@media (min-width: 1024px) {
+  .formWrapper {
+    width: 35vw;
+  }
+}
+
+@media (min-width: 1440px) {
+  .formWrapper {
+    width: 25vw;
+  }
+}
+
+@media (min-width: 2560px) {
+  .formWrapper {
+    width: 20vw;
+  }
 }
 
 .button {

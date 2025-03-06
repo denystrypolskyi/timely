@@ -45,8 +45,9 @@ const AddShiftModal = ({
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
         <form onSubmit={handleSubmit}>
-          <label>Start</label>
+          <label htmlFor="shiftStart">Start</label>
           <DatePicker
+            id="shiftStart"
             selected={shiftStart}
             onChange={(date) => {
               setShiftStart(date);
@@ -57,8 +58,11 @@ const AddShiftModal = ({
             dateFormat="dd.MM.yyyy HH:mm"
           />
 
-          <label style={{ marginTop: "10px" }}>End</label>
+          <label htmlFor="shiftEnd" style={{ marginTop: "10px" }}>
+            End
+          </label>
           <DatePicker
+            id="shiftEnd"
             selected={shiftEnd}
             onChange={(date) => setShiftEnd(date)}
             showTimeSelect

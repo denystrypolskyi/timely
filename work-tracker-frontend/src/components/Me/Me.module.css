@@ -40,12 +40,15 @@
 @media (min-width: 768px) {
   .calendarContainer {
     width: 40vw;
+    height: 50vh;
   }
 }
 
 @media (min-width: 1024px) {
   .calendarContainer {
     width: 30vw;
+    height: 30vh;
+
   }
 }
 
