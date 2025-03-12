@@ -1,10 +1,10 @@
 import axiosInstance from "./axiosPrivate";
-import { userData } from "@/types/user.types";
+import { UserData } from "@/types/user.types";
 
 class UserService {
-  async getUser(): Promise<userData> {
+  async getUser(): Promise<UserData> {
     try {
-      const response = await axiosInstance.get<userData>("/users/profile");
+      const response = await axiosInstance.get<UserData>("/users/profile");
       return response.data;
     } catch (error) {
       throw new Error("Failed to fetch user");
