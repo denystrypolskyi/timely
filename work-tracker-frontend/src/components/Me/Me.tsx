@@ -80,7 +80,6 @@ const Me = () => {
         return;
       }
       setSelectedDate(null);
-      // setIsModalOpen(false);
     };
 
     document.addEventListener("mousedown", handleClickOutside);
