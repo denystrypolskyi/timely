@@ -48,7 +48,6 @@
   .calendarContainer {
     width: 30vw;
     height: 30vh;
-
   }
 }
 
@@ -107,4 +106,10 @@
 
 .addButton:hover {
   background-color: #45a049;
+}
+
+.exit {
+  cursor: pointer;
+  width: 32px;
+  filter: invert(16%) sepia(100%) saturate(7480%) hue-rotate(360deg);
 }

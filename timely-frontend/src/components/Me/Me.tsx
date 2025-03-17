@@ -94,20 +94,26 @@ const Me = () => {
     <div className={`container ${styles.meContainer}`}>
       {error && <p className="error">Error fetching work hours</p>}
       <div className={`${styles.calendarBar}`}>
-        <button className="button" onClick={handlePreviousMonth}>
-          <i className="fas fa-arrow-left"></i>
-        </button>
-        <div className="button outlineButton" style={{ cursor: "default" }}>
-          {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
-            month: "long",
-          })}
+        <div style={{display: 'flex', gap: '12px'}}>
+          <button className="button" onClick={handlePreviousMonth}>
+            <i className="fas fa-arrow-left"></i>
+          </button>
+          <div className="button outlineButton" style={{ cursor: "default" }}>
+            {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
+              month: "long",
+            })}
+          </div>
+          <button className="button" onClick={handleNextMonth}>
+            <i className="fas fa-arrow-right"></i>
+          </button>
         </div>
-        <button className="button" onClick={handleNextMonth}>
-          <i className="fas fa-arrow-right"></i>
-        </button>
-        <button className="button" onClick={logout}>
-          Logout
-        </button>
+
+        <img
+          src="/exit-64.svg"
+          alt="Exit"
+          className={styles.exit}
+          onClick={logout}
+        />
       </div>
 
       {/* Calendar */}
