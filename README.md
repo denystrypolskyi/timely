@@ -13,6 +13,6 @@ Track your work hours, calculate your salary, and view your total hours worked f
 
 ## 🌐 Deployment
 
-The frontend is hosted on Google Firebase. You can try out the app [here](https://work-tracker-front-end.web.app/).
+The frontend is hosted on Google Firebase. You can try out the app [here](https://timely-front-end.web.app/).
 
 **Note:** If the app is loading slowly, please be patient and wait for a minute. This is because the backend server may need to start after periods of inactivity.
