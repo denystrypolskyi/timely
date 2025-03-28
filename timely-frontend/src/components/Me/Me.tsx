@@ -4,6 +4,7 @@ import { useMe } from "../../hooks/useMe";
 import styles from "./Me.module.css";
 import AddShiftModal from "../AddHoursModal/AddShiftModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import SettingsModal from "../SettingsModal/SettingModal";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Me = () => {
@@ -18,14 +19,29 @@ const Me = () => {
     currentYear,
     currentMonth,
   } = useShifts();
-  const { logout } = useMe();
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+  const { logout, hourlyRate, updateHourlyRate } = useMe();
+  const [isAddShiftModalOpen, setIsAddShiftModalOpen] =
+    useState<boolean>(false);
   const [selectedDate, setSelectedDate] = useState<number | null>(null);
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0 });
   const [hoveredDate, setHoveredDate] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
 
-  const hourlyRate = 30.5;
+  const [isEditable, setIsEditable] = useState<boolean>(false);
+
+  const handleEditClick = () => {
+    setIsEditable(true);
+  };
+
+  const handleSaveHourlyRate = (newRate: number) => {
+    updateHourlyRate(newRate);
+    setIsEditable(false);
+  };
+
+  const toggleSettings = () => {
+    setIsSettingsOpen((prev) => !prev);
+  };
 
   const getShiftsForSelectedDate = () => {
     return shifts.filter((shift) => {
@@ -94,26 +110,42 @@ const Me = () => {
     <div className={`container ${styles.meContainer}`}>
       {error && <p className="error">Error fetching work hours</p>}
       <div className={`${styles.calendarBar}`}>
-        <div style={{display: 'flex', gap: '12px'}}>
+        <div style={{ display: "flex", gap: "12px" }}>
           <button className="button" onClick={handlePreviousMonth}>
             <i className="fas fa-arrow-left"></i>
           </button>
           <div className="button outlineButton" style={{ cursor: "default" }}>
             {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
               month: "long",
-            })}
+            })}, {currentYear}
           </div>
           <button className="button" onClick={handleNextMonth}>
             <i className="fas fa-arrow-right"></i>
           </button>
         </div>
 
-        <img
-          src="/exit-64.svg"
-          alt="Exit"
-          className={styles.exit}
-          onClick={logout}
-        />
+        <div
+          style={{
+            flexDirection: "row",
+            display: "flex",
+            gap: "12px",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <img
+            src="/settings.svg"
+            alt="Settings"
+            className={styles.settingsButton}
+            onClick={toggleSettings}
+          />
+          <img
+            src="/exit-64.svg"
+            alt="Exit"
+            className={styles.exitButton}
+            onClick={logout}
+          />
+        </div>
       </div>
 
       {/* Calendar */}
@@ -133,13 +165,11 @@ const Me = () => {
                   selectedDate === day ? styles.selected : ""
                 }`}
                 onClick={(event) => {
-                  console.log(hasShift, day);
-
                   handleDayClick(event, day);
                   if (hasShift) {
                     setSelectedDate(day);
                   } else {
-                    setIsModalOpen(true);
+                    setIsAddShiftModalOpen(true);
                   }
                 }}
                 onMouseEnter={() => setHoveredDate(day)}
@@ -159,8 +189,19 @@ const Me = () => {
         )}
       </div>
 
-      {/* Dropdown Popup */}
-      {selectedDate && !isModalOpen && (
+      {/* Settings Popup */}
+      {isSettingsOpen && (
+        <SettingsModal
+          onClose={toggleSettings}
+          onSave={handleSaveHourlyRate}
+          hourlyRate={hourlyRate}
+          onEditClick={handleEditClick}
+          isEditable={isEditable}
+        />
+      )}
+
+      {/* Selected Date Info Popup */}
+      {selectedDate && !isAddShiftModalOpen && (
         <div
           ref={dropdownRef}
           className={styles.dropdown}
@@ -173,9 +214,9 @@ const Me = () => {
             getShiftsForSelectedDate().map((shift) => (
               <div key={shift.id} className={styles.shiftInfo}>
                 <p>
-                  🕒 Start: {new Date(shift.shiftStart).toLocaleTimeString()}
+                  🕒 From: {new Date(shift.shiftStart).toLocaleTimeString()}
                 </p>
-                <p>🕒 End: {new Date(shift.shiftEnd).toLocaleTimeString()}</p>
+                <p>🕒 Till: {new Date(shift.shiftEnd).toLocaleTimeString()}</p>
                 <p>⏳ Duration: {shift.shiftDurationMinutes}</p>
                 <button
                   className="button"
@@ -202,10 +243,10 @@ const Me = () => {
         </div>
       </div>
 
-      {isModalOpen && (
+      {isAddShiftModalOpen && (
         <AddShiftModal
           onClose={() => {
-            setIsModalOpen(false);
+            setIsAddShiftModalOpen(false);
             setSelectedDate(null);
           }}
           onSubmit={addShift}

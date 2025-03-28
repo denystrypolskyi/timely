@@ -12,7 +12,7 @@ class ShiftService {
   }
 
   async addShift(data: AddShiftData): Promise<ShiftData> {
-    try {
+    try {      
       const response = await axiosInstance.post<ShiftData>("/shifts", data);
       return response.data;
     } catch (error) {
