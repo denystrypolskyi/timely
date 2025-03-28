@@ -140,7 +140,7 @@ const Me = () => {
             onClick={toggleSettings}
           />
           <img
-            src="/exit-64.svg"
+            src="/exit.svg"
             alt="Exit"
             className={styles.exitButton}
             onClick={logout}

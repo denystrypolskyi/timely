@@ -29,7 +29,22 @@ const SettingsModal = ({
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
-        <h2>⚙️ Settings</h2>
+        <div
+          style={{
+            flexDirection: "row",
+            display: "flex",
+            position: "relative",
+            justifyContent: "space-between",
+          }}
+        >
+          <h2>⚙️ Settings</h2>
+          <img
+            style={{ position: "absolute", right: "0" }}
+            className={`${styles.closeButton}`}
+            src="/close.svg"
+            onClick={onClose}
+          />
+        </div>
         <div>
           <label htmlFor="hourlyRate">💰 Hourly Rate:</label>
           <div
@@ -55,13 +70,6 @@ const SettingsModal = ({
             />
           </div>
         </div>
-        <button
-          className="button secondaryButton"
-          onClick={onClose}
-          style={{ marginTop: "16px", padding: "8px 16px" }}
-        >
-          Close
-        </button>
       </div>
     </div>
   );

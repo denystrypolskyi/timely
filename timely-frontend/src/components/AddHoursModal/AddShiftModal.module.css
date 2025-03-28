@@ -45,13 +45,18 @@ label {
   font-weight: bold;
 }
 
-.buttonGroup {
-  display: flex;
-  justify-content: space-between;
+.modalButton {
+  width: 100%;
   margin-top: 16px;
+  padding: 8px 16px;
 }
 
-.modalButton {
-  flex: 1;
-  padding: 8px 16px;
+.closeButton {
+  cursor: pointer;
+  width: 32px;
+  filter: invert(16%) sepia(100%) saturate(7480%) hue-rotate(360deg);
+}
+
+.closeButton:hover {
+  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(70%);
 }

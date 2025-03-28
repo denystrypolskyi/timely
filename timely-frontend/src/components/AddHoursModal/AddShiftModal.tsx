@@ -44,7 +44,22 @@ const AddShiftModal = ({
   return (
     <div className={styles.modalOverlay}>
       <div className={styles.modal}>
-        <h2>✍️ New Shift</h2>
+        <div
+          style={{
+            flexDirection: "row",
+            display: "flex",
+            position: "relative",
+            justifyContent: "space-between",
+          }}
+        >
+          <h2>✍️ New Shift</h2>
+          <img
+            style={{ position: "absolute", right: "0" }}
+            className={`${styles.closeButton}`}
+            src="/close.svg"
+            onClick={onClose}
+          />
+        </div>
         <form onSubmit={handleSubmit}>
           <label htmlFor="shiftStart">🕒 From:</label>
           <DatePicker
@@ -60,7 +75,7 @@ const AddShiftModal = ({
           />
 
           <label htmlFor="shiftEnd" style={{ marginTop: "10px" }}>
-          🕒 Till: 
+            🕒 Till:
           </label>
           <DatePicker
             id="shiftEnd"
@@ -76,22 +91,12 @@ const AddShiftModal = ({
               {error}
             </p>
           )}
-          <div className={styles.buttonGroup}>
             <button
               type="submit"
               className={`button ${styles.modalButton}`}
-              style={{ marginRight: "8px" }}
             >
               Confirm
             </button>
-            <button
-              type="button"
-              className={`button secondaryButton ${styles.modalButton}`}
-              onClick={onClose}
-            >
-              Close
-            </button>
-          </div>
         </form>
       </div>
     </div>
