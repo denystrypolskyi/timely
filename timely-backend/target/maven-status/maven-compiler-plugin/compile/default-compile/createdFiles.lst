@@ -11,6 +11,7 @@ com\example\demo\model\User.class
 com\example\demo\dto\TokenDTO.class
 com\example\demo\service\JWTService.class
 com\example\demo\repository\UserRepository.class
+com\example\demo\config\OAuth2SuccessHandler.class
 com\example\demo\config\SecurityConfig.class
 com\example\demo\dto\UserUpdateUsernameDTO.class
 com\example\demo\controller\ShiftController.class

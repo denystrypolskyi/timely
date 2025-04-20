@@ -1,4 +1,5 @@
 C:\Repos\timely-webapp\timely-backend\src\main\java\com\example\demo\config\JwtFilter.java
+C:\Repos\timely-webapp\timely-backend\src\main\java\com\example\demo\config\OAuth2SuccessHandler.java
 C:\Repos\timely-webapp\timely-backend\src\main\java\com\example\demo\config\SecurityConfig.java
 C:\Repos\timely-webapp\timely-backend\src\main\java\com\example\demo\controller\ShiftController.java
 C:\Repos\timely-webapp\timely-backend\src\main\java\com\example\demo\controller\UserController.java

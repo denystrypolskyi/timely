@@ -11,9 +11,14 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String username;
+    private String username; // used for local login
 
-    private String password;
+    @Column(unique = true)
+    private String email; // used only by OAuth2 users
+
+    private String password; // null for Google users
+
+    private String fullName; // full name from Google or optional for local
 
     private String role = "user";
 
@@ -47,6 +52,21 @@ public class User {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String name) {
+        this.fullName = name;
     }
 
     public String getPassword() {
