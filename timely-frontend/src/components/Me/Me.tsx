@@ -4,7 +4,7 @@ import { useMe } from "../../hooks/useMe";
 import styles from "./Me.module.css";
 import AddShiftModal from "../AddHoursModal/AddShiftModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
-import SettingsModal from "../SettingsModal/SettingModal";
+import SettingsModal from "../SettingsModal/SettingsModal";
 import "@fortawesome/fontawesome-free/css/all.min.css";
 
 const Me = () => {

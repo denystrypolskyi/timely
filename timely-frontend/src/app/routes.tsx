@@ -4,6 +4,7 @@ import PrivateRoute from "../components/PrivateRoute";
 import RedirectIfLoggedIn from "../components/RedirectIfLoggedIn";
 import Register from "../components/Register/Register";
 import DefaultRedirect from "../components/DefaultRedirect";
+import OAuth2RedirectHandler from "../components/OAuth2RedirectHandler";
 
 export const ROUTES = [
   {
@@ -21,5 +22,9 @@ export const ROUTES = [
   {
     path: "/me",
     element: <PrivateRoute element={<Me />} />,
+  },
+  {
+    path: "/oauth2/redirect", // Add the route for the redirect URL
+    element: <OAuth2RedirectHandler />,
   },
 ];

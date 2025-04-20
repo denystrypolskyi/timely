@@ -28,6 +28,10 @@ const Register = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
+
   if (isLoggingIn) {
     return <LoadingSpinner />;
   }
@@ -45,7 +49,9 @@ const Register = () => {
               className="input"
               {...register("username", { required: "Username is required" })}
             />
-            {errors.username && <p className="error">{errors.username.message}</p>}
+            {errors.username && (
+              <p className="error">{errors.username.message}</p>
+            )}
           </div>
 
           <div className="form-group">
@@ -56,7 +62,9 @@ const Register = () => {
               className="input"
               {...register("password", { required: "Password is required" })}
             />
-            {errors.password && <p className="error">{errors.password.message}</p>}
+            {errors.password && (
+              <p className="error">{errors.password.message}</p>
+            )}
           </div>
 
           <div className="form-group">
@@ -69,20 +77,36 @@ const Register = () => {
                 required: "Confirm Password is required",
               })}
             />
-            {errors.confirmPassword && <p className="error">{errors.confirmPassword.message}</p>}
+            {errors.confirmPassword && (
+              <p className="error">{errors.confirmPassword.message}</p>
+            )}
           </div>
 
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "end",
+              marginBottom: "16px",
             }}
           >
             <button className="button" type="submit">
               Register
             </button>
             <a onClick={() => navigate("/login")}>Already have an account?</a>
+          </div>
+          <div className="oauth-container">
+            <div className="oauth-divider">
+              <div className="oauth-line left" />
+              <p>or register with</p>
+              <div className="oauth-line right" />
+            </div>
+            <img
+              className="oauth-logo"
+              src="/google.svg"
+              alt="Login with Google"
+              onClick={handleGoogleLogin}
+            />
           </div>
         </form>
 

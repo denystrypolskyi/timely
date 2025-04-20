@@ -24,6 +24,10 @@ const Login = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+  };
+
   if (isLoggingIn) {
     return <LoadingSpinner />;
   }
@@ -45,7 +49,6 @@ const Login = () => {
               <p className="error">{errors.username.message}</p>
             )}
           </div>
-
           <div className="form-group">
             <input
               placeholder="Password"
@@ -58,21 +61,34 @@ const Login = () => {
               <p className="error">{errors.password.message}</p>
             )}
           </div>
-
           <div
             style={{
               display: "flex",
               justifyContent: "space-between",
-              alignItems: "center",
+              alignItems: "end",
+              marginBottom: "16px",
             }}
           >
             <button className="button" type="submit" disabled={isLoggingIn}>
               Login
             </button>
+
             <a onClick={() => navigate("/register")}>Don't have an account?</a>
           </div>
+          <div className="oauth-container">
+            <div className="oauth-divider">
+              <div className="oauth-line left" />
+              <p>or login with</p>
+              <div className="oauth-line right" />
+            </div>
+            <img
+              className="oauth-logo"
+              src="/google.svg"
+              alt="Login with Google"
+              onClick={handleGoogleLogin}
+            />
+          </div>
         </form>
-
         {errorMessage && <p style={{ color: "red" }}>{errorMessage}</p>}
       </div>
     </div>

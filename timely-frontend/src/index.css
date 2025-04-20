@@ -170,3 +170,37 @@ a {
   outline: none;
   box-shadow: 0 0 5px rgba(74, 144, 226, 0.5);
 }
+
+.oauth-container {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  place-items: center;
+}
+
+.oauth-divider {
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.oauth-line {
+  height: 1px;
+  flex: 1;
+  background-color: #333;
+}
+
+.oauth-line.left {
+  margin-right: 10px;
+}
+
+.oauth-line.right {
+  margin-left: 10px;
+}
+
+.oauth-logo {
+  width: 32px;
+  cursor: pointer;
+}
