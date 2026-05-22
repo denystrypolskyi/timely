@@ -14,8 +14,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -50,5 +49,17 @@ class ShiftServiceTest {
         assertEquals(user.getId(), result.getUser().getId());
 
         verify(shiftRepository, times(1)).save(any(ShiftEntity.class));
+    }
+
+    @Test
+    void createShift_shouldThrowException_whenUserNotFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        CreateShiftRequest request =
+                new CreateShiftRequest(1L, LocalDateTime.now(), LocalDateTime.now().plusHours(8));
+
+        assertThrows(RuntimeException.class, () -> shiftService.createShift(request));
+
+        verify(shiftRepository, never()).save(any());
     }
 }
