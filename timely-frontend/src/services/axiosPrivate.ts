@@ -1,8 +1,7 @@
 import axios from "axios";
-import { API_URL } from "../config/config";
 
 const axiosInstance = axios.create({
-  baseURL: API_URL,
+  baseURL: import.meta.env.VITE_API_URL,
 });
 
 axiosInstance.interceptors.request.use(

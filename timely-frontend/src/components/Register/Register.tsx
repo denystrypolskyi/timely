@@ -29,7 +29,7 @@ const Register = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
   };
 
   if (isLoggingIn) {

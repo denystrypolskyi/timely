@@ -25,9 +25,7 @@ const Login = () => {
   };
 
   const handleGoogleLogin = () => {
-    window.location.href =
-      "https://work-tracker-44f7.onrender.com/login/oauth2/code/google";
-    // window.location.href = "http://localhost:8080/oauth2/authorization/google";
+    window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
   };
 
   if (isLoggingIn) {

@@ -27,6 +27,7 @@ const Me = () => {
   const [hoveredDate, setHoveredDate] = useState<number | null>(null);
   const dropdownRef = useRef<HTMLDivElement | null>(null);
   const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const [isEditable, setIsEditable] = useState<boolean>(false);
 
@@ -87,6 +88,117 @@ const Me = () => {
     return new Date(year, month, 0).getDate();
   };
 
+  const handleImportClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileImport = async (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const text = await file.text();
+      const parsedShifts = parseShiftsFromText(text);
+
+      let addedCount = 0; 
+
+      for (const shift of parsedShifts) {
+        const shiftStartDate = shift.shiftStart;
+        const shiftEndDate = shift.shiftEnd;
+
+        if (isShiftOverlapping(shiftStartDate, shiftEndDate, shifts)) {
+          console.warn(
+            `Shift on ${formatDateForServer(
+              shiftStartDate
+            )} - ${formatDateForServer(shiftEndDate)} overlaps. Skipped.`
+          );
+          continue;
+        }
+
+        await addShift({
+          shiftStart: formatDateForServer(shiftStartDate),
+          shiftEnd: formatDateForServer(shiftEndDate),
+        });
+        addedCount++;
+      }
+
+      alert(`Imported ${addedCount} shifts successfully.`);
+    } catch (error) {
+      alert((error as Error).message);
+    } finally {
+      event.target.value = "";
+    }
+  };
+
+  const isShiftOverlapping = (
+    newShiftStart: Date,
+    newShiftEnd: Date,
+    existingShifts: { shiftStart: string; shiftEnd: string }[]
+  ) => {
+    return existingShifts.some((shift) => {
+      const start = new Date(shift.shiftStart);
+      const end = new Date(shift.shiftEnd);
+      return newShiftStart < end && newShiftEnd > start;
+    });
+  };
+
+  const formatDateForServer = (date: Date) => {
+    const pad = (n: number) => n.toString().padStart(2, "0");
+    const day = pad(date.getDate());
+    const month = pad(date.getMonth() + 1);
+    const year = date.getFullYear();
+    const hours = pad(date.getHours());
+    const minutes = pad(date.getMinutes());
+
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
+  };
+
+  const parseShiftsFromText = (text: string) => {
+    const lines = text
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    return lines.map((line, index) => {
+      const match = line.match(
+        /^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}:\d{2})-(\d{2}:\d{2})$/
+      );
+
+      if (!match) {
+        throw new Error(`Invalid format at line ${index + 1}: "${line}"`);
+      }
+
+      const [, day, month, year, startTime, endTime] = match;
+
+      const [startHour, startMinute] = startTime.split(":").map(Number);
+      const [endHour, endMinute] = endTime.split(":").map(Number);
+
+      const shiftStart = new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        startHour,
+        startMinute
+      );
+
+      const shiftEnd = new Date(
+        Number(year),
+        Number(month) - 1,
+        Number(day),
+        endHour,
+        endMinute
+      );
+
+      if (shiftEnd <= shiftStart) {
+        throw new Error(`Shift end must be after start at line ${index + 1}`);
+      }
+
+      return { shiftStart, shiftEnd };
+    });
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -117,7 +229,8 @@ const Me = () => {
           <div className="button outlineButton" style={{ cursor: "default" }}>
             {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
               month: "long",
-            })}, {currentYear}
+            })}
+            , {currentYear}
           </div>
           <button className="button" onClick={handleNextMonth}>
             <i className="fas fa-arrow-right"></i>
@@ -133,6 +246,16 @@ const Me = () => {
             alignItems: "center",
           }}
         >
+          <button className="button outlineButton" onClick={handleImportClick}>
+            📂 Import hours
+          </button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".txt"
+            style={{ display: "none" }}
+            onChange={handleFileImport}
+          />
           <img
             src="/settings.svg"
             alt="Settings"

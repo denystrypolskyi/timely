@@ -1,8 +1,7 @@
-import { API_URL } from "../config/config";
 import axios from "axios";
 
 const axiosPublic = axios.create({
-  baseURL: API_URL, 
+  baseURL: import.meta.env.VITE_API_URL, 
   headers: {
     "Content-Type": "application/json",
   },
