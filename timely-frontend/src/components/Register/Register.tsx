@@ -28,19 +28,13 @@ const Register = () => {
         }
     };
 
-    const handleGoogleLogin = () => {
-        window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
-    };
-
     if (isLoggingIn) {
         return <LoadingSpinner/>;
     }
 
-<<<<<<< HEAD
   const handleGoogleLogin = () => {
     window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
   };
-=======
     return (
         <div className="container">
             <div className="formWrapper">
@@ -58,7 +52,6 @@ const Register = () => {
                             <p className="error">{errors.username.message}</p>
                         )}
                     </div>
->>>>>>> f0c74bb11c359b7d42731f31bdc5d176889729b6
 
                     <div className="form-group">
                         <input

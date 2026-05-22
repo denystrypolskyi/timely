@@ -24,20 +24,13 @@ const Login = () => {
         }
     };
 
-    const handleGoogleLogin = () => {
-        window.location.href =
-            import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
-    };
-
     if (isLoggingIn) {
         return <LoadingSpinner/>;
     }
 
-<<<<<<< HEAD
   const handleGoogleLogin = () => {
     window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
   };
-=======
     return (
         <div className="container">
             <div className="formWrapper">
@@ -78,7 +71,6 @@ const Login = () => {
                         <button className="button" type="submit" disabled={isLoggingIn}>
                             Login
                         </button>
->>>>>>> f0c74bb11c359b7d42731f31bdc5d176889729b6
 
                         <a onClick={() => navigate("/register")}>Don't have an account?</a>
                     </div>
