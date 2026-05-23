@@ -1,10 +1,12 @@
 package com.example.demo.service;
 
 import com.example.demo.dto.CreateShiftRequest;
+import com.example.demo.model.CustomUserDetails;
 import com.example.demo.model.ShiftEntity;
 import com.example.demo.model.UserEntity;
 import com.example.demo.repository.ShiftRepository;
 import com.example.demo.repository.UserRepository;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -34,16 +36,15 @@ public class ShiftService {
         return shiftRepository.findByUserId(userId);
     }
 
-    public ShiftEntity createShift(CreateShiftRequest createShiftRequest) {
-
-        if (createShiftRequest.shiftEnd().isBefore(createShiftRequest.shiftStart())) {
+    public ShiftEntity createShift(CustomUserDetails customUserDetails, LocalDateTime shiftStart, LocalDateTime shiftEnd) {
+        if (shiftEnd.isBefore(shiftStart)) {
             throw new IllegalArgumentException("Shift end must be after shift start");
         }
 
-        UserEntity user = userRepository.findById(createShiftRequest.userId())
+        UserEntity user = userRepository.findById(customUserDetails.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        ShiftEntity shift = new ShiftEntity(user, createShiftRequest.shiftStart(), createShiftRequest.shiftEnd());
+        ShiftEntity shift = new ShiftEntity(user, shiftStart, shiftEnd);
 
         return shiftRepository.save(shift);
     }

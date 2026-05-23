@@ -40,8 +40,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGeneral(Exception e) {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new ErrorResponse("Internal Server Error",
-                        "Unexpected error occurred",
-                        LocalDateTime.now()));
+                .body(new ErrorResponse(
+                        "Internal Server Error",
+                        e.getMessage(),
+                        LocalDateTime.now()
+                ));
     }
 }

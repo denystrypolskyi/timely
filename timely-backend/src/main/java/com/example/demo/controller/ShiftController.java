@@ -48,9 +48,9 @@ public class ShiftController {
 
     @PostMapping
     public ResponseEntity<ShiftResponse> createShift(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CreateShiftRequest request) {
-        CreateShiftRequest newShift = new CreateShiftRequest(user.getId(), request.shiftStart(), request.shiftEnd());
+        CreateShiftRequest newShift = new CreateShiftRequest(request.shiftStart(), request.shiftEnd());
 
-        ShiftEntity shift = shiftService.createShift(newShift);
+        ShiftEntity shift = shiftService.createShift(user, newShift.shiftStart(), newShift.shiftEnd());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(shiftMapper.toDto(shift));

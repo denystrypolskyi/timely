@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotNull;
 
 import java.time.LocalDateTime;
 
-public record CreateShiftRequest(@NotNull Long userId, @NotNull @FutureOrPresent LocalDateTime shiftStart,
+public record CreateShiftRequest(@NotNull @FutureOrPresent LocalDateTime shiftStart,
                                  @NotNull @FutureOrPresent LocalDateTime shiftEnd) {
 }
