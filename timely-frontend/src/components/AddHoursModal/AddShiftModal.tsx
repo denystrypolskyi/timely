@@ -34,8 +34,8 @@ const AddShiftModal = ({
 
     setError("");
     onSubmit({
-      shiftStart: format(shiftStart, "dd.MM.yyyy HH:mm"),
-      shiftEnd: format(shiftEnd, "dd.MM.yyyy HH:mm"),
+      shiftStart: shiftStart.toISOString().slice(0, 19),
+      shiftEnd: shiftEnd.toISOString().slice(0, 19),
     });
 
     onClose();
