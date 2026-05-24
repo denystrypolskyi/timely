@@ -1,0 +1,40 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
+:global(:root) {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface-hover: #1a1a1a;
+    --border: #27272a;
+    --text: #fafafa;
+    --text-muted: #a1a1aa;
+    --accent: #14b8a6;
+    --danger: #dc2626;
+    --radius: 12px;
+}
+
+:global(*) {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:global(html),
+:global(body) {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Inter", sans-serif;
+}
+
+:global(body) {
+    min-height: 100vh;
+}
+
+:global(a) {
+    color: inherit;
+}
+
+.app {
+    min-height: 100vh;
+    background: var(--bg);
+    color: var(--text);
+}

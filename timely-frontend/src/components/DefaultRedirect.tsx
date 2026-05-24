@@ -1,17 +1,19 @@
 import { Navigate } from "react-router-dom";
-import { useMe } from "../hooks/useMe";
+import { useAuth } from "../hooks/useAuth";
 import LoadingSpinner from "./LoadingSpinner/LoadingSpinner";
 
 const DefaultRedirect = () => {
-  const { data, isLoading } = useMe();
+  const { isAuthenticated, isCheckingAuth } = useAuth();
 
-  const isAuthenticated = !!data?.username;
-
-  if (isLoading) {
+  if (isCheckingAuth) {
     return <LoadingSpinner />
   }
 
-  return isAuthenticated ? <Navigate to="/me" /> : <Navigate to="/login" />;
+  return isAuthenticated ? (
+    <Navigate to="/me" replace />
+  ) : (
+    <Navigate to="/login" replace />
+  );
 };
 
 export default DefaultRedirect;

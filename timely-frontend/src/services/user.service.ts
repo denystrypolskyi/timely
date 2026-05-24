@@ -1,13 +1,14 @@
 import axiosInstance from "./axiosPrivate";
-import { UserData } from "@/types/user.types";
+import { User } from "@/types/user.types";
+import { getApiErrorMessage } from "./apiError";
 
 class UserService {
-  async getUser(): Promise<UserData> {
+  async getUser(): Promise<User> {
     try {
-      const response = await axiosInstance.get<UserData>("/users/profile");
+      const response = await axiosInstance.get<User>("/users/profile");
       return response.data;
     } catch (error) {
-      throw new Error("Failed to fetch user");
+      throw new Error(getApiErrorMessage(error, "Failed to fetch user"));
     }
   }
 }

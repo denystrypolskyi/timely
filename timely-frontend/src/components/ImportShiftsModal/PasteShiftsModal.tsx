@@ -1,13 +1,13 @@
 import {useState} from "react";
-import modalStyles from "../Modal/Modal.module.css";
-import {LucideX} from "lucide-react";
+import styles from "./PasteShiftsModal.module.css";
+import {ClipboardPaste, LucideX} from "lucide-react";
 
 interface ImportShiftsModalProps {
     onClose: () => void;
     onSubmit: (text: string) => Promise<void>;
 }
 
-const ImportShiftsModal = ({
+const PasteShiftsModal = ({
                                onClose,
                                onSubmit,
                            }: ImportShiftsModalProps) => {
@@ -38,24 +38,56 @@ const ImportShiftsModal = ({
     };
 
     return (
-        <div className={modalStyles.modalOverlay}>
-            <div className={modalStyles.modal}>
-                <div className={modalStyles.header}>
-                    <h2 className={modalStyles.title}>Paste shifts</h2>
+        <div className={styles.overlay}>
+            <div className={styles.modal}>
+                <div className={styles.header}>
+                    <div>
+                        <span className={styles.eyebrow}>
+                            Bulk entry
+                        </span>
+
+                        <h2 className={styles.title}>
+                            Paste shifts
+                        </h2>
+                    </div>
 
                     <button
                         type="button"
                         onClick={onClose}
-                        className={modalStyles.closeButton}
+                        className={styles.closeButton}
+                        aria-label="Close paste shifts modal"
                     >
                         <LucideX size={20} />
                     </button>
                 </div>
 
+                <div className={styles.summary}>
+                    <div className={styles.summaryIcon}>
+                        <ClipboardPaste size={20} />
+                    </div>
+
+                    <div>
+                        <p className={styles.summaryTitle}>
+                            Import multiple shifts
+                        </p>
+
+                        <p className={styles.summaryText}>
+                            Paste one shift per line using day, month, start, and end time.
+                        </p>
+                    </div>
+                </div>
+
                 <form
                     onSubmit={handleSubmit}
-                    className={modalStyles.form}
+                    className={styles.form}
                 >
+                    <label
+                        htmlFor="shiftImport"
+                        className={styles.label}
+                    >
+                        Shift list
+                    </label>
+
                     <textarea
                         id="shiftImport"
                         value={text}
@@ -64,15 +96,15 @@ const ImportShiftsModal = ({
 03.05 12:00-20:30
 05.05 08:15-16:15`}
                         rows={10}
-                        className={modalStyles.textarea}
+                        className={styles.textarea}
                     />
 
-                    <p className={modalStyles.helpText}>
-                        Format: 02.05 10:00-17:00
+                    <p className={styles.helpText}>
+                        Example format: <span>02.05 10:00-17:00</span>
                     </p>
 
                     {error && (
-                        <p className={modalStyles.error}>
+                        <p className={styles.error}>
                             {error}
                         </p>
                     )}
@@ -80,9 +112,9 @@ const ImportShiftsModal = ({
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className={modalStyles.confirmButton}
+                        className={styles.submitButton}
                     >
-                        {isLoading ? "Importing..." : "Import"}
+                        {isLoading ? "Importing..." : "Import shifts"}
                     </button>
                 </form>
             </div>
@@ -90,4 +122,4 @@ const ImportShiftsModal = ({
     );
 };
 
-export default ImportShiftsModal;
+export default PasteShiftsModal;

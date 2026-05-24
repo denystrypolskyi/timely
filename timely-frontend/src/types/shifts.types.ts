@@ -1,12 +1,12 @@
-import { UserData } from "./user.types";
+import { User } from "./user.types";
 
-export interface AddShiftData {
+export interface CreateShiftPayload {
   shiftStart: string;
   shiftEnd: string;
 }
 
-export interface ShiftData extends AddShiftData {
+export interface Shift extends CreateShiftPayload {
   id: number;
-  user: UserData;
-  shiftDurationMinutes: string;
+  user: User;
+  shiftDurationMinutes: number;
 }

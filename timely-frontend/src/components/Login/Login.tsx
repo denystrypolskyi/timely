@@ -1,25 +1,27 @@
 import {useState} from "react";
 import {useForm} from "react-hook-form";
-import {LoginFormData} from "../../types/auth.types";
-import {useMe} from "../../hooks/useMe";
+import {LoginFormValues} from "../../types/auth.types";
+import {useAuth} from "../../hooks/useAuth";
 import {useNavigate} from "react-router-dom";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
+import styles from "./Login.module.css";
 
 const Login = () => {
     const {
         register,
         handleSubmit,
         formState: {errors},
-    } = useForm<LoginFormData>();
+    } = useForm<LoginFormValues>();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
-    const {login, isLoggingIn} = useMe();
+    const {login, isLoggingIn} = useAuth();
     const navigate = useNavigate();
 
-    const onSubmit = async (data: LoginFormData) => {
+    const onSubmit = async (data: LoginFormValues) => {
         try {
             await login(data);
-        } catch (error: any) {
-            const message = error?.response?.data?.message || "Login failed";
+            navigate("/me", {replace: true});
+        } catch (error: unknown) {
+            const message = error instanceof Error ? error.message : "Login failed";
             setErrorMessage(message);
         }
     };
@@ -28,67 +30,125 @@ const Login = () => {
         return <LoadingSpinner/>;
     }
 
-  const handleGoogleLogin = () => {
-    window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
-  };
+    const handleGoogleLogin = () => {
+        window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
+    };
     return (
-        <div className="container">
-            <div className="formWrapper">
-                <h2>Login</h2>
-                <form onSubmit={handleSubmit(onSubmit)}>
-                    <div className="form-group">
+        <div className={styles.container}>
+            <div className={styles.formWrapper}>
+                <div className={styles.header}>
+                    <span className={styles.eyebrow}>
+                        Welcome back
+                    </span>
+
+                    <h2 className={styles.title}>
+                        Log in
+                    </h2>
+                </div>
+
+                <form
+                    onSubmit={handleSubmit(onSubmit)}
+                    className={styles.form}
+                >
+                    <div className={styles.formGroup}>
+                        <label
+                            htmlFor="username"
+                            className={styles.label}
+                        >
+                            Username
+                        </label>
+
                         <input
                             placeholder="Username"
                             id="username"
                             type="text"
-                            className="input"
-                            {...register("username", {required: "Username is required"})}
+                            className={styles.input}
+                            {...register("username", {
+                                required: "Username is required",
+                            })}
                         />
+
                         {errors.username && (
-                            <p className="error">{errors.username.message}</p>
+                            <p className={styles.error}>
+                                {errors.username.message}
+                            </p>
                         )}
                     </div>
-                    <div className="form-group">
+
+                    <div className={styles.formGroup}>
+                        <label
+                            htmlFor="password"
+                            className={styles.label}
+                        >
+                            Password
+                        </label>
+
                         <input
                             placeholder="Password"
                             id="password"
                             type="password"
-                            className="input"
-                            {...register("password", {required: "Password is required"})}
+                            className={styles.input}
+                            {...register("password", {
+                                required: "Password is required",
+                            })}
                         />
+
                         {errors.password && (
-                            <p className="error">{errors.password.message}</p>
+                            <p className={styles.error}>
+                                {errors.password.message}
+                            </p>
                         )}
                     </div>
-                    <div
-                        style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "end",
-                            marginBottom: "16px",
-                        }}
+
+                    <div className={styles.actions}>
+                        <button
+                        className={styles.button}
+                        type="submit"
+                        disabled={isLoggingIn}
                     >
-                        <button className="button" type="submit" disabled={isLoggingIn}>
-                            Login
+                            Log in
                         </button>
 
-                        <a onClick={() => navigate("/register")}>Don't have an account?</a>
+                        <button
+                            type="button"
+                            className={styles.link}
+                            onClick={() => navigate("/register")}
+                        >
+                            Don't have an account?
+                        </button>
                     </div>
-                    <div className="oauth-container">
-                        <div className="oauth-divider">
-                            <div className="oauth-line left"/>
-                            <p>or login with</p>
-                            <div className="oauth-line right"/>
+
+                    <div className={styles.oauthContainer}>
+                        <div className={styles.oauthDivider}>
+                            <div className={styles.oauthLine} />
+
+                            <p className={styles.oauthText}>
+                                or login with
+                            </p>
+
+                            <div className={styles.oauthLine} />
                         </div>
-                        <img
-                            className="oauth-logo"
-                            src="/google.svg"
-                            alt="Login with Google"
+
+                        <button
+                            type="button"
+                            className={styles.oauthButton}
                             onClick={handleGoogleLogin}
-                        />
+                        >
+                            <img
+                                className={styles.oauthLogo}
+                                src="/google.svg"
+                                alt=""
+                            />
+                            Continue with Google
+                        </button>
                     </div>
                 </form>
-                {errorMessage && <p style={{color: "red"}}>{errorMessage}</p>}
+
+                {errorMessage && (
+                    <p className={styles.serverError}>
+                        {errorMessage}
+                    </p>
+                )}
             </div>
         </div>
     );

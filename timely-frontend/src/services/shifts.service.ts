@@ -1,33 +1,30 @@
-import {AddShiftData, ShiftData} from "@/types/shifts.types";
+import {CreateShiftPayload, Shift} from "@/types/shifts.types";
 import axiosInstance from "./axiosPrivate";
+import { getApiErrorMessage } from "./apiError";
 
 class ShiftService {
-    async getShifts(): Promise<ShiftData[]> {
+    async addShift(data: CreateShiftPayload): Promise<Shift> {
         try {
-            const response = await axiosInstance.get<ShiftData[]>("/shifts/user");
+            const response = await axiosInstance.post<Shift>("/shifts", data);
             return response.data;
         } catch (error) {
-            throw new Error("Failed to fetch shifts");
+            throw new Error(getApiErrorMessage(error, "Failed to add shift"));
         }
     }
 
-    async addShift(data: AddShiftData): Promise<ShiftData> {
+    async getShiftsForMonth(year: number, month: number): Promise<Shift[]> {
         try {
-            const response = await axiosInstance.post<ShiftData>("/shifts", data);
-            return response.data;
-        } catch (error: any) {
-            throw new Error("Failed to add shift");
-        }
-    }
-
-    async getShiftsForMonth(year: number, month: number): Promise<ShiftData[]> {
-        try {
-            const response = await axiosInstance.get<ShiftData[]>(
+            const response = await axiosInstance.get<Shift[]>(
                 `/shifts/user/${year}/${month}`
             );
             return response.data;
         } catch (error) {
-            throw new Error("Failed to fetch shifts for the specified month");
+            throw new Error(
+                getApiErrorMessage(
+                    error,
+                    "Failed to fetch shifts for the specified month"
+                )
+            );
         }
     }
 
@@ -35,7 +32,7 @@ class ShiftService {
         try {
             await axiosInstance.delete(`/shifts/${id}`);
         } catch (error) {
-            throw new Error("Failed to delete shift");
+            throw new Error(getApiErrorMessage(error, "Failed to delete shift"));
         }
     }
 }

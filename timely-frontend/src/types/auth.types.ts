@@ -1,36 +1,28 @@
-export interface LoginResponse {
+export interface LoginCredentials {
+  username: string;
+  password: string;
+}
+
+export interface AuthTokenResponse {
   token: string;
 }
 
-export interface LoginRequest {
-  username: string;
-  password: string;
-}
+export type LoginFormValues = LoginCredentials;
 
-export interface TokenValidationResponse {
-  valid: boolean;
-}
-
-export interface LoginFormData {
-  username: string;
-  password: string;
-}
-
-export interface RegisterFormData {
+export interface RegisterFormValues {
   username: string;
   password: string;
   confirmPassword: string;
 }
 
-export interface RegisterRequest {
+export interface RegisterPayload {
   username: string;
   password: string;
   confirmPassword: string;
 }
 
-export interface RegisterResponse {
+export interface RegisteredUser {
   id: number;
   username: string;
-  password: string;
   role: string | null;
 }

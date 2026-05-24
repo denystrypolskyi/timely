@@ -1,162 +1,306 @@
-.meContainer {
+.container {
+  display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
-  gap: 12px;
-}
+  gap: 16px;
 
-.calendarContainer {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
-  width: 90vw;
-  height: 40vh;
-  border: 1px solid #333;
-  border-radius: 8px;
-  padding: 10px;
-}
+  min-height: 100vh;
 
-.calendarDay {
-  background: white;
-  border: 1px solid #333;
-  cursor: pointer;
-  border-radius: 4px;
-  padding: 6px;
-  transition: background-color 0.2s ease-in-out;
-}
+  padding: 24px;
 
-.calendarDay:hover {
-  background: #ddd;
-}
-
-.selected {
-  background: lightblue;
-}
-
-.selected:hover {
-  background: #66b3ff;
-}
-
-@media (min-width: 768px) {
-  .calendarContainer {
-    width: 40vw;
-    height: 50vh;
-  }
-}
-
-@media (min-width: 1024px) {
-  .calendarContainer {
-    width: 30vw;
-    height: 40vh;
-  }
+  background: #0a0a0a;
 }
 
 .calendarBar {
   display: flex;
   justify-content: space-between;
-  width: 90vw;
+  align-items: center;
+
+  width: 100%;
+  max-width: 700px;
 }
 
-@media (min-width: 768px) {
-  .calendarBar {
-    width: 40vw;
-  }
+.controlsGroup {
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-@media (min-width: 1024px) {
-  .calendarBar {
-    width: 30vw;
-  }
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.monthDisplay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  height: 44px;
+  padding: 0 20px;
+
+  border-radius: 12px;
+  border: 1px solid #27272a;
+
+  background: #111111;
+
+  font-size: 14px;
+  font-weight: 600;
+
+  color: white;
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 44px;
+  height: 44px;
+
+  border: 1px solid #27272a;
+  border-radius: 12px;
+
+  background: #111111;
+  color: white;
+
+  cursor: pointer;
+
+  transition: 0.15s ease;
+}
+
+.iconButton:hover {
+  background: #18181b;
+}
+
+.dangerButton:hover {
+  background: #3f1010;
+  color: #ef4444;
+}
+
+.calendarContainer {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+
+  gap: 8px;
+
+  width: 100%;
+  max-width: 700px;
+
+  padding: 16px;
+
+  border-radius: 24px;
+
+  background: #111111;
+  border: 1px solid #27272a;
+}
+
+.calendarDay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  aspect-ratio: 1;
+
+  border-radius: 16px;
+
+  cursor: pointer;
+
+  font-size: 15px;
+  font-weight: 600;
+
+  transition: 0.15s ease;
+}
+
+.dayEmpty {
+  background: #18181b;
+}
+
+.dayEmpty:hover {
+  background: #27272a;
+}
+
+.dayWithShift {
+  background: #0f766e;
+}
+
+.dayWithShift:hover {
+  background: #115e59;
+}
+
+.selected {
+  outline: 2px solid white;
 }
 
 .dropdown {
   position: absolute;
-  background: black;
-  border: 1px solid #ccc;
-  padding: 10px;
-  border-radius: 5px;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+  width: 360px;
+  max-width: calc(100vw - 32px);
+
+  padding: 18px;
+
+  border-radius: 20px;
+
+  background: #101012;
+  border: 1px solid #27272a;
+
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+
   z-index: 10;
-  width: 250px;
 }
 
-.shiftInfo p {
-  margin: 5px 0;
-}
-
-.shiftInfo button {
-  background: red;
-  color: white;
-  border: none;
-  padding: 5px;
-  border-radius: 3px;
-  cursor: pointer;
-}
-
-.shiftInfo button:hover {
-  background: darkred;
-}
-
-.addButton {
-  height: 100%;
-  background-color: #4caf50;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.addButton:hover {
-  background-color: #45a049;
-}
-
-.exitButton {
-  cursor: pointer;
-  width: 32px;
-  filter: invert(16%) sepia(100%) saturate(7480%) hue-rotate(360deg);
-}
-
-.settingsButton {
-  cursor: pointer;
-  width: 32px;
-  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg);
-}
-
-.settingsButton:hover {
-  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(70%);
-}
-.exitButton:hover {
-  filter: invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(70%);
-}
-
-.settingsPopup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #1e1e1e;
-  border: 1px solid #333;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.7);
-  z-index: 1000;
+.dropdownHeader {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  width: 320px;
-  text-align: center;
-  color: #fff; 
+  gap: 4px;
+
+  padding-bottom: 14px;
+  margin-bottom: 12px;
+
+  border-bottom: 1px solid #27272a;
 }
 
-.settingsOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
-  z-index: 999;
+.dropdownEyebrow {
+  color: #71717a;
+
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.settingsTitle {
+.dropdownTitle {
+  margin: 0;
+
+  color: white;
+
   font-size: 18px;
-  font-weight: bold;
+  font-weight: 700;
+}
+
+.shiftInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 14px;
+
+  padding: 14px;
+
+  border: 1px solid #27272a;
+  border-radius: 16px;
+
+  background: #18181b;
+}
+
+.shiftInfo + .shiftInfo {
+  margin-top: 10px;
+}
+
+.shiftSummary {
+  flex: 1;
+
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+
+  min-width: 0;
+}
+
+.shiftMetric {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.durationMetric {
+  grid-column: 1 / -1;
+}
+
+.shiftLabel {
+  color: #71717a;
+
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.shiftValue {
+  color: #f4f4f5;
+
+  font-size: 14px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.shiftDeleteButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex: 0 0 auto;
+  width: 36px;
+  height: 36px;
+
+  border: 1px solid #3f1d1d;
+  border-radius: 12px;
+
+  background: #211111;
+  color: #ef4444;
+
+  cursor: pointer;
+  transition: 0.15s ease;
+}
+
+.shiftDeleteButton:hover {
+  background: #3f1010;
+  border-color: #7f1d1d;
+}
+
+.emptyState {
+  padding: 14px;
+
+  border: 1px dashed #3f3f46;
+  border-radius: 14px;
+
+  color: #a1a1aa;
+
+  font-size: 14px;
+  text-align: center;
+}
+
+.statsBar {
+  display: flex;
+  gap: 12px;
+
+  width: 100%;
+  max-width: 700px;
+}
+
+.statCard {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  padding: 16px;
+
+  border-radius: 16px;
+
+  background: #111111;
+  border: 1px solid #27272a;
+}
+
+.statLabel {
+  font-size: 13px;
+  color: #71717a;
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 700;
+  color: white;
 }

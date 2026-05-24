@@ -1,0 +1,187 @@
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding: 24px;
+
+    background: rgba(0, 0, 0, 0.72);
+
+    z-index: 1000;
+}
+
+.modal {
+    width: 100%;
+    max-width: 380px;
+
+    padding: 24px;
+
+    border-radius: 20px;
+    border: 1px solid #27272a;
+
+    background: #111111;
+    color: white;
+
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 20px;
+}
+
+.title {
+    margin: 0;
+
+    font-size: 22px;
+    font-weight: 600;
+}
+
+.closeButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    border: 1px solid #27272a;
+    border-radius: 10px;
+
+    background: #18181b;
+    color: white;
+
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.closeButton:hover {
+    background: #27272a;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.fieldRow {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #a1a1aa;
+}
+
+.error {
+    color: #ef4444;
+    font-size: 14px;
+    text-align: left;
+}
+
+.confirmButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 44px;
+
+    margin-top: 8px;
+
+    border: none;
+    border-radius: 12px;
+
+    background: white;
+    color: black;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.confirmButton:hover {
+    background: #e4e4e7;
+}
+
+.confirmButton:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.confirmButton:disabled:hover {
+    background: white;
+}
+
+.deleteButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 36px;
+    height: 36px;
+
+    border: 1px solid #27272a;
+    border-radius: 10px;
+
+    background: transparent;
+    color: #ef4444;
+
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.deleteButton:hover {
+    background: #3f1010;
+}
+
+.textarea {
+    width: 100%;
+    min-height: 180px;
+
+    padding: 12px 14px;
+
+    resize: vertical;
+
+    border-radius: 12px;
+    border: 1px solid #27272a;
+
+    background: #18181b;
+    color: white;
+
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+
+    outline: none;
+    transition: 0.15s ease;
+}
+
+.textarea::placeholder {
+    color: #71717a;
+}
+
+.textarea:focus {
+    border-color: #14b8a6;
+}
+
+.helpText {
+    margin-top: -4px;
+
+    color: #71717a;
+
+    font-size: 13px;
+    line-height: 1.4;
+}

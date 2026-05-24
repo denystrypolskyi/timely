@@ -1,8 +1,12 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
+import { meQueryKey } from "../hooks/useMe";
+import LoadingSpinner from "./LoadingSpinner/LoadingSpinner";
 
 const OAuth2RedirectHandler = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -10,18 +14,16 @@ const OAuth2RedirectHandler = () => {
 
     if (token) {
       localStorage.setItem("jwtToken", token);
+      queryClient.invalidateQueries({ queryKey: meQueryKey });
 
-      navigate("/me");
+      navigate("/me", { replace: true });
     } else {
       console.error("JWT token is missing from URL.");
+      navigate("/login", { replace: true });
     }
-  }, [navigate]);
+  }, [navigate, queryClient]);
 
-  return (
-    <div>
-      <h2>Redirecting...</h2>
-    </div>
-  );
+  return <LoadingSpinner />;
 };
 
 export default OAuth2RedirectHandler;

@@ -1,11 +1,36 @@
 import {useState, useRef, useEffect} from "react";
 import {useShifts} from "../../hooks/useShifts";
-import {useMe} from "../../hooks/useMe";
+import {useAuth} from "../../hooks/useAuth";
+import {useHourlyRate} from "../../hooks/useHourlyRate";
 import styles from "./Me.module.css";
 import AddShiftModal from "../AddHoursModal/AddShiftModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import SettingsModal from "../SettingsModal/SettingsModal";
+import PasteShiftsModal from "../ImportShiftsModal/PasteShiftsModal.tsx";
 import "@fortawesome/fontawesome-free/css/all.min.css";
+
+import {
+    ClipboardPaste,
+    LucideArrowLeft,
+    LucideArrowRight,
+    LucideLogOut,
+    LucideSettings, LucideTrash
+} from "lucide-react";
+
+import {
+    formatMinutesToHours,
+    getDaysInMonth,
+    getShiftsForSelectedDate,
+    isShiftOverlapping,
+    parseShiftsFromText
+} from "../../utils/utils.ts";
+
+const formatShiftTime = (date: string) =>
+    new Date(date).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+    });
 
 const Me = () => {
     const {
@@ -19,17 +44,19 @@ const Me = () => {
         currentYear,
         currentMonth,
     } = useShifts();
-    const {logout, hourlyRate, updateHourlyRate} = useMe();
+    const {logout} = useAuth();
+    const {hourlyRate, updateHourlyRate} = useHourlyRate();
     const [isAddShiftModalOpen, setIsAddShiftModalOpen] =
         useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState<number | null>(null);
     const [dropdownPosition, setDropdownPosition] = useState({top: 0, left: 0});
-    const [hoveredDate, setHoveredDate] = useState<number | null>(null);
+    const [isImportOpen, setIsImportOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
-    const fileInputRef = useRef<HTMLInputElement | null>(null);
 
     const [isEditable, setIsEditable] = useState<boolean>(false);
+
+    const selectedDateShifts = getShiftsForSelectedDate(shifts, selectedDate);
 
     const handleEditClick = () => {
         setIsEditable(true);
@@ -42,13 +69,6 @@ const Me = () => {
 
     const toggleSettings = () => {
         setIsSettingsOpen((prev) => !prev);
-    };
-
-    const getShiftsForSelectedDate = () => {
-        return shifts.filter((shift) => {
-            const shiftDate = new Date(shift.shiftStart).getDate();
-            return shiftDate === selectedDate;
-        });
     };
 
     const handleDeleteShift = async (id: number) => {
@@ -84,108 +104,41 @@ const Me = () => {
         });
     };
 
-    const getDaysInMonth = (year: number, month: number) => {
-        return new Date(year, month, 0).getDate();
-    };
-
-    const handleImportClick = () => {
-        fileInputRef.current?.click();
-    };
-
-    const handleFileImport = async (
-        event: React.ChangeEvent<HTMLInputElement>
+    const handleManualImport = async (
+        text: string
     ) => {
-        const file = event.target.files?.[0];
-        if (!file) return;
+        const parsedShifts = parseShiftsFromText(
+            text,
+            currentYear
+        );
 
-        try {
-            const text = await file.text();
-            const parsedShifts = parseShiftsFromText(text);
+        for (const shift of parsedShifts) {
+            const shiftStartDate = shift.shiftStart;
+            const shiftEndDate = shift.shiftEnd;
 
-            let addedCount = 0;
+            if (
+                isShiftOverlapping(
+                    shiftStartDate,
+                    shiftEndDate,
+                    shifts
+                )
+            ) {
+                console.warn(
+                    `Shift overlaps. Skipped.`
+                );
 
-            for (const shift of parsedShifts) {
-                const shiftStartDate = shift.shiftStart;
-                const shiftEndDate = shift.shiftEnd;
-
-                if (isShiftOverlapping(shiftStartDate, shiftEndDate, shifts)) {
-                    console.warn(
-                        `Shift on ${
-                            shiftStartDate
-                        } - ${shiftEndDate} overlaps. Skipped.`
-                    );
-                    continue;
-                }
-
-                await addShift({
-                    shiftStart: shiftStartDate.toISOString().slice(0, 19),
-                    shiftEnd: shiftEndDate.toISOString().slice(0, 19),
-                });
-                addedCount++;
+                continue;
             }
 
-            alert(`Imported ${addedCount} shifts successfully.`);
-        } catch (error) {
-            alert((error as Error).message);
-        } finally {
-            event.target.value = "";
+            await addShift({
+                shiftStart: shiftStartDate
+                    .toISOString()
+                ,
+                shiftEnd: shiftEndDate
+                    .toISOString()
+            });
+
         }
-    };
-
-    const isShiftOverlapping = (
-        newShiftStart: Date,
-        newShiftEnd: Date,
-        existingShifts: { shiftStart: string; shiftEnd: string }[]
-    ) => {
-        return existingShifts.some((shift) => {
-            const start = new Date(shift.shiftStart);
-            const end = new Date(shift.shiftEnd);
-            return newShiftStart < end && newShiftEnd > start;
-        });
-    };
-
-    const parseShiftsFromText = (text: string) => {
-        const lines = text
-            .split("\n")
-            .map((line) => line.trim())
-            .filter(Boolean);
-
-        return lines.map((line, index) => {
-            const match = line.match(
-                /^(\d{2})\.(\d{2})\.(\d{4})\s+(\d{2}:\d{2})-(\d{2}:\d{2})$/
-            );
-
-            if (!match) {
-                throw new Error(`Invalid format at line ${index + 1}: "${line}"`);
-            }
-
-            const [, day, month, year, startTime, endTime] = match;
-
-            const [startHour, startMinute] = startTime.split(":").map(Number);
-            const [endHour, endMinute] = endTime.split(":").map(Number);
-
-            const shiftStart = new Date(
-                Number(year),
-                Number(month) - 1,
-                Number(day),
-                startHour,
-                startMinute
-            );
-
-            const shiftEnd = new Date(
-                Number(year),
-                Number(month) - 1,
-                Number(day),
-                endHour,
-                endMinute
-            );
-
-            if (shiftEnd <= shiftStart) {
-                throw new Error(`Shift end must be after start at line ${index + 1}`);
-            }
-
-            return {shiftStart, shiftEnd};
-        });
     };
 
     useEffect(() => {
@@ -208,90 +161,102 @@ const Me = () => {
     }
 
     return (
-        <div className={`container ${styles.meContainer}`}>
-            {error && <p className="error">Error fetching work hours</p>}
-            <div className={`${styles.calendarBar}`}>
-                <div style={{display: "flex", gap: "12px"}}>
-                    <button className="button" onClick={handlePreviousMonth}>
-                        <i className="fas fa-arrow-left"></i>
+        <div className={styles.container}>
+            {error && <p>Error fetching work hours</p>}
+
+            <div className={styles.calendarBar}>
+                <div className={styles.controlsGroup}>
+                    <button
+                        className={styles.iconButton}
+                        onClick={handlePreviousMonth}
+                    >
+                        <LucideArrowLeft size={20} />
                     </button>
-                    <div className="button outlineButton" style={{cursor: "default"}}>
-                        {new Date(currentYear, currentMonth - 1).toLocaleString("default", {
-                            month: "long",
-                        })}
+
+                    <div className={styles.monthDisplay}>
+                        {new Date(currentYear, currentMonth - 1).toLocaleString(
+                            "default",
+                            {
+                                month: "long",
+                            }
+                        )}
                         , {currentYear}
                     </div>
-                    <button className="button" onClick={handleNextMonth}>
-                        <i className="fas fa-arrow-right"></i>
+
+                    <button
+                        className={styles.iconButton}
+                        onClick={handleNextMonth}
+                    >
+                        <LucideArrowRight size={20} />
                     </button>
                 </div>
 
-                <div
-                    style={{
-                        flexDirection: "row",
-                        display: "flex",
-                        gap: "12px",
-                        justifyContent: "center",
-                        alignItems: "center",
-                    }}
-                >
-                    <button className="button outlineButton" onClick={handleImportClick}>
-                        📂 Import hours
+                <div className={styles.actions}>
+                    <button
+                        className={styles.iconButton}
+                        onClick={() => setIsImportOpen(true)}
+                    >
+                        <ClipboardPaste size={20} />
                     </button>
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept=".txt"
-                        style={{display: "none"}}
-                        onChange={handleFileImport}
-                    />
-                    <img
-                        src="/settings.svg"
-                        alt="Settings"
-                        className={styles.settingsButton}
+
+                    <button
+                        className={styles.iconButton}
                         onClick={toggleSettings}
-                    />
-                    <img
-                        src="/exit.svg"
-                        alt="Exit"
-                        className={styles.exitButton}
+                    >
+                        <LucideSettings size={20} />
+                    </button>
+
+                    <button
+                        className={`${styles.iconButton} ${styles.dangerButton}`}
                         onClick={logout}
-                    />
+                    >
+                        <LucideLogOut size={20} />
+                    </button>
                 </div>
             </div>
 
-            {/* Calendar */}
+            {isImportOpen && (
+                <PasteShiftsModal
+                    onClose={() => setIsImportOpen(false)}
+                    onSubmit={handleManualImport}
+                />
+            )}
+
             <div className={styles.calendarContainer}>
                 {Array.from(
                     {length: getDaysInMonth(currentYear, currentMonth)},
                     (_, i) => {
                         const day = i + 1;
+
                         const hasShift = shifts.some(
-                            (shift) => new Date(shift.shiftStart).getDate() === day
+                            (shift) =>
+                                new Date(shift.shiftStart).getDate() === day
                         );
 
                         return (
                             <div
                                 key={day}
-                                className={`${styles.calendarDay} ${
-                                    selectedDate === day ? styles.selected : ""
-                                }`}
+                                className={`
+                                ${styles.calendarDay}
+                                ${
+                                    hasShift
+                                        ? styles.dayWithShift
+                                        : styles.dayEmpty
+                                }
+                                ${
+                                    selectedDate === day
+                                        ? styles.selected
+                                        : ""
+                                }
+                            `}
                                 onClick={(event) => {
                                     handleDayClick(event, day);
+
                                     if (hasShift) {
                                         setSelectedDate(day);
                                     } else {
                                         setIsAddShiftModalOpen(true);
                                     }
-                                }}
-                                onMouseEnter={() => setHoveredDate(day)}
-                                onMouseLeave={() => setHoveredDate(null)}
-                                style={{
-                                    backgroundColor: hasShift ? "#008b8b" : "black",
-                                    transition: "background-color 0.2s ease-in-out",
-                                    ...(hoveredDate === day && {
-                                        backgroundColor: hasShift ? "#007a99" : "#333",
-                                    }),
                                 }}
                             >
                                 {day}
@@ -301,7 +266,6 @@ const Me = () => {
                 )}
             </div>
 
-            {/* Settings Popup */}
             {isSettingsOpen && (
                 <SettingsModal
                     onClose={toggleSettings}
@@ -312,46 +276,113 @@ const Me = () => {
                 />
             )}
 
-            {/* Selected Date Info Popup */}
             {selectedDate && !isAddShiftModalOpen && (
                 <div
                     ref={dropdownRef}
                     className={styles.dropdown}
-                    style={{top: dropdownPosition.top, left: dropdownPosition.left}}
+                    style={{
+                        top: dropdownPosition.top,
+                        left: dropdownPosition.left,
+                    }}
                 >
-                    <p>
-                        📅 Selected Day: {selectedDate}/{currentMonth}/{currentYear}
-                    </p>
-                    {getShiftsForSelectedDate().length > 0 ? (
-                        getShiftsForSelectedDate().map((shift) => (
-                            <div key={shift.id} className={styles.shiftInfo}>
-                                <p>
-                                    🕒 From: {new Date(shift.shiftStart).toLocaleTimeString()}
-                                </p>
-                                <p>🕒 Till: {new Date(shift.shiftEnd).toLocaleTimeString()}</p>
-                                <p>⏳ Duration: {shift.shiftDurationMinutes}</p>
+                    <div className={styles.dropdownHeader}>
+                        <span className={styles.dropdownEyebrow}>
+                            Selected shift day
+                        </span>
+
+                        <h3 className={styles.dropdownTitle}>
+                            {new Date(
+                                currentYear,
+                                currentMonth - 1,
+                                selectedDate
+                            ).toLocaleDateString(undefined, {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                            })}
+                        </h3>
+                    </div>
+
+                    {selectedDateShifts.length > 0 ? (
+                        selectedDateShifts.map((shift) => (
+                            <div
+                                key={shift.id}
+                                className={styles.shiftInfo}
+                            >
+                                <div className={styles.shiftSummary}>
+                                    <div className={styles.shiftMetric}>
+                                        <span className={styles.shiftLabel}>
+                                            Start
+                                        </span>
+
+                                        <span className={styles.shiftValue}>
+                                            {formatShiftTime(shift.shiftStart)}
+                                        </span>
+                                    </div>
+
+                                    <div className={styles.shiftMetric}>
+                                        <span className={styles.shiftLabel}>
+                                            End
+                                        </span>
+
+                                        <span className={styles.shiftValue}>
+                                            {formatShiftTime(shift.shiftEnd)}
+                                        </span>
+                                    </div>
+
+                                    <div className={`${styles.shiftMetric} ${styles.durationMetric}`}>
+                                        <span className={styles.shiftLabel}>
+                                            Duration
+                                        </span>
+
+                                        <span className={styles.shiftValue}>
+                                            {formatMinutesToHours(
+                                                shift.shiftDurationMinutes
+                                            )}
+                                        </span>
+                                    </div>
+                                </div>
+
                                 <button
-                                    className="button"
-                                    onClick={() => handleDeleteShift(shift.id)}
+                                    type="button"
+                                    className={styles.shiftDeleteButton}
+                                    aria-label="Delete shift"
+                                    onClick={() =>
+                                        handleDeleteShift(shift.id)
+                                    }
                                 >
-                                    🗑 Delete
+                                    <LucideTrash size={18} />
                                 </button>
                             </div>
                         ))
                     ) : (
-                        <p>🔍 No shifts recorded for this day.</p>
+                        <p className={styles.emptyState}>
+                            No shifts recorded.
+                        </p>
                     )}
                 </div>
             )}
 
-            <div className={`${styles.calendarBar}`}>
-                <div className={`button outlineButton`} style={{cursor: "default"}}>
-                    <div>{((totalMinutes / 60) * hourlyRate).toFixed(2)}zł</div>
+            <div className={styles.statsBar}>
+                <div className={styles.statCard}>
+                <span className={styles.statLabel}>
+                    Estimated salary
+                </span>
+
+                    <span className={styles.statValue}>
+                    {((totalMinutes / 60) * hourlyRate).toFixed(2)} zł
+                </span>
                 </div>
-                <div className={`button outlineButton`} style={{cursor: "default"}}>
-                    <div>
-                        {Math.floor(totalMinutes / 60)}h {totalMinutes % 60}m
-                    </div>
+
+                <div className={styles.statCard}>
+                <span className={styles.statLabel}>
+                    Worked time
+                </span>
+
+                    <span className={styles.statValue}>
+                    {Math.floor(totalMinutes / 60)}h{" "}
+                        {totalMinutes % 60}m
+                </span>
                 </div>
             </div>
 
@@ -363,7 +394,11 @@ const Me = () => {
                     }}
                     onSubmit={addShift}
                     selectedDate={
-                        new Date(currentYear, currentMonth - 1, selectedDate || 1)
+                        new Date(
+                            currentYear,
+                            currentMonth - 1,
+                            selectedDate || 1
+                        )
                     }
                 />
             )}

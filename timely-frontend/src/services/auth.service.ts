@@ -1,35 +1,36 @@
 import {
-  LoginRequest,
-  LoginResponse,
-  RegisterRequest,
-  RegisterResponse,
+  AuthTokenResponse,
+  LoginCredentials,
+  RegisteredUser,
+  RegisterPayload,
 } from "../types/auth.types";
-import axiosPublic from "./axiosPublic"; 
+import axiosPublic from "./axiosPublic";
+import { getApiErrorMessage } from "./apiError";
 
 class AuthService {
-  async login(credentials: LoginRequest): Promise<LoginResponse> {
+  async login(credentials: LoginCredentials): Promise<AuthTokenResponse> {
     try {
-      const response = await axiosPublic.post<LoginResponse>(
+      const response = await axiosPublic.post<AuthTokenResponse>(
         "/users/login",
         credentials
       );
 
       return response.data;
     } catch (error) {
-      throw new Error("Login failed");
+      throw new Error(getApiErrorMessage(error, "Login failed"));
     }
   }
 
-  async register(credentials: RegisterRequest): Promise<RegisterResponse> {
+  async register(credentials: RegisterPayload): Promise<RegisteredUser> {
     try {
-      const response = await axiosPublic.post<RegisterResponse>(
+      const response = await axiosPublic.post<RegisteredUser>(
         "/users/register",
         credentials
       );
 
       return response.data;
     } catch (error) {
-      throw new Error("Registration failed");
+      throw new Error(getApiErrorMessage(error, "Registration failed"));
     }
   }
 }
