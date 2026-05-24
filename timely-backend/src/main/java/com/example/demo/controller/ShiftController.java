@@ -5,8 +5,10 @@ import java.util.List;
 import com.example.demo.dto.CreateShiftRequest;
 import com.example.demo.model.CustomUserDetails;
 import com.example.demo.model.ShiftEntity;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +34,7 @@ public class ShiftController {
     }
 
     @GetMapping()
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<ShiftResponse>> getAllShifts() {
         List<ShiftResponse> shifts = shiftService.getAllShifts().stream().map(shiftMapper::toDto).toList();
         return ResponseEntity.ok(shifts);
@@ -47,10 +50,9 @@ public class ShiftController {
     }
 
     @PostMapping
-    public ResponseEntity<ShiftResponse> createShift(@AuthenticationPrincipal CustomUserDetails user, @RequestBody CreateShiftRequest request) {
-        CreateShiftRequest newShift = new CreateShiftRequest(request.shiftStart(), request.shiftEnd());
-
-        ShiftEntity shift = shiftService.createShift(user, newShift.shiftStart(), newShift.shiftEnd());
+    public ResponseEntity<ShiftResponse> createShift(@AuthenticationPrincipal CustomUserDetails user,
+                                                     @RequestBody @Valid CreateShiftRequest request) {
+        ShiftEntity shift = shiftService.createShift(user, request.shiftStart(), request.shiftEnd());
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(shiftMapper.toDto(shift));
@@ -58,8 +60,8 @@ public class ShiftController {
 
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteShift(@PathVariable Long id) {
-        shiftService.deleteShift(id);
+    public ResponseEntity<Void> deleteShift(@AuthenticationPrincipal CustomUserDetails user, @PathVariable Long id) {
+        shiftService.deleteShift(user, id);
         return ResponseEntity.noContent().build();
     }
 

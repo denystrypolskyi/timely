@@ -34,8 +34,7 @@ public class ShiftEntity {
 
     public ShiftEntity(UserEntity user, Instant shiftStart, Instant shiftEnd) {
         this.user = Objects.requireNonNull(user, "User cannot be null");
-        this.shiftStart = shiftStart;
-        this.shiftEnd = shiftEnd;
+        updateShiftTimes(shiftStart, shiftEnd);
     }
 
     public void updateShiftTimes(Instant shiftStart, Instant shiftEnd) {
@@ -54,14 +53,10 @@ public class ShiftEntity {
         }
     }
 
-    private void recalculateDuration() {
-        this.shiftDurationMinutes =
-                Duration.between(shiftStart, shiftEnd).toMinutes();
-    }
-
     @PrePersist
     @PreUpdate
     private void onPersistOrUpdate() {
+        validateShiftTimes(shiftStart, shiftEnd);
         this.shiftDurationMinutes =
                 Duration.between(shiftStart, shiftEnd).toMinutes();
     }
@@ -77,4 +72,3 @@ public class ShiftEntity {
         return getClass().hashCode();
     }
 }
-

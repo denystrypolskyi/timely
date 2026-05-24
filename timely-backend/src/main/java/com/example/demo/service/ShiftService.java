@@ -1,17 +1,16 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.CreateShiftRequest;
 import com.example.demo.model.CustomUserDetails;
 import com.example.demo.model.ShiftEntity;
 import com.example.demo.model.UserEntity;
 import com.example.demo.repository.ShiftRepository;
 import com.example.demo.repository.UserRepository;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.YearMonth;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,17 +29,15 @@ public class ShiftService {
     }
 
     public List<ShiftEntity> getShiftsByUser(Long userId) {
-        if (userId == null) {
-            throw new IllegalArgumentException("User ID must be provided");
-        }
+        Objects.requireNonNull(userId, "User ID must be provided");
 
         return shiftRepository.findByUserId(userId);
     }
 
     public ShiftEntity createShift(CustomUserDetails customUserDetails, Instant shiftStart, Instant shiftEnd) {
-        if (shiftEnd.isBefore(shiftStart)) {
-            throw new IllegalArgumentException("Shift end must be after shift start");
-        }
+        Objects.requireNonNull(customUserDetails, "Authenticated user must be provided");
+        Objects.requireNonNull(shiftStart, "Shift start must be provided");
+        Objects.requireNonNull(shiftEnd, "Shift end must be provided");
 
         UserEntity user = userRepository.findById(customUserDetails.getId())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
@@ -50,9 +47,16 @@ public class ShiftService {
         return shiftRepository.save(shift);
     }
 
-    public ShiftEntity deleteShift(Long id) {
+    public ShiftEntity deleteShift(CustomUserDetails customUserDetails, Long id) {
+        Objects.requireNonNull(customUserDetails, "Authenticated user must be provided");
+        Objects.requireNonNull(id, "Shift ID must be provided");
+
         ShiftEntity shift = shiftRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Shift not found"));
+
+        if (!Objects.equals(shift.getUser().getId(), customUserDetails.getId())) {
+            throw new AccessDeniedException("You can only delete your own shifts");
+        }
 
         shiftRepository.delete(shift);
         return shift;
@@ -65,10 +69,23 @@ public class ShiftService {
 
         YearMonth yearMonth = YearMonth.of(year, month);
 
-        LocalDateTime start = yearMonth.atDay(1).atStartOfDay();
-        LocalDateTime end = yearMonth.plusMonths(1).atDay(1).atStartOfDay();
+        ZoneId zone = ZoneId.of("Europe/Warsaw"); // TODO: add timeZone field to UserEntity for per-user timezone support.
 
-        return shiftRepository.findWithUserByUserIdAndShiftStartGreaterThanEqualAndShiftStartLessThan(userId, start, end);
+        Instant start = yearMonth
+                .atDay(1)
+                .atStartOfDay(zone)
+                .toInstant();
+
+        Instant end = yearMonth
+                .plusMonths(1)
+                .atDay(1)
+                .atStartOfDay(zone)
+                .toInstant();
+
+        return shiftRepository
+                .findWithUserByUserIdAndShiftStartGreaterThanEqualAndShiftStartLessThan(
+                        userId, start, end
+                );
     }
 
     private void validateInputs(Long userId, int year, int month) {

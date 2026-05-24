@@ -8,6 +8,7 @@ import com.example.demo.model.UserEntity;
 import com.example.demo.repository.UserRepository;
 
 import java.util.List;
+import java.util.Objects;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,6 +41,7 @@ public class UserService {
     }
 
     public UserEntity getUserById(Long userId) {
+        Objects.requireNonNull(userId, "User ID must be provided");
         return userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
     }
 
@@ -57,18 +59,28 @@ public class UserService {
 
     @Transactional
     public void deleteUserById(Long userId) {
-        userRepository.deleteById(userId);
+        UserEntity user = getUserById(userId);
+        userRepository.delete(user);
     }
 
     public UserEntity updateUsername(Long userId, UpdateUsernameRequest dto) {
+        Objects.requireNonNull(userId, "User ID must be provided");
+
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        UserEntity existingUser = userRepository.findByUsername(dto.username());
+        if (existingUser != null && !Objects.equals(existingUser.getId(), user.getId())) {
+            throw new IllegalArgumentException("Username already exists");
+        }
 
         user.setUsername(dto.username());
         return userRepository.save(user);
     }
 
     public void updatePassword(Long userId, UpdatePasswordRequest dto) {
+        Objects.requireNonNull(userId, "User ID must be provided");
+
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
