@@ -8,6 +8,6 @@ import com.example.demo.model.ShiftEntity;
 @Component
 public class ShiftMapper {
     public ShiftResponse toDto(ShiftEntity entity) {
-        return new ShiftResponse(entity.getId(), entity.getShiftStart(), entity.getShiftEnd());
+        return new ShiftResponse(entity.getId(), entity.getShiftDurationMinutes(), entity.getShiftStart(), entity.getShiftEnd(), entity.getUser().getId());
     }
 }

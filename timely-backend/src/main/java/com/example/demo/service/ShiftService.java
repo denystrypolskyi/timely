@@ -9,6 +9,7 @@ import com.example.demo.repository.UserRepository;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.util.List;
@@ -36,7 +37,7 @@ public class ShiftService {
         return shiftRepository.findByUserId(userId);
     }
 
-    public ShiftEntity createShift(CustomUserDetails customUserDetails, LocalDateTime shiftStart, LocalDateTime shiftEnd) {
+    public ShiftEntity createShift(CustomUserDetails customUserDetails, Instant shiftStart, Instant shiftEnd) {
         if (shiftEnd.isBefore(shiftStart)) {
             throw new IllegalArgumentException("Shift end must be after shift start");
         }

@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import java.util.Objects;
 
@@ -21,10 +21,10 @@ public class ShiftEntity {
     private UserEntity user;
 
     @Column(name = "shift_start", nullable = false)
-    private LocalDateTime shiftStart;
+    private Instant shiftStart;
 
     @Column(name = "shift_end", nullable = false)
-    private LocalDateTime shiftEnd;
+    private Instant shiftEnd;
 
     @Column(name = "shift_duration_minutes", nullable = false)
     private Long shiftDurationMinutes;
@@ -32,24 +32,20 @@ public class ShiftEntity {
     public ShiftEntity() {
     }
 
-    public ShiftEntity(UserEntity user, LocalDateTime shiftStart, LocalDateTime shiftEnd) {
-        validateShiftTimes(shiftStart, shiftEnd);
-
+    public ShiftEntity(UserEntity user, Instant shiftStart, Instant shiftEnd) {
         this.user = Objects.requireNonNull(user, "User cannot be null");
         this.shiftStart = shiftStart;
         this.shiftEnd = shiftEnd;
-        recalculateDuration();
     }
 
-    public void updateShiftTimes(LocalDateTime shiftStart, LocalDateTime shiftEnd) {
+    public void updateShiftTimes(Instant shiftStart, Instant shiftEnd) {
         validateShiftTimes(shiftStart, shiftEnd);
 
         this.shiftStart = shiftStart;
         this.shiftEnd = shiftEnd;
-        recalculateDuration();
     }
 
-    private void validateShiftTimes(LocalDateTime start, LocalDateTime end) {
+    private void validateShiftTimes(Instant start, Instant end) {
         Objects.requireNonNull(start, "Shift start cannot be null");
         Objects.requireNonNull(end, "Shift end cannot be null");
 
@@ -66,9 +62,9 @@ public class ShiftEntity {
     @PrePersist
     @PreUpdate
     private void onPersistOrUpdate() {
-        recalculateDuration();
+        this.shiftDurationMinutes =
+                Duration.between(shiftStart, shiftEnd).toMinutes();
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
