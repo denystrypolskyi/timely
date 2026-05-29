@@ -1,6 +1,8 @@
 package com.example.demo.handlers;
 
 import com.example.demo.dto.ErrorResponse;
+import com.example.demo.exception.DuplicateResourceException;
+import com.example.demo.exception.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;
@@ -38,6 +40,22 @@ public class GlobalExceptionHandler {
                         LocalDateTime.now()));
     }
 
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException e) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(new ErrorResponse("Not Found",
+                        e.getMessage(),
+                        LocalDateTime.now()));
+    }
+
+    @ExceptionHandler(DuplicateResourceException.class)
+    public ResponseEntity<ErrorResponse> handleConflict(DuplicateResourceException e) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+                .body(new ErrorResponse("Conflict",
+                        e.getMessage(),
+                        LocalDateTime.now()));
+    }
+
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDenied(AccessDeniedException e) {
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
@@ -51,7 +69,7 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new ErrorResponse(
                         "Internal Server Error",
-                        e.getMessage(),
+                        "An unexpected error occurred",
                         LocalDateTime.now()
                 ));
     }

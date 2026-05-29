@@ -1,10 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.CustomUserDetails;
 import com.example.demo.model.ShiftEntity;
 import com.example.demo.model.UserEntity;
 import com.example.demo.repository.ShiftRepository;
 import com.example.demo.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
@@ -24,8 +27,10 @@ public class ShiftService {
         this.userRepository = userRepository;
     }
 
-    public List<ShiftEntity> getAllShifts() {
-        return shiftRepository.findAll();
+    public Page<ShiftEntity> getAllShifts(Pageable pageable) {
+        Objects.requireNonNull(pageable, "Pageable must be provided");
+
+        return shiftRepository.findAll(pageable);
     }
 
     public List<ShiftEntity> getShiftsByUser(Long userId) {
@@ -40,7 +45,7 @@ public class ShiftService {
         Objects.requireNonNull(shiftEnd, "Shift end must be provided");
 
         UserEntity user = userRepository.findById(customUserDetails.getId())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         ShiftEntity shift = new ShiftEntity(user, shiftStart, shiftEnd);
 
@@ -52,7 +57,7 @@ public class ShiftService {
         Objects.requireNonNull(id, "Shift ID must be provided");
 
         ShiftEntity shift = shiftRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Shift not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Shift not found"));
 
         if (!Objects.equals(shift.getUser().getId(), customUserDetails.getId())) {
             throw new AccessDeniedException("You can only delete your own shifts");

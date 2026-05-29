@@ -3,6 +3,8 @@ package com.example.demo.service;
 import com.example.demo.dto.CreateUserRequest;
 import com.example.demo.dto.UpdatePasswordRequest;
 import com.example.demo.dto.UpdateUsernameRequest;
+import com.example.demo.exception.DuplicateResourceException;
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.Role;
 import com.example.demo.model.UserEntity;
 import com.example.demo.repository.UserRepository;
@@ -29,7 +31,7 @@ public class UserService {
     @Transactional
     public UserEntity createUser(CreateUserRequest user) {
         if (userRepository.existsByUsername(user.username())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new DuplicateResourceException("Username already exists");
         }
 
         UserEntity newUser = new UserEntity();
@@ -42,7 +44,8 @@ public class UserService {
 
     public UserEntity getUserById(Long userId) {
         Objects.requireNonNull(userId, "User ID must be provided");
-        return userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
     }
 
     public UserEntity getByUsername(String username) {
@@ -67,11 +70,11 @@ public class UserService {
         Objects.requireNonNull(userId, "User ID must be provided");
 
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         UserEntity existingUser = userRepository.findByUsername(dto.username());
         if (existingUser != null && !Objects.equals(existingUser.getId(), user.getId())) {
-            throw new IllegalArgumentException("Username already exists");
+            throw new DuplicateResourceException("Username already exists");
         }
 
         user.setUsername(dto.username());
@@ -82,7 +85,7 @@ public class UserService {
         Objects.requireNonNull(userId, "User ID must be provided");
 
         UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         if (!encoder.matches(dto.oldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Old password is incorrect");

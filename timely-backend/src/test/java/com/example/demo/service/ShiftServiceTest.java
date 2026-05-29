@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exception.ResourceNotFoundException;
 import com.example.demo.model.CustomUserDetails;
 import com.example.demo.model.ShiftEntity;
 import com.example.demo.model.UserEntity;
@@ -10,9 +11,14 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,6 +35,26 @@ class ShiftServiceTest {
 
     @InjectMocks
     private ShiftService shiftService;
+
+    @Test
+    void getAllShifts_shouldReturnPagedShifts() {
+        UserEntity user = userWithId(1L);
+        ShiftEntity shift = new ShiftEntity(
+                user,
+                Instant.parse("2026-05-24T08:00:00Z"),
+                Instant.parse("2026-05-24T16:00:00Z")
+        );
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ShiftEntity> page = new PageImpl<>(List.of(shift), pageable, 1);
+
+        when(shiftRepository.findAll(pageable)).thenReturn(page);
+
+        Page<ShiftEntity> result = shiftService.getAllShifts(pageable);
+
+        assertEquals(1, result.getTotalElements());
+        assertSame(shift, result.getContent().get(0));
+        verify(shiftRepository).findAll(pageable);
+    }
 
     @Test
     void createShift_shouldReturnSavedShift_whenInputIsValid() {
@@ -56,7 +82,7 @@ class ShiftServiceTest {
 
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () ->
+        assertThrows(ResourceNotFoundException.class, () ->
                 shiftService.createShift(
                         principal,
                         Instant.parse("2026-05-24T08:00:00Z"),
@@ -115,6 +141,17 @@ class ShiftServiceTest {
         when(shiftRepository.findById(10L)).thenReturn(Optional.of(shift));
 
         assertThrows(AccessDeniedException.class, () -> shiftService.deleteShift(principal, 10L));
+        verify(shiftRepository, never()).delete(any());
+    }
+
+    @Test
+    void deleteShift_shouldThrowNotFound_whenShiftDoesNotExist() {
+        UserEntity user = userWithId(1L);
+        CustomUserDetails principal = new CustomUserDetails(user);
+
+        when(shiftRepository.findById(10L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> shiftService.deleteShift(principal, 10L));
         verify(shiftRepository, never()).delete(any());
     }
 
