@@ -1,18 +1,38 @@
-## 📋 About
+# Timely
 
-Track your work hours, calculate your salary, and view your total hours worked for each month with ease.
+Timely is a simple shift tracking app for logging work hours, checking monthly totals, and estimating salary.
 
-## 🛠️ Tech Stack
+## Features
 
-<div> <img src="https://img.shields.io/badge/Frontend-React-blue?style=for-the-badge&logo=react" /> 
-  <img src="https://img.shields.io/badge/Frontend-Vite-646CFF?style=for-the-badge&logo=vite&logoColor=white" /> 
-  <img src="https://img.shields.io/badge/Backend-Java%20Spring%20Boot-green?style=for-the-badge&logo=springboot" /> 
-  <img src="https://img.shields.io/badge/Database-PostgreSQL-blueviolet?style=for-the-badge&logo=postgresql" /> 
-  <img src="https://img.shields.io/badge/Styling-CSS%20Modules-purple?style=for-the-badge&logo=css3" /> 
-</div>
+- Register and log in with username/password or Google
+- View shifts by month
+- Add and delete shifts
+- Import shifts from pasted text
+- Track total worked time
+- Estimate salary from hourly rate
 
-## 🌐 Deployment
+## Screenshots
 
-The frontend is hosted on Google Firebase. You can try out the app [here](https://timely-front-end.web.app/).
+### Login
 
-**Note:** If the app is loading slowly, please be patient and wait for a minute. This is because the backend server may need to start after periods of inactivity.
+![Login screen](docs/screenshots/login.png)
+
+### Register
+
+![Register screen](docs/screenshots/register.png)
+
+### Shifts
+
+![Main shifts page](docs/screenshots/shifts.png)
+
+### Add shift
+
+![Add shift modal](docs/screenshots/add-shift-modal.png)
+
+### Selected shift day
+
+![Selected shift day](docs/screenshots/selected-shift-day.png)
+
+### Settings
+
+![Settings modal](docs/screenshots/settings.png)
