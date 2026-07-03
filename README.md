@@ -1,6 +1,6 @@
 # Timely
 
-Timely is a simple shift tracking app for logging work hours, checking monthly totals, and estimating salary.
+A full-stack employee time tracking platform for logging work hours, viewing monthly summaries, and estimating salary.
 
 ## Features
 
