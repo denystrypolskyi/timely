@@ -110,6 +110,91 @@ class ShiftServiceTest {
     }
 
     @Test
+    void updateShift_shouldUpdateAndSaveShiftOwnedByCurrentUser() {
+        UserEntity user = userWithId(1L);
+        CustomUserDetails principal = new CustomUserDetails(user);
+        ShiftEntity shift = new ShiftEntity(
+                user,
+                Instant.parse("2026-05-24T08:00:00Z"),
+                Instant.parse("2026-05-24T16:00:00Z")
+        );
+        Instant updatedStart = Instant.parse("2026-05-25T09:00:00Z");
+        Instant updatedEnd = Instant.parse("2026-05-25T17:00:00Z");
+
+        when(shiftRepository.findById(10L)).thenReturn(Optional.of(shift));
+        when(shiftRepository.save(shift)).thenReturn(shift);
+
+        ShiftEntity result = shiftService.updateShift(principal, 10L, updatedStart, updatedEnd);
+
+        assertSame(shift, result);
+        assertEquals(updatedStart, result.getShiftStart());
+        assertEquals(updatedEnd, result.getShiftEnd());
+        verify(shiftRepository).save(shift);
+    }
+
+    @Test
+    void updateShift_shouldRejectShiftOwnedByAnotherUser() {
+        UserEntity currentUser = userWithId(1L);
+        UserEntity otherUser = userWithId(2L);
+        CustomUserDetails principal = new CustomUserDetails(currentUser);
+        ShiftEntity shift = new ShiftEntity(
+                otherUser,
+                Instant.parse("2026-05-24T08:00:00Z"),
+                Instant.parse("2026-05-24T16:00:00Z")
+        );
+
+        when(shiftRepository.findById(10L)).thenReturn(Optional.of(shift));
+
+        assertThrows(AccessDeniedException.class, () -> shiftService.updateShift(
+                principal,
+                10L,
+                Instant.parse("2026-05-25T09:00:00Z"),
+                Instant.parse("2026-05-25T17:00:00Z")
+        ));
+
+        verify(shiftRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShift_shouldThrowNotFound_whenShiftDoesNotExist() {
+        UserEntity user = userWithId(1L);
+        CustomUserDetails principal = new CustomUserDetails(user);
+
+        when(shiftRepository.findById(10L)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class, () -> shiftService.updateShift(
+                principal,
+                10L,
+                Instant.parse("2026-05-25T09:00:00Z"),
+                Instant.parse("2026-05-25T17:00:00Z")
+        ));
+
+        verify(shiftRepository, never()).save(any());
+    }
+
+    @Test
+    void updateShift_shouldRejectEndBeforeStart() {
+        UserEntity user = userWithId(1L);
+        CustomUserDetails principal = new CustomUserDetails(user);
+        ShiftEntity shift = new ShiftEntity(
+                user,
+                Instant.parse("2026-05-24T08:00:00Z"),
+                Instant.parse("2026-05-24T16:00:00Z")
+        );
+
+        when(shiftRepository.findById(10L)).thenReturn(Optional.of(shift));
+
+        assertThrows(IllegalArgumentException.class, () -> shiftService.updateShift(
+                principal,
+                10L,
+                Instant.parse("2026-05-25T17:00:00Z"),
+                Instant.parse("2026-05-25T09:00:00Z")
+        ));
+
+        verify(shiftRepository, never()).save(any());
+    }
+
+    @Test
     void deleteShift_shouldDeleteShiftOwnedByCurrentUser() {
         UserEntity user = userWithId(1L);
         CustomUserDetails principal = new CustomUserDetails(user);

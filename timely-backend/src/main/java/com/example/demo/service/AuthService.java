@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.dto.CreateUserRequest;
 import com.example.demo.dto.LoginRequest;
 import com.example.demo.model.CustomUserDetails;
 import org.springframework.beans.factory.annotation.Autowired;

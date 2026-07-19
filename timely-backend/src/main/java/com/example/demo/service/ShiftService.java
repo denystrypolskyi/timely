@@ -52,6 +52,27 @@ public class ShiftService {
         return shiftRepository.save(shift);
     }
 
+    public ShiftEntity updateShift(
+            CustomUserDetails currentUser,
+            Long shiftId,
+            Instant shiftStart,
+            Instant shiftEnd) {
+        Objects.requireNonNull(currentUser, "Authenticated user must be provided");
+        Objects.requireNonNull(shiftId, "Shift ID must be provided");
+        Objects.requireNonNull(shiftStart, "Shift start must be provided");
+        Objects.requireNonNull(shiftEnd, "Shift end must be provided");
+
+        ShiftEntity shift = shiftRepository.findById(shiftId)
+                .orElseThrow(() -> new ResourceNotFoundException("Shift not found"));
+
+        if (!Objects.equals(shift.getUser().getId(), currentUser.getId())) {
+            throw new AccessDeniedException("You can only update your own shifts");
+        }
+
+        shift.updateShiftTimes(shiftStart, shiftEnd);
+        return shiftRepository.save(shift);
+    }
+
     public ShiftEntity deleteShift(CustomUserDetails customUserDetails, Long id) {
         Objects.requireNonNull(customUserDetails, "Authenticated user must be provided");
         Objects.requireNonNull(id, "Shift ID must be provided");
@@ -67,14 +88,14 @@ public class ShiftService {
         return shift;
     }
 
-
     public List<ShiftEntity> getShiftsByUserAndMonth(Long userId, int year, int month) {
 
         validateInputs(userId, year, month);
 
         YearMonth yearMonth = YearMonth.of(year, month);
 
-        ZoneId zone = ZoneId.of("Europe/Warsaw"); // TODO: add timeZone field to UserEntity for per-user timezone support.
+        ZoneId zone = ZoneId.of("Europe/Warsaw"); // TODO: add timeZone field to UserEntity for per-user timezone
+                                                  // support.
 
         Instant start = yearMonth
                 .atDay(1)
@@ -89,8 +110,7 @@ public class ShiftService {
 
         return shiftRepository
                 .findWithUserByUserIdAndShiftStartGreaterThanEqualAndShiftStartLessThan(
-                        userId, start, end
-                );
+                        userId, start, end);
     }
 
     private void validateInputs(Long userId, int year, int month) {
