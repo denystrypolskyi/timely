@@ -9,11 +9,11 @@
 		<version>3.4.0</version>
 		<relativePath />
 	</parent>
-	<groupId>com.example</groupId>
-	<artifactId>demo</artifactId>
+	<groupId>io.github.denystrypolskyi</groupId>
+	<artifactId>backend</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
-	<name>demo</name>
-	<description>demo</description>
+	<name>backend</name>
+	<description>Shift-tracking backend API</description>
 	<url />
 	<licenses>
 		<license />

@@ -1,8 +1,22 @@
+name: work-tracker
+
 services:
-  timely-backend:
+  backend:
     build:
       context: ./timely-backend
-    ports:
-      - "8080:8080"
     env_file:
       - ./timely-backend/.env
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+    restart: unless-stopped
+
+  telegram-bot:
+    build:
+      context: ./timely-telegram-bot
+    env_file:
+      - ./timely-telegram-bot/.env
+    environment:
+      BACKEND_URL: http://backend:8080
+    depends_on:
+      - backend
+    restart: unless-stopped

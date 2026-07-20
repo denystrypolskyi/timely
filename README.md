@@ -1,4 +1,4 @@
-# Timely
+# Shift Tracker
 
 A full-stack employee time tracking platform for logging work hours, viewing monthly summaries, and estimating salary.
 

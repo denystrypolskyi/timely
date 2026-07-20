@@ -33,3 +33,11 @@ build/
 ### VS Code ###
 .vscode/
 target/
+
+.env.*
+!.env.example
+*.log
+hs_err_pid*.log
+replay_pid*.log
+.DS_Store
+Thumbs.db

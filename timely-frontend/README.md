@@ -1,6 +1,6 @@
-# Timely Frontend
+# Frontend
 
-Frontend application for Timely, a shift and work-hours tracking app.
+Frontend for a shift and work-hours tracking application.
 
 ## Technologies
 
@@ -26,6 +26,7 @@ npm install
 Create a `.env` file and set the API base URL:
 
 ```bash
+VITE_APP_NAME=Shift Tracker
 VITE_API_URL=http://localhost:8080
 ```
 

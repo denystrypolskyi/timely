@@ -1,23 +1,26 @@
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9.16-eclipse-temurin-17 AS build
 
-WORKDIR /app
+WORKDIR /build
 
 COPY pom.xml .
-RUN mvn dependency:go-offline
+RUN mvn --batch-mode dependency:go-offline
 
 COPY src ./src
-RUN mvn clean package -DskipTests
+RUN mvn --batch-mode clean package
 
 FROM eclipse-temurin:17-jre
 
 WORKDIR /app
 
-RUN useradd --system --create-home appuser
+RUN groupadd --system appuser \
+    && useradd --system --gid appuser --no-create-home appuser
 
-COPY --from=build /app/target/*.jar app.jar
+COPY --from=build --chown=appuser:appuser \
+    /build/target/backend-0.0.1-SNAPSHOT.jar \
+    /app/backend.jar
 
 USER appuser
 
 EXPOSE 8080
 
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+ENTRYPOINT ["java", "-jar", "/app/backend.jar"]

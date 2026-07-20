@@ -1,6 +1,6 @@
-# Timely Backend
+# Backend
 
-Backend API for Timely, a shift tracking application. It handles user registration and login, JWT/OAuth2 authentication, profile updates, and shift management.
+Backend API for a shift-tracking application. It handles user registration and login, JWT/OAuth2 authentication, profile updates, and shift management.
 
 ## Technologies
 
@@ -75,13 +75,13 @@ On Windows:
 Build the image:
 
 ```bash
-docker build -t timely-backend .
+docker build -t shift-backend .
 ```
 
 Run the container:
 
 ```bash
-docker run --env-file .env -p 8080:8080 timely-backend
+docker run --env-file .env -p 8080:8080 shift-backend
 ```
 
 ## API Overview
