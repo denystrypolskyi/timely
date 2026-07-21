@@ -12,8 +12,10 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 
@@ -26,12 +28,15 @@ class UserServiceTest {
     @Mock
     private UserRepository userRepository;
 
+    @Spy
+    private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);
+
     @InjectMocks
     private UserService userService;
 
     @Test
     void createUser_shouldSaveUserWithEncodedPasswordAndDefaultRole() {
-        CreateUserRequest request = new CreateUserRequest("alice", "password123");
+        CreateUserRequest request = new CreateUserRequest("alice", "password1234");
 
         when(userRepository.existsByUsername("alice")).thenReturn(false);
         when(userRepository.save(any(UserEntity.class))).thenAnswer(invocation -> invocation.getArgument(0));
@@ -40,14 +45,14 @@ class UserServiceTest {
 
         assertEquals("alice", result.getUsername());
         assertEquals(Role.USER, result.getRole());
-        assertNotEquals("password123", result.getPassword());
-        assertTrue(new BCryptPasswordEncoder(12).matches("password123", result.getPassword()));
+        assertNotEquals("password1234", result.getPassword());
+        assertTrue(new BCryptPasswordEncoder(12).matches("password1234", result.getPassword()));
         verify(userRepository).save(any(UserEntity.class));
     }
 
     @Test
     void createUser_shouldThrowConflict_whenUsernameAlreadyExists() {
-        CreateUserRequest request = new CreateUserRequest("alice", "password123");
+        CreateUserRequest request = new CreateUserRequest("alice", "password1234");
 
         when(userRepository.existsByUsername("alice")).thenReturn(true);
 
@@ -123,6 +128,7 @@ class UserServiceTest {
         userService.updatePassword(1L, request);
 
         assertTrue(new BCryptPasswordEncoder(12).matches("new-password", user.getPassword()));
+        assertEquals(1L, user.getTokenVersion());
         verify(userRepository).save(user);
     }
 

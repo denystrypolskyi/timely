@@ -5,7 +5,7 @@ Backend API for a shift-tracking application. It handles user registration and l
 ## Technologies
 
 - Java 17
-- Spring Boot 3.4
+- Spring Boot 3.5
 - Spring Web
 - Spring Data JPA / Hibernate
 - Spring Security
@@ -38,11 +38,19 @@ DB_PASSWORD=
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URI=
+OAUTH2_ENABLED=false
+
+FRONTEND_URL=
+OAUTH2_REDIRECT_URL=
+REGISTRATION_ENABLED=false
 
 JWT_SECRET=
+JWT_EXPIRATION_MS=3600000
 ```
 
-The application uses the `dev` Spring profile by default. Production settings are available in `src/main/resources/application-prod.properties`.
+`JWT_SECRET` must be a random value of at least 32 bytes. Keep it out of Git and back it up with the rest of your VPS secrets.
+
+The application uses the `dev` Spring profile by default. The production profile disables public registration, Google OAuth, Swagger UI, and API docs unless explicitly configured. Keep registration disabled after creating the accounts you need. If Google OAuth is enabled, all three Google variables and `OAUTH2_REDIRECT_URL` are required.
 
 ## Run Locally
 
@@ -90,6 +98,7 @@ Main API groups:
 
 - `POST /api/users/register` - create a user
 - `POST /api/users/login` - log in and receive a JWT
+- `POST /api/users/oauth/exchange` - exchange a one-time Google login code for a JWT
 - `GET /api/users/profile` - get the current user profile
 - `PATCH /api/users/username` - update username
 - `PATCH /api/users/password` - update password
@@ -102,8 +111,18 @@ Admin-only endpoints are also available for listing users, deleting users, and l
 
 ## API Docs
 
-When the app is running, Swagger UI is available at:
+With the development profile, Swagger UI is available at:
 
 ```text
 http://localhost:8080/swagger-ui/index.html
 ```
+
+Swagger UI and its API document endpoint are disabled in production.
+
+## Authentication Notes
+
+- Passwords must contain 12-72 characters and fit within bcrypt's 72-byte input limit.
+- JWTs expire after one hour by default. Changing a password immediately invalidates previously issued JWTs.
+- Login, registration, and OAuth endpoints are rate-limited per client IP.
+- Google login redirects with a 60-second, one-use code. A frontend must exchange that code at `POST /api/users/oauth/exchange`; JWTs are never placed in redirect URLs.
+- Google accounts are identified by Google's stable subject ID. They are not automatically linked to an existing password account with the same email address.

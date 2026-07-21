@@ -1,6 +1,5 @@
 package io.github.denystrypolskyi.backend.model;
 
-import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,5 +51,9 @@ public class CustomUserDetails implements UserDetails {
 
     public Long getId() {
         return user.getId();
+    }
+
+    public long getTokenVersion() {
+        return user.getTokenVersion();
     }
 }

@@ -12,4 +12,6 @@ import org.springframework.context.annotation.Configuration;
 public class AppProperties {
     private String frontendUrl;
     private String oauth2RedirectUrl;
+    private boolean oauth2Enabled;
+    private boolean registrationEnabled;
 }

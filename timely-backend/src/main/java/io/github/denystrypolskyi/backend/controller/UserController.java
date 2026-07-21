@@ -1,6 +1,7 @@
 package io.github.denystrypolskyi.backend.controller;
 
 import io.github.denystrypolskyi.backend.dto.*;
+import io.github.denystrypolskyi.backend.config.AppProperties;
 import io.github.denystrypolskyi.backend.mapper.UserMapper;
 import io.github.denystrypolskyi.backend.model.CustomUserDetails;
 import io.github.denystrypolskyi.backend.model.UserEntity;
@@ -12,6 +13,7 @@ import java.util.List;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.CacheControl;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -24,16 +26,22 @@ public class UserController {
     public final UserService userService;
     public final AuthService authService;
     public final UserMapper userMapper;
+    private final AppProperties appProperties;
 
     @Autowired
-    public UserController(UserService userService, AuthService authService, UserMapper userMapper) {
+    public UserController(UserService userService, AuthService authService, UserMapper userMapper,
+                          AppProperties appProperties) {
         this.userService = userService;
         this.authService = authService;
         this.userMapper = userMapper;
+        this.appProperties = appProperties;
     }
 
     @PostMapping("/register")
     public ResponseEntity<UserResponse> createUser(@RequestBody @Valid CreateUserRequest request) {
+        if (!appProperties.isRegistrationEnabled()) {
+            throw new org.springframework.security.access.AccessDeniedException("Registration is disabled");
+        }
         UserEntity newUser = userService.createUser(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(userMapper.toDTO(newUser));
     }
@@ -50,7 +58,21 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest request) {
         String token = authService.login(request);
-        return ResponseEntity.ok(new TokenResponse(token));
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(new TokenResponse(token));
+    }
+
+    @PostMapping("/oauth/exchange")
+    public ResponseEntity<TokenResponse> exchangeOAuth2Code(
+            @RequestBody @Valid OAuth2CodeExchangeRequest request) {
+        if (!appProperties.isOauth2Enabled()) {
+            throw new org.springframework.security.access.AccessDeniedException("OAuth login is disabled");
+        }
+        String token = authService.exchangeOAuth2Code(request.code());
+        return ResponseEntity.ok()
+                .cacheControl(CacheControl.noStore())
+                .body(new TokenResponse(token));
     }
 
     @GetMapping()

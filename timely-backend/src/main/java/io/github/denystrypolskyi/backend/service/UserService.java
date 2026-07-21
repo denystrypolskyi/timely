@@ -14,29 +14,31 @@ import java.util.Objects;
 
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.passwordEncoder = passwordEncoder;
     }
-
-    private final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(12);
 
     @Transactional
     public UserEntity createUser(CreateUserRequest user) {
+        PasswordPolicy.validate(user.password());
+
         if (userRepository.existsByUsername(user.username())) {
             throw new DuplicateResourceException("Username already exists");
         }
 
         UserEntity newUser = new UserEntity();
         newUser.setUsername(user.username());
-        newUser.setPassword(encoder.encode(user.password()));
+        newUser.setPassword(passwordEncoder.encode(user.password()));
         newUser.setRole(Role.USER); // default role
 
         return userRepository.save(newUser);
@@ -66,6 +68,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    @Transactional
     public UserEntity updateUsername(Long userId, UpdateUsernameRequest dto) {
         Objects.requireNonNull(userId, "User ID must be provided");
 
@@ -81,17 +84,20 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional
     public void updatePassword(Long userId, UpdatePasswordRequest dto) {
         Objects.requireNonNull(userId, "User ID must be provided");
+        PasswordPolicy.validate(dto.newPassword());
 
         UserEntity user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
-        if (!encoder.matches(dto.oldPassword(), user.getPassword())) {
+        if (user.getPassword() == null || !passwordEncoder.matches(dto.oldPassword(), user.getPassword())) {
             throw new IllegalArgumentException("Old password is incorrect");
         }
 
-        user.setPassword(encoder.encode(dto.newPassword()));
+        user.setPassword(passwordEncoder.encode(dto.newPassword()));
+        user.setTokenVersion(user.getTokenVersion() + 1);
         userRepository.save(user);
     }
 

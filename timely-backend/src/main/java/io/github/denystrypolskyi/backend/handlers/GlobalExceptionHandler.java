@@ -28,7 +28,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorResponse> handleAuth(BadCredentialsException e) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(new ErrorResponse("Unauthorized",
-                        "Invalid username or password",
+                        "Invalid credentials",
                         LocalDateTime.now()));
     }
 

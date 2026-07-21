@@ -1,35 +1,33 @@
 package io.github.denystrypolskyi.backend.config;
 
 import java.io.IOException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import io.github.denystrypolskyi.backend.model.UserEntity;
-import io.github.denystrypolskyi.backend.repository.UserRepository;
-import io.github.denystrypolskyi.backend.service.JWTService;
-import io.github.denystrypolskyi.backend.service.UserService;
+import io.github.denystrypolskyi.backend.service.OAuth2AccountService;
+import io.github.denystrypolskyi.backend.service.OAuth2LoginCodeService;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 @Component
 public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
-    private final JWTService jwtService;
-    private final UserService userService;
-    private final UserRepository userRepository;
+    private final OAuth2AccountService accountService;
+    private final OAuth2LoginCodeService loginCodeService;
     private final AppProperties appProperties;
 
     @Autowired
-    public OAuth2SuccessHandler(JWTService jwtService, UserService userService, UserRepository userRepository, AppProperties appProperties) {
-        this.jwtService = jwtService;
-        this.userService = userService;
-        this.userRepository = userRepository;
+    public OAuth2SuccessHandler(OAuth2AccountService accountService,
+                                OAuth2LoginCodeService loginCodeService,
+                                AppProperties appProperties) {
+        this.accountService = accountService;
+        this.loginCodeService = loginCodeService;
         this.appProperties = appProperties;
     }
 
@@ -38,26 +36,22 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
                                         HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
-        OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+        try {
+            OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
+            UserEntity user = accountService.findOrCreateGoogleUser(oAuth2User);
+            String loginCode = loginCodeService.issue(user.getId());
+            String redirectUrl = UriComponentsBuilder
+                    .fromUriString(appProperties.getOauth2RedirectUrl())
+                    .queryParam("code", loginCode)
+                    .build()
+                    .encode()
+                    .toUriString();
 
-        String email = oAuth2User.getAttribute("email");
-        String fullName = oAuth2User.getAttribute("name");
-
-        UserEntity user = userService.getByEmail(email);
-
-        if (user == null) {
-            user = new UserEntity();
-            user.setEmail(email);
-            user.setUsername(email);
-            user.setFullName(fullName);
-            user = userRepository.save(user);
+            response.setHeader("Cache-Control", "no-store");
+            response.setHeader("Referrer-Policy", "no-referrer");
+            response.sendRedirect(redirectUrl);
+        } catch (BadCredentialsException exception) {
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "OAuth login failed");
         }
-
-        String jwt = jwtService.generateToken(user.getEmail(), user.getId());
-
-        String redirectUrl = appProperties.getOauth2RedirectUrl()
-                + "?token=" + URLEncoder.encode(jwt, StandardCharsets.UTF_8);
-
-        response.sendRedirect(redirectUrl);
     }
 }

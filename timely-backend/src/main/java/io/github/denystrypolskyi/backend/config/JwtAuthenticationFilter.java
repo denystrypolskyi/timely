@@ -45,12 +45,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = header.substring(7);
 
             try {
-                String username = jwtService.extractUsername(token);
+                JWTService.TokenClaims claims = jwtService.parseToken(token);
+                CustomUserDetails user = userDetailsService.loadUserById(claims.userId());
 
-                CustomUserDetails user =
-                        (CustomUserDetails) userDetailsService.loadUserByUsername(username);
-
-                if (!jwtService.isTokenValid(token, user)) {
+                if (user.getTokenVersion() != claims.tokenVersion()) {
                     throw new BadCredentialsException("Invalid JWT");
                 }
 

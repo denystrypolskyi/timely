@@ -3,8 +3,7 @@ package io.github.denystrypolskyi.backend.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
-public record LoginRequest(
-        @NotBlank @Size(max = 50) String username,
-        @NotBlank @Size(max = 72) String password
+public record OAuth2CodeExchangeRequest(
+        @NotBlank @Size(max = 128) String code
 ) {
 }

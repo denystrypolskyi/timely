@@ -1,6 +1,15 @@
 package io.github.denystrypolskyi.backend.dto;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 
-public record CreateUserRequest(@NotBlank String username, @NotBlank String password) {
+public record CreateUserRequest(
+        @NotBlank
+        @Pattern(regexp = "^[A-Za-z0-9][A-Za-z0-9._-]{2,49}$")
+        String username,
+        @NotBlank
+        @Size(min = 12, max = 72)
+        String password
+) {
 }
