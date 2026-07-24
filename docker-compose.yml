@@ -1,7 +1,15 @@
 name: work-tracker
 
 services:
+  frontend:
+    build:
+      context: ./timely-frontend
+    ports:
+      - "127.0.0.1:3000:80"
+    restart: unless-stopped
   backend:
+    ports:
+      - "127.0.0.1:8080:8080"
     build:
       context: ./timely-backend
     env_file:
