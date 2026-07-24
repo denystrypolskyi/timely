@@ -39,14 +39,19 @@ const PasteShiftsModal = ({
 
     return (
         <div className={styles.overlay}>
-            <div className={styles.modal}>
+            <div
+                className={styles.modal}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="paste-shifts-title"
+            >
                 <div className={styles.header}>
                     <div>
                         <span className={styles.eyebrow}>
                             Bulk entry
                         </span>
 
-                        <h2 className={styles.title}>
+                        <h2 id="paste-shifts-title" className={styles.title}>
                             Paste shifts
                         </h2>
                     </div>
@@ -97,6 +102,9 @@ const PasteShiftsModal = ({
 05.05 08:15-16:15`}
                         rows={10}
                         className={styles.textarea}
+                        autoCapitalize="none"
+                        autoCorrect="off"
+                        spellCheck={false}
                     />
 
                     <p className={styles.helpText}>

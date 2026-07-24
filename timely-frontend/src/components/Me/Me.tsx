@@ -7,14 +7,16 @@ import AddShiftModal from "../AddHoursModal/AddShiftModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import SettingsModal from "../SettingsModal/SettingsModal";
 import PasteShiftsModal from "../ImportShiftsModal/PasteShiftsModal.tsx";
-import "@fortawesome/fontawesome-free/css/all.min.css";
 
 import {
     ClipboardPaste,
     LucideArrowLeft,
     LucideArrowRight,
     LucideLogOut,
-    LucideSettings, LucideTrash
+    LucidePlus,
+    LucideSettings,
+    LucideTrash,
+    LucideX,
 } from "lucide-react";
 
 import {
@@ -26,11 +28,12 @@ import {
 } from "../../utils/utils.ts";
 
 const formatShiftTime = (date: string) =>
-    new Date(date).toLocaleTimeString("en-US", {
+    new Date(date).toLocaleTimeString(undefined, {
         hour: "2-digit",
         minute: "2-digit",
-        hour12: true,
     });
+
+const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const Me = () => {
     const {
@@ -57,6 +60,12 @@ const Me = () => {
     const [isEditable, setIsEditable] = useState<boolean>(false);
 
     const selectedDateShifts = getShiftsForSelectedDate(shifts, selectedDate);
+    const monthDate = new Date(currentYear, currentMonth - 1);
+    const monthLabel = monthDate.toLocaleString(undefined, {
+        month: "long",
+        year: "numeric",
+    });
+    const leadingDays = (new Date(currentYear, currentMonth - 1, 1).getDay() + 6) % 7;
 
     const handleEditClick = () => {
         setIsEditable(true);
@@ -92,15 +101,26 @@ const Me = () => {
     };
 
     const handleDayClick = (
-        event: React.MouseEvent<HTMLDivElement>,
+        event: React.MouseEvent<HTMLButtonElement>,
         day: number
     ) => {
         setSelectedDate(day);
 
         const rect = event.currentTarget.getBoundingClientRect();
+        const dropdownWidth = Math.min(360, window.innerWidth - 32);
+        const left = Math.min(
+            Math.max(rect.left, 16),
+            window.innerWidth - dropdownWidth - 16
+        );
+        const estimatedDropdownHeight = 290;
+        const shouldOpenAbove =
+            rect.bottom + estimatedDropdownHeight + 16 > window.innerHeight;
+
         setDropdownPosition({
-            top: rect.bottom + window.scrollY,
-            left: rect.left + window.scrollX,
+            top: shouldOpenAbove
+                ? Math.max(16, rect.top - estimatedDropdownHeight) + window.scrollY
+                : rect.bottom + 8 + window.scrollY,
+            left: left + window.scrollX,
         });
     };
 
@@ -162,109 +182,156 @@ const Me = () => {
 
     return (
         <div className={styles.container}>
-            {error && <p>Error fetching work hours</p>}
-
-            <div className={styles.calendarBar}>
-                <div className={styles.controlsGroup}>
+            <header className={styles.appHeader}>
+                <nav className={styles.actions} aria-label="Account actions">
                     <button
-                        className={styles.iconButton}
-                        onClick={handlePreviousMonth}
+                        type="button"
+                        className={`${styles.iconButton} ${styles.actionButton}`}
+                        onClick={() => setIsImportOpen(true)}
+                        aria-label="Import shifts"
+                        title="Import shifts"
                     >
-                        <LucideArrowLeft size={20} />
+                        <ClipboardPaste size={20} />
+                        <span className={styles.actionLabel}>Import</span>
                     </button>
 
-                    <div className={styles.monthDisplay}>
-                        {new Date(currentYear, currentMonth - 1).toLocaleString(
-                            "default",
-                            {
-                                month: "long",
-                            }
-                        )}
-                        , {currentYear}
+                    <button
+                        type="button"
+                        className={`${styles.iconButton} ${styles.actionButton}`}
+                        onClick={toggleSettings}
+                        aria-label="Open settings"
+                        title="Settings"
+                    >
+                        <LucideSettings size={20} />
+                        <span className={styles.actionLabel}>Settings</span>
+                    </button>
+
+                    <button
+                        type="button"
+                        className={`${styles.iconButton} ${styles.actionButton} ${styles.dangerButton}`}
+                        onClick={logout}
+                        aria-label="Log out"
+                        title="Log out"
+                    >
+                        <LucideLogOut size={20} />
+                        <span className={styles.actionLabel}>Log out</span>
+                    </button>
+                </nav>
+            </header>
+
+            {error && (
+                <p className={styles.errorBanner} role="alert">
+                    We couldn&apos;t load your shifts. Please try again.
+                </p>
+            )}
+
+            <section className={styles.monthSection} aria-labelledby="month-heading">
+                <div className={styles.calendarBar}>
+                    <button
+                        type="button"
+                        className={styles.iconButton}
+                        onClick={handlePreviousMonth}
+                        aria-label="Previous month"
+                    >
+                        <LucideArrowLeft size={21} />
+                    </button>
+
+                    <div className={styles.monthCopy}>
+                        <span className={styles.monthEyebrow}>Your schedule</span>
+                        <h1 id="month-heading" className={styles.monthDisplay}>
+                            {monthLabel}
+                        </h1>
                     </div>
 
                     <button
+                        type="button"
                         className={styles.iconButton}
                         onClick={handleNextMonth}
+                        aria-label="Next month"
                     >
-                        <LucideArrowRight size={20} />
+                        <LucideArrowRight size={21} />
                     </button>
                 </div>
 
-                <div className={styles.actions}>
-                    <button
-                        className={styles.iconButton}
-                        onClick={() => setIsImportOpen(true)}
-                    >
-                        <ClipboardPaste size={20} />
-                    </button>
+                <div className={styles.calendarCard}>
+                    <div className={styles.weekdays} aria-hidden="true">
+                        {WEEKDAYS.map((weekday) => (
+                            <span key={weekday}>{weekday}</span>
+                        ))}
+                    </div>
 
-                    <button
-                        className={styles.iconButton}
-                        onClick={toggleSettings}
+                    <div
+                        className={styles.calendarContainer}
+                        role="grid"
+                        aria-label={`${monthLabel} calendar`}
                     >
-                        <LucideSettings size={20} />
-                    </button>
+                        {Array.from({length: leadingDays}, (_, index) => (
+                            <span
+                                key={`blank-${index}`}
+                                className={styles.calendarBlank}
+                                aria-hidden="true"
+                            />
+                        ))}
 
-                    <button
-                        className={`${styles.iconButton} ${styles.dangerButton}`}
-                        onClick={logout}
-                    >
-                        <LucideLogOut size={20} />
-                    </button>
+                        {Array.from(
+                            {length: getDaysInMonth(currentYear, currentMonth)},
+                            (_, i) => {
+                                const day = i + 1;
+                                const date = new Date(currentYear, currentMonth - 1, day);
+                                const dayShifts = shifts.filter(
+                                    (shift) => new Date(shift.shiftStart).getDate() === day
+                                );
+                                const hasShift = dayShifts.length > 0;
+                                const today = new Date();
+                                const isToday =
+                                    today.getFullYear() === currentYear &&
+                                    today.getMonth() + 1 === currentMonth &&
+                                    today.getDate() === day;
+                                const dateLabel = date.toLocaleDateString(undefined, {
+                                    weekday: "long",
+                                    day: "numeric",
+                                    month: "long",
+                                });
+
+                                return (
+                                    <button
+                                        type="button"
+                                        role="gridcell"
+                                        key={day}
+                                        className={`
+                                            ${styles.calendarDay}
+                                            ${hasShift ? styles.dayWithShift : styles.dayEmpty}
+                                            ${selectedDate === day ? styles.selected : ""}
+                                            ${isToday ? styles.today : ""}
+                                        `}
+                                        aria-label={`${dateLabel}. ${
+                                            hasShift
+                                                ? `${dayShifts.length} ${dayShifts.length === 1 ? "shift" : "shifts"} recorded.`
+                                                : "No shift recorded. Tap to add one."
+                                        }`}
+                                        aria-selected={selectedDate === day}
+                                        onClick={(event) => {
+                                            handleDayClick(event, day);
+
+                                            if (!hasShift) {
+                                                setIsAddShiftModalOpen(true);
+                                            }
+                                        }}
+                                    >
+                                        <span>{day}</span>
+                                        {hasShift && <span className={styles.shiftDot} />}
+                                    </button>
+                                );
+                            }
+                        )}
+                    </div>
+
+                    <div className={styles.calendarLegend}>
+                        <span><i className={styles.legendDot} /> Shift recorded</span>
+                        <span>Tap a day to add or view</span>
+                    </div>
                 </div>
-            </div>
-
-            {isImportOpen && (
-                <PasteShiftsModal
-                    onClose={() => setIsImportOpen(false)}
-                    onSubmit={handleManualImport}
-                />
-            )}
-
-            <div className={styles.calendarContainer}>
-                {Array.from(
-                    {length: getDaysInMonth(currentYear, currentMonth)},
-                    (_, i) => {
-                        const day = i + 1;
-
-                        const hasShift = shifts.some(
-                            (shift) =>
-                                new Date(shift.shiftStart).getDate() === day
-                        );
-
-                        return (
-                            <div
-                                key={day}
-                                className={`
-                                ${styles.calendarDay}
-                                ${
-                                    hasShift
-                                        ? styles.dayWithShift
-                                        : styles.dayEmpty
-                                }
-                                ${
-                                    selectedDate === day
-                                        ? styles.selected
-                                        : ""
-                                }
-                            `}
-                                onClick={(event) => {
-                                    handleDayClick(event, day);
-
-                                    if (hasShift) {
-                                        setSelectedDate(day);
-                                    } else {
-                                        setIsAddShiftModalOpen(true);
-                                    }
-                                }}
-                            >
-                                {day}
-                            </div>
-                        );
-                    }
-                )}
-            </div>
+            </section>
 
             {isSettingsOpen && (
                 <SettingsModal
@@ -276,91 +343,126 @@ const Me = () => {
                 />
             )}
 
-            {selectedDate && !isAddShiftModalOpen && (
-                <div
-                    ref={dropdownRef}
-                    className={styles.dropdown}
-                    style={{
-                        top: dropdownPosition.top,
-                        left: dropdownPosition.left,
-                    }}
-                >
-                    <div className={styles.dropdownHeader}>
-                        <span className={styles.dropdownEyebrow}>
-                            Selected shift day
-                        </span>
+            {selectedDate !== null && !isAddShiftModalOpen && (
+                <>
+                    <div
+                        className={styles.sheetBackdrop}
+                        aria-hidden="true"
+                        onClick={() => setSelectedDate(null)}
+                    />
 
-                        <h3 className={styles.dropdownTitle}>
-                            {new Date(
-                                currentYear,
-                                currentMonth - 1,
-                                selectedDate
-                            ).toLocaleDateString(undefined, {
-                                day: "numeric",
-                                month: "long",
-                                year: "numeric",
-                            })}
-                        </h3>
-                    </div>
+                    <div
+                        ref={dropdownRef}
+                        className={styles.dropdown}
+                        style={{
+                            top: dropdownPosition.top,
+                            left: dropdownPosition.left,
+                        }}
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="selected-day-title"
+                    >
+                        <div className={styles.sheetHandle} aria-hidden="true" />
 
-                    {selectedDateShifts.length > 0 ? (
-                        selectedDateShifts.map((shift) => (
-                            <div
-                                key={shift.id}
-                                className={styles.shiftInfo}
-                            >
-                                <div className={styles.shiftSummary}>
-                                    <div className={styles.shiftMetric}>
-                                        <span className={styles.shiftLabel}>
-                                            Start
-                                        </span>
+                        <div className={styles.dropdownHeader}>
+                            <div>
+                                <span className={styles.dropdownEyebrow}>
+                                    Selected day
+                                </span>
 
-                                        <span className={styles.shiftValue}>
-                                            {formatShiftTime(shift.shiftStart)}
-                                        </span>
-                                    </div>
-
-                                    <div className={styles.shiftMetric}>
-                                        <span className={styles.shiftLabel}>
-                                            End
-                                        </span>
-
-                                        <span className={styles.shiftValue}>
-                                            {formatShiftTime(shift.shiftEnd)}
-                                        </span>
-                                    </div>
-
-                                    <div className={`${styles.shiftMetric} ${styles.durationMetric}`}>
-                                        <span className={styles.shiftLabel}>
-                                            Duration
-                                        </span>
-
-                                        <span className={styles.shiftValue}>
-                                            {formatMinutesToHours(
-                                                shift.shiftDurationMinutes
-                                            )}
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <button
-                                    type="button"
-                                    className={styles.shiftDeleteButton}
-                                    aria-label="Delete shift"
-                                    onClick={() =>
-                                        handleDeleteShift(shift.id)
-                                    }
-                                >
-                                    <LucideTrash size={18} />
-                                </button>
+                                <h2 id="selected-day-title" className={styles.dropdownTitle}>
+                                    {new Date(
+                                        currentYear,
+                                        currentMonth - 1,
+                                        selectedDate
+                                    ).toLocaleDateString(undefined, {
+                                        weekday: "long",
+                                        day: "numeric",
+                                        month: "long",
+                                    })}
+                                </h2>
                             </div>
-                        ))
-                    ) : (
-                        <p className={styles.emptyState}>
-                            No shifts recorded.
-                        </p>
-                    )}
-                </div>
+
+                            <button
+                                type="button"
+                                className={styles.sheetCloseButton}
+                                onClick={() => setSelectedDate(null)}
+                                aria-label="Close shift details"
+                            >
+                                <LucideX size={20} />
+                            </button>
+                        </div>
+
+                        <div className={styles.shiftList}>
+                            {selectedDateShifts.length > 0 ? (
+                                selectedDateShifts.map((shift) => (
+                                    <div
+                                        key={shift.id}
+                                        className={styles.shiftInfo}
+                                    >
+                                        <div className={styles.shiftSummary}>
+                                            <div className={styles.shiftMetric}>
+                                                <span className={styles.shiftLabel}>
+                                                    Start
+                                                </span>
+
+                                                <span className={styles.shiftValue}>
+                                                    {formatShiftTime(shift.shiftStart)}
+                                                </span>
+                                            </div>
+
+                                            <div className={styles.shiftMetric}>
+                                                <span className={styles.shiftLabel}>
+                                                    End
+                                                </span>
+
+                                                <span className={styles.shiftValue}>
+                                                    {formatShiftTime(shift.shiftEnd)}
+                                                </span>
+                                            </div>
+
+                                            <div className={`${styles.shiftMetric} ${styles.durationMetric}`}>
+                                                <span className={styles.shiftLabel}>
+                                                    Duration
+                                                </span>
+
+                                                <span className={styles.shiftValue}>
+                                                    {formatMinutesToHours(
+                                                        shift.shiftDurationMinutes
+                                                    )}
+                                                </span>
+                                            </div>
+                                        </div>
+
+                                        <button
+                                            type="button"
+                                            className={styles.shiftDeleteButton}
+                                            aria-label="Delete shift"
+                                            onClick={() =>
+                                                handleDeleteShift(shift.id)
+                                            }
+                                        >
+                                            <LucideTrash size={18} />
+                                        </button>
+                                    </div>
+                                ))
+                            ) : (
+                                <p className={styles.emptyState}>
+                                    No shifts recorded.
+                                </p>
+                            )}
+                        </div>
+
+                        <button
+                            type="button"
+                            className={styles.addAnotherButton}
+                            onClick={() => setIsAddShiftModalOpen(true)}
+                        >
+                            <LucidePlus size={19} />
+                            Add another shift
+                        </button>
+                    </div>
+                </>
             )}
 
             <div className={styles.statsBar}>
@@ -400,6 +502,13 @@ const Me = () => {
                             selectedDate || 1
                         )
                     }
+                />
+            )}
+
+            {isImportOpen && (
+                <PasteShiftsModal
+                    onClose={() => setIsImportOpen(false)}
+                    onSubmit={handleManualImport}
                 />
             )}
         </div>

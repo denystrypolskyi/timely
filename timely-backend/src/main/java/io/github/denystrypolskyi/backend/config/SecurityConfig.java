@@ -49,7 +49,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, OAuth2SuccessHandler successHandler,
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthenticationFilter jwtAuthenticationFilter,
                                                    AuthenticationRateLimitFilter rateLimitFilter) throws Exception {
         http
@@ -63,10 +63,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/users/register",
-                                "/api/users/login",
-                                "/api/users/oauth/exchange")
-                        .permitAll()
-                        .requestMatchers("/oauth2/**", "/login/oauth2/**")
+                                "/api/users/login")
                         .permitAll()
                         .anyRequest().authenticated()
                 )
@@ -85,10 +82,6 @@ public class SecurityConfig {
                 .addFilterBefore(jwtAuthenticationFilter,
                         org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(rateLimitFilter, JwtAuthenticationFilter.class);
-
-        if (appProperties.isOauth2Enabled()) {
-            http.oauth2Login(oauth -> oauth.successHandler(successHandler));
-        }
 
         return http.build();
     }

@@ -17,7 +17,6 @@ import java.util.concurrent.atomic.AtomicLong;
 public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
     private static final Limit LOGIN_LIMIT = new Limit("login", 10, Duration.ofMinutes(1));
     private static final Limit REGISTRATION_LIMIT = new Limit("registration", 5, Duration.ofHours(1));
-    private static final Limit OAUTH_LIMIT = new Limit("oauth", 20, Duration.ofMinutes(1));
 
     private final Map<String, RequestWindow> windows = new ConcurrentHashMap<>();
     private final AtomicLong requestCount = new AtomicLong();
@@ -61,12 +60,6 @@ public class AuthenticationRateLimitFilter extends OncePerRequestFilter {
         }
         if (HttpMethod.POST.matches(method) && path.equals("/api/users/register")) {
             return REGISTRATION_LIMIT;
-        }
-        if (HttpMethod.POST.matches(method) && path.equals("/api/users/oauth/exchange")) {
-            return LOGIN_LIMIT;
-        }
-        if (HttpMethod.GET.matches(method) && path.startsWith("/oauth2/authorization/")) {
-            return OAUTH_LIMIT;
         }
         return null;
     }

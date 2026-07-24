@@ -63,18 +63,6 @@ public class UserController {
                 .body(new TokenResponse(token));
     }
 
-    @PostMapping("/oauth/exchange")
-    public ResponseEntity<TokenResponse> exchangeOAuth2Code(
-            @RequestBody @Valid OAuth2CodeExchangeRequest request) {
-        if (!appProperties.isOauth2Enabled()) {
-            throw new org.springframework.security.access.AccessDeniedException("OAuth login is disabled");
-        }
-        String token = authService.exchangeOAuth2Code(request.code());
-        return ResponseEntity.ok()
-                .cacheControl(CacheControl.noStore())
-                .body(new TokenResponse(token));
-    }
-
     @GetMapping()
     @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<List<UserResponse>> getUsers() {

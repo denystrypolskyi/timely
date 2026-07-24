@@ -2,14 +2,20 @@
 
 :global(:root) {
     --bg: #0a0a0a;
-    --surface: #111111;
+    --surface: #111113;
     --surface-hover: #1a1a1a;
     --border: #27272a;
     --text: #fafafa;
     --text-muted: #a1a1aa;
     --accent: #14b8a6;
+    --accent-strong: #0d9488;
     --danger: #dc2626;
     --radius: 12px;
+
+    color-scheme: dark;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
 }
 
 :global(*) {
@@ -18,23 +24,59 @@
     padding: 0;
 }
 
+:global(html) {
+    min-width: 320px;
+    min-height: 100%;
+    background: var(--bg);
+    -webkit-text-size-adjust: 100%;
+}
+
 :global(html),
 :global(body) {
     background: var(--bg);
     color: var(--text);
-    font-family: "Inter", sans-serif;
+    font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 :global(body) {
+    min-width: 320px;
     min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    overscroll-behavior-y: none;
 }
 
 :global(a) {
     color: inherit;
 }
 
+:global(button),
+:global(input),
+:global(textarea) {
+    font: inherit;
+}
+
+:global(button) {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+}
+
+:global(button:focus-visible),
+:global(input:focus-visible),
+:global(textarea:focus-visible),
+:global(a:focus-visible) {
+    outline: 3px solid rgba(45, 212, 191, 0.45);
+    outline-offset: 2px;
+}
+
+:global(#root) {
+    min-height: 100vh;
+    min-height: 100dvh;
+}
+
 .app {
     min-height: 100vh;
+    min-height: 100dvh;
     background: var(--bg);
     color: var(--text);
 }

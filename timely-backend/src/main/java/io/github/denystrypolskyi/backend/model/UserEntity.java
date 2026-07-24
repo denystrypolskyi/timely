@@ -28,11 +28,6 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Enumerated(EnumType.STRING)
-    private OAuthProvider oauthProvider;
-
-    private String oauthSubject;
-
     @Column(nullable = false)
     private long tokenVersion;
 

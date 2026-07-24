@@ -30,9 +30,6 @@ const Login = () => {
         return <LoadingSpinner/>;
     }
 
-    const handleGoogleLogin = () => {
-        window.location.href = import.meta.env.VITE_GOOGLE_OAUTH_REDIRECT_URL;
-    };
     return (
         <div className={styles.container}>
             <div className={styles.formWrapper}>
@@ -41,9 +38,13 @@ const Login = () => {
                         Welcome back
                     </span>
 
-                    <h2 className={styles.title}>
+                    <h1 className={styles.title}>
                         Log in
-                    </h2>
+                    </h1>
+
+                    <p className={styles.subtitle}>
+                        Sign in to see your shifts and monthly earnings.
+                    </p>
                 </div>
 
                 <form
@@ -63,6 +64,9 @@ const Login = () => {
                             id="username"
                             type="text"
                             className={styles.input}
+                            autoComplete="username"
+                            autoCapitalize="none"
+                            spellCheck={false}
                             {...register("username", {
                                 required: "Username is required",
                             })}
@@ -88,6 +92,7 @@ const Login = () => {
                             id="password"
                             type="password"
                             className={styles.input}
+                            autoComplete="current-password"
                             {...register("password", {
                                 required: "Password is required",
                             })}
@@ -102,44 +107,11 @@ const Login = () => {
 
                     <div className={styles.actions}>
                         <button
-                        className={styles.button}
-                        type="submit"
-                        disabled={isLoggingIn}
-                    >
+                            className={styles.button}
+                            type="submit"
+                            disabled={isLoggingIn}
+                        >
                             Log in
-                        </button>
-
-                        <button
-                            type="button"
-                            className={styles.link}
-                            onClick={() => navigate("/register")}
-                        >
-                            Don't have an account?
-                        </button>
-                    </div>
-
-                    <div className={styles.oauthContainer}>
-                        <div className={styles.oauthDivider}>
-                            <div className={styles.oauthLine} />
-
-                            <p className={styles.oauthText}>
-                                or login with
-                            </p>
-
-                            <div className={styles.oauthLine} />
-                        </div>
-
-                        <button
-                            type="button"
-                            className={styles.oauthButton}
-                            onClick={handleGoogleLogin}
-                        >
-                            <img
-                                className={styles.oauthLogo}
-                                src="/google.svg"
-                                alt=""
-                            />
-                            Continue with Google
                         </button>
                     </div>
                 </form>

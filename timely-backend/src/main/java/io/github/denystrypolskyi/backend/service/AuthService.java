@@ -13,18 +13,12 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
-    private final OAuth2LoginCodeService oauth2LoginCodeService;
-    private final CustomUserDetailsService userDetailsService;
 
     @Autowired
     public AuthService(AuthenticationManager authenticationManager,
-                       JWTService jwtService,
-                       OAuth2LoginCodeService oauth2LoginCodeService,
-                       CustomUserDetailsService userDetailsService) {
+                       JWTService jwtService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
-        this.oauth2LoginCodeService = oauth2LoginCodeService;
-        this.userDetailsService = userDetailsService;
     }
 
     public String login(LoginRequest request) {
@@ -33,12 +27,6 @@ public class AuthService {
         );
 
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return jwtService.generateToken(principal);
-    }
-
-    public String exchangeOAuth2Code(String code) {
-        Long userId = oauth2LoginCodeService.redeem(code);
-        CustomUserDetails principal = userDetailsService.loadUserById(userId);
         return jwtService.generateToken(principal);
     }
 }

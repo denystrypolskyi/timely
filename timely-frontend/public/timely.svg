@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Timely</title>
+  <defs>
+    <linearGradient id="background" x1="18" y1="12" x2="108" y2="118" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2DD4BF"/>
+      <stop offset="1" stop-color="#0D9488"/>
+    </linearGradient>
+    <linearGradient id="highlight" x1="44" y1="38" x2="82" y2="84" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#CCFBF1"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="#09090B"/>
+  <circle cx="64" cy="64" r="44" fill="url(#background)"/>
+  <circle cx="64" cy="64" r="32" fill="#0F2F2D"/>
+  <path d="M64 46V64L79 73" fill="none" stroke="url(#highlight)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="64" cy="64" r="4.5" fill="#FFFFFF"/>
+  <path d="M64 25V31M103 64H97M64 103V97M25 64H31" fill="none" stroke="#CCFBF1" stroke-width="4" stroke-linecap="round"/>
+</svg>

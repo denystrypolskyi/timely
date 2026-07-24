@@ -4,10 +4,17 @@
     align-items: center;
 
     min-height: 100vh;
+    min-height: 100dvh;
 
-    padding: 24px;
+    padding:
+        max(24px, env(safe-area-inset-top))
+        max(24px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(24px, env(safe-area-inset-left));
 
-    background: #0a0a0a;
+    background:
+        radial-gradient(circle at 50% -10%, rgba(20, 184, 166, 0.12), transparent 38%),
+        #0a0a0a;
 }
 
 .formWrapper {
@@ -45,6 +52,15 @@
 
     font-size: 28px;
     font-weight: 700;
+    letter-spacing: -0.025em;
+}
+
+.subtitle {
+    max-width: 340px;
+    margin-top: 7px;
+    color: #a1a1aa;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 .form {
@@ -68,7 +84,7 @@
 
 .input {
     width: 100%;
-    height: 44px;
+    height: 48px;
 
     padding: 0 14px;
 
@@ -78,7 +94,7 @@
     background: #18181b;
     color: white;
 
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 500;
 
     outline: none;
@@ -109,7 +125,7 @@
 
 .button {
     width: 100%;
-    height: 46px;
+    min-height: 48px;
 
     border: none;
     border-radius: 14px;
@@ -128,87 +144,6 @@
     background: #e4e4e7;
 }
 
-.link {
-    width: 100%;
-    padding: 0;
-
-    border: none;
-    background: transparent;
-    color: #a1a1aa;
-
-    font-size: 14px;
-    font-weight: 600;
-
-    cursor: pointer;
-    transition: 0.15s ease;
-}
-
-.link:hover {
-    color: white;
-}
-
-.oauthContainer {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    margin-top: 4px;
-}
-
-.oauthDivider {
-    display: flex;
-    align-items: center;
-
-    width: 100%;
-
-    margin-bottom: 14px;
-
-    color: #71717a;
-    font-size: 13px;
-}
-
-.oauthLine {
-    flex: 1;
-    height: 1px;
-
-    background: #27272a;
-}
-
-.oauthText {
-    padding: 0 12px;
-}
-
-.oauthButton {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-
-    width: 100%;
-    height: 46px;
-
-    border: 1px solid #27272a;
-    border-radius: 14px;
-
-    background: #18181b;
-    color: #f4f4f5;
-
-    font-size: 14px;
-    font-weight: 700;
-
-    cursor: pointer;
-    transition: 0.15s ease;
-}
-
-.oauthButton:hover {
-    background: #27272a;
-}
-
-.oauthLogo {
-    width: 22px;
-    height: 22px;
-}
-
 .serverError {
     margin-top: 14px;
     padding: 12px 14px;
@@ -224,13 +159,27 @@
 
 @media (max-width: 480px) {
     .container {
-        align-items: flex-end;
-        padding: 12px;
+        align-items: center;
+        padding:
+            max(16px, env(safe-area-inset-top))
+            max(12px, env(safe-area-inset-right))
+            max(16px, env(safe-area-inset-bottom))
+            max(12px, env(safe-area-inset-left));
     }
 
     .formWrapper {
         max-width: none;
-        padding: 20px;
+        padding: 22px 20px;
         border-radius: 20px;
+    }
+
+    .title {
+        font-size: 27px;
+    }
+}
+
+@media (max-height: 680px) {
+    .container {
+        align-items: flex-start;
     }
 }

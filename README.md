@@ -4,7 +4,7 @@ A full-stack employee time tracking platform for logging work hours, viewing mon
 
 ## Features
 
-- Register and log in with username/password or Google
+- Log in with an administrator-provisioned username and password
 - View shifts by month
 - Add and delete shifts
 - Import shifts from pasted text
@@ -16,10 +16,6 @@ A full-stack employee time tracking platform for logging work hours, viewing mon
 ### Login
 
 ![Login screen](docs/screenshots/login.png)
-
-### Register
-
-![Register screen](docs/screenshots/register.png)
 
 ### Shifts
 

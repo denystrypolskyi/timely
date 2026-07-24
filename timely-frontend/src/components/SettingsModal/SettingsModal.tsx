@@ -29,14 +29,19 @@ const SettingsModal = ({
 
     return (
         <div className={styles.overlay}>
-            <div className={styles.modal}>
+            <div
+                className={styles.modal}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="settings-title"
+            >
                 <div className={styles.header}>
                     <div>
                         <span className={styles.eyebrow}>
                             Preferences
                         </span>
 
-                        <h2 className={styles.title}>
+                        <h2 id="settings-title" className={styles.title}>
                             Settings
                         </h2>
                     </div>
@@ -85,6 +90,7 @@ const SettingsModal = ({
                             className={styles.hourlyRateInput}
                             min="0"
                             step="0.01"
+                            inputMode="decimal"
                         />
 
                         <span className={styles.currency}>

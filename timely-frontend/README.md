@@ -2,6 +2,8 @@
 
 Frontend for a shift and work-hours tracking application.
 
+Accounts are provisioned by an administrator; the frontend exposes login only.
+
 ## Technologies
 
 - React 18
@@ -10,8 +12,6 @@ Frontend for a shift and work-hours tracking application.
 - React Router
 - TanStack React Query
 - Axios
-- Firebase Hosting
-- Tailwind CSS
 - CSS Modules
 - ESLint
 
@@ -26,8 +26,8 @@ npm install
 Create a `.env` file and set the API base URL:
 
 ```bash
-VITE_APP_NAME=Shift Tracker
-VITE_API_URL=http://localhost:8080
+VITE_APP_NAME=Timely
+VITE_API_URL=http://localhost:8080/api
 ```
 
 Start the development server:
@@ -45,4 +45,10 @@ npm run dev
 
 ## Deployment
 
-The app builds to `dist` and is configured for Firebase Hosting.
+The app builds to `dist`. The included multi-stage Dockerfile builds the
+frontend and serves it through Nginx:
+
+```bash
+docker build -t timely-frontend .
+docker run --rm -p 3000:80 timely-frontend
+```

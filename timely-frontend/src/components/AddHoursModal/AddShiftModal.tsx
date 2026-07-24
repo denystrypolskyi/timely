@@ -1,6 +1,4 @@
 import {useState} from "react";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
 import styles from "./AddShiftModal.module.css";
 import {LucideClock, LucideX} from "lucide-react";
 
@@ -10,13 +8,30 @@ interface AddShiftModalProps {
     selectedDate: Date;
 }
 
+const toDateTimeLocalValue = (date: Date) => {
+    const pad = (value: number) => String(value).padStart(2, "0");
+
+    return [
+        `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
+        `${pad(date.getHours())}:${pad(date.getMinutes())}`,
+    ].join("T");
+};
+
 const AddShiftModal = ({
                            onClose,
                            onSubmit,
                            selectedDate,
                        }: AddShiftModalProps) => {
-    const [shiftStart, setShiftStart] = useState<Date | null>(selectedDate);
-    const [shiftEnd, setShiftEnd] = useState<Date | null>(selectedDate);
+    const [shiftStart, setShiftStart] = useState(() => {
+        const initialStart = new Date(selectedDate);
+        initialStart.setHours(9, 0, 0, 0);
+        return toDateTimeLocalValue(initialStart);
+    });
+    const [shiftEnd, setShiftEnd] = useState(() => {
+        const initialEnd = new Date(selectedDate);
+        initialEnd.setHours(17, 0, 0, 0);
+        return toDateTimeLocalValue(initialEnd);
+    });
     const [error, setError] = useState("");
     const selectedDateLabel = selectedDate.toLocaleDateString(undefined, {
         day: "numeric",
@@ -32,16 +47,27 @@ const AddShiftModal = ({
             return;
         }
 
-        if (shiftEnd < shiftStart) {
-            setError("Shift end cannot be earlier than shift start");
+        const shiftStartDate = new Date(shiftStart);
+        const shiftEndDate = new Date(shiftEnd);
+
+        if (
+            Number.isNaN(shiftStartDate.getTime()) ||
+            Number.isNaN(shiftEndDate.getTime())
+        ) {
+            setError("Enter a valid start and end time.");
+            return;
+        }
+
+        if (shiftEndDate <= shiftStartDate) {
+            setError("Shift end must be later than shift start.");
             return;
         }
 
         setError("");
 
         onSubmit({
-            shiftStart: shiftStart.toISOString(),
-            shiftEnd: shiftEnd.toISOString(),
+            shiftStart: shiftStartDate.toISOString(),
+            shiftEnd: shiftEndDate.toISOString(),
         });
 
         onClose();
@@ -49,14 +75,19 @@ const AddShiftModal = ({
 
     return (
         <div className={styles.overlay}>
-            <div className={styles.modal}>
+            <div
+                className={styles.modal}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="add-shift-title"
+            >
                 <div className={styles.header}>
                     <div>
                         <span className={styles.eyebrow}>
                             {selectedDateLabel}
                         </span>
 
-                        <h2 className={styles.title}>
+                        <h2 id="add-shift-title" className={styles.title}>
                             Add shift
                         </h2>
                     </div>
@@ -99,20 +130,22 @@ const AddShiftModal = ({
                             Start
                         </label>
 
-                        <DatePicker
+                        <input
                             id="shiftStart"
-                            selected={shiftStart}
-                            onChange={(date) => {
-                                setShiftStart(date);
-                                setShiftEnd(date);
+                            type="datetime-local"
+                            value={shiftStart}
+                            onChange={(event) => {
+                                const nextStart = event.target.value;
+                                setShiftStart(nextStart);
+
+                                if (shiftEnd && nextStart >= shiftEnd) {
+                                    const nextEnd = new Date(nextStart);
+                                    nextEnd.setHours(nextEnd.getHours() + 8);
+                                    setShiftEnd(toDateTimeLocalValue(nextEnd));
+                                }
                             }}
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            dateFormat="dd.MM.yyyy HH:mm"
                             className={styles.dateInput}
-                            wrapperClassName={styles.datePickerWrapper}
-                            calendarClassName={styles.calendar}
-                            popperClassName={styles.popper}
+                            required
                         />
                     </div>
 
@@ -124,17 +157,14 @@ const AddShiftModal = ({
                             End
                         </label>
 
-                        <DatePicker
+                        <input
                             id="shiftEnd"
-                            selected={shiftEnd}
-                            onChange={(date) => setShiftEnd(date)}
-                            showTimeSelect
-                            timeFormat="HH:mm"
-                            dateFormat="dd.MM.yyyy HH:mm"
+                            type="datetime-local"
+                            value={shiftEnd}
+                            min={shiftStart}
+                            onChange={(event) => setShiftEnd(event.target.value)}
                             className={styles.dateInput}
-                            wrapperClassName={styles.datePickerWrapper}
-                            calendarClassName={styles.calendar}
-                            popperClassName={styles.popper}
+                            required
                         />
                     </div>
 
