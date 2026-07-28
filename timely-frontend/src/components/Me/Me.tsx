@@ -7,6 +7,7 @@ import AddShiftModal from "../AddHoursModal/AddShiftModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import SettingsModal from "../SettingsModal/SettingsModal";
 import PasteShiftsModal from "../ImportShiftsModal/PasteShiftsModal.tsx";
+import CreateUserModal from "../CreateUserModal/CreateUserModal";
 
 import {
     ClipboardPaste,
@@ -16,6 +17,7 @@ import {
     LucidePlus,
     LucideSettings,
     LucideTrash,
+    LucideUserPlus,
     LucideX,
 } from "lucide-react";
 
@@ -47,7 +49,7 @@ const Me = () => {
         currentYear,
         currentMonth,
     } = useShifts();
-    const {logout} = useAuth();
+    const {user, logout} = useAuth();
     const {hourlyRate, updateHourlyRate} = useHourlyRate();
     const [isAddShiftModalOpen, setIsAddShiftModalOpen] =
         useState<boolean>(false);
@@ -56,8 +58,10 @@ const Me = () => {
     const [isImportOpen, setIsImportOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
+    const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
     const [isEditable, setIsEditable] = useState<boolean>(false);
+    const isAdmin = user?.role === "ADMIN";
 
     const selectedDateShifts = getShiftsForSelectedDate(shifts, selectedDate);
     const monthDate = new Date(currentYear, currentMonth - 1);
@@ -183,7 +187,23 @@ const Me = () => {
     return (
         <div className={styles.container}>
             <header className={styles.appHeader}>
-                <nav className={styles.actions} aria-label="Account actions">
+                <nav
+                    className={`${styles.actions} ${isAdmin ? styles.adminActions : ""}`}
+                    aria-label="Account actions"
+                >
+                    {isAdmin && (
+                        <button
+                            type="button"
+                            className={`${styles.iconButton} ${styles.actionButton} ${styles.adminButton}`}
+                            onClick={() => setIsCreateUserOpen(true)}
+                            aria-label="Create user account"
+                            title="Create user account"
+                        >
+                            <LucideUserPlus size={20}/>
+                            <span className={styles.actionLabel}>Access</span>
+                        </button>
+                    )}
+
                     <button
                         type="button"
                         className={`${styles.iconButton} ${styles.actionButton}`}
@@ -341,6 +361,10 @@ const Me = () => {
                     onEditClick={handleEditClick}
                     isEditable={isEditable}
                 />
+            )}
+
+            {isAdmin && isCreateUserOpen && (
+                <CreateUserModal onClose={() => setIsCreateUserOpen(false)}/>
             )}
 
             {selectedDate !== null && !isAddShiftModalOpen && (

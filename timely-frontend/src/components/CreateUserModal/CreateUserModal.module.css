@@ -1,0 +1,228 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding:
+        max(24px, env(safe-area-inset-top))
+        max(24px, env(safe-area-inset-right))
+        max(24px, env(safe-area-inset-bottom))
+        max(24px, env(safe-area-inset-left));
+    background: rgba(0, 0, 0, 0.78);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+}
+
+.modal {
+    width: 100%;
+    max-width: 430px;
+    max-height: calc(100dvh - 48px);
+    padding: 22px;
+    overflow-y: auto;
+    border: 1px solid #27272a;
+    border-radius: 22px;
+    background: #101012;
+    color: #fafafa;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+}
+
+.header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.eyebrow {
+    display: block;
+    margin-bottom: 4px;
+    color: #5eead4;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 750;
+    letter-spacing: -0.025em;
+}
+
+.closeButton {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    border: 1px solid #27272a;
+    border-radius: 12px;
+    background: #18181b;
+    color: #fafafa;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.closeButton:hover {
+    background: #27272a;
+}
+
+.summary {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    padding: 14px;
+    border: 1px solid rgba(20, 184, 166, 0.25);
+    border-radius: 16px;
+    background: rgba(20, 184, 166, 0.08);
+}
+
+.summaryIcon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 13px;
+    background: #0f766e;
+    color: white;
+}
+
+.summary p {
+    margin: 0;
+    color: #a1a1aa;
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.label {
+    color: #a1a1aa;
+    font-size: 13px;
+    font-weight: 650;
+}
+
+.input {
+    width: 100%;
+    height: 48px;
+    padding: 0 14px;
+    border: 1px solid #27272a;
+    border-radius: 14px;
+    outline: 0;
+    background: #18181b;
+    color: #fafafa;
+    font-size: 16px;
+    font-weight: 500;
+    transition: 0.15s ease;
+}
+
+.input::placeholder {
+    color: #71717a;
+}
+
+.input:focus {
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
+}
+
+.hint {
+    margin: -2px 0 0;
+    color: #71717a;
+    font-size: 11px;
+    line-height: 1.4;
+}
+
+.fieldError {
+    margin: -2px 0 0;
+    color: #f87171;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.serverError,
+.success {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 12px 13px;
+    border-radius: 13px;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.serverError {
+    border: 1px solid #7f1d1d;
+    background: #211111;
+    color: #fca5a5;
+}
+
+.success {
+    border: 1px solid rgba(20, 184, 166, 0.35);
+    background: rgba(20, 184, 166, 0.1);
+    color: #99f6e4;
+}
+
+.submitButton {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    min-height: 48px;
+    border: 0;
+    border-radius: 14px;
+    background: #f4f4f5;
+    color: #09090b;
+    font-size: 14px;
+    font-weight: 750;
+    cursor: pointer;
+    transition: 0.15s ease;
+}
+
+.submitButton:hover {
+    background: #ffffff;
+}
+
+.submitButton:disabled {
+    cursor: wait;
+    opacity: 0.65;
+}
+
+@media (max-width: 480px) {
+    .overlay {
+        align-items: flex-end;
+        padding:
+            max(12px, env(safe-area-inset-top))
+            max(10px, env(safe-area-inset-right))
+            max(10px, env(safe-area-inset-bottom))
+            max(10px, env(safe-area-inset-left));
+    }
+
+    .modal {
+        max-width: none;
+        max-height: calc(100dvh - max(22px, env(safe-area-inset-top)));
+        padding: 20px;
+        padding-bottom: max(20px, env(safe-area-inset-bottom));
+        border-radius: 24px 24px 18px 18px;
+    }
+}

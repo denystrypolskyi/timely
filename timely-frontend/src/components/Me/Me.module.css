@@ -351,6 +351,10 @@
   color: #fca5a5;
 }
 
+.adminButton {
+  color: #5eead4;
+}
+
 .errorBanner {
   width: 100%;
   max-width: 700px;
@@ -656,6 +660,12 @@
     color: #fecaca;
   }
 
+  .adminButton:hover {
+    border-color: rgba(45, 212, 191, 0.45);
+    background: rgba(20, 184, 166, 0.12);
+    color: #99f6e4;
+  }
+
   .dayEmpty:hover {
     border-color: #3f3f46;
     background: #222226;
@@ -707,6 +717,10 @@
     box-shadow: 0 14px 40px rgba(0, 0, 0, 0.48);
     backdrop-filter: blur(18px);
     -webkit-backdrop-filter: blur(18px);
+  }
+
+  .actions.adminActions {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .actions .actionButton {

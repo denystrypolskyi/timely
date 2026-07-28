@@ -3,13 +3,20 @@ import {useForm} from "react-hook-form";
 import {LoginFormValues} from "../../types/auth.types";
 import {useAuth} from "../../hooks/useAuth";
 import {useNavigate} from "react-router-dom";
+import {LucideArrowDown, LucideKeyRound} from "lucide-react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import styles from "./Login.module.css";
+
+const DEMO_CREDENTIALS: LoginFormValues = {
+    username: "demo",
+    password: "TimelyDemo2026!",
+};
 
 const Login = () => {
     const {
         register,
         handleSubmit,
+        setValue,
         formState: {errors},
     } = useForm<LoginFormValues>();
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -24,6 +31,18 @@ const Login = () => {
             const message = error instanceof Error ? error.message : "Login failed";
             setErrorMessage(message);
         }
+    };
+
+    const fillDemoCredentials = () => {
+        setValue("username", DEMO_CREDENTIALS.username, {
+            shouldDirty: true,
+            shouldValidate: true,
+        });
+        setValue("password", DEMO_CREDENTIALS.password, {
+            shouldDirty: true,
+            shouldValidate: true,
+        });
+        setErrorMessage(null);
     };
 
     if (isLoggingIn) {
@@ -46,6 +65,43 @@ const Login = () => {
                         Sign in to see your shifts and monthly earnings.
                     </p>
                 </div>
+
+                <aside className={styles.demoCard} aria-labelledby="demo-access-title">
+                    <div className={styles.demoHeader}>
+                        <span className={styles.demoIcon} aria-hidden="true">
+                            <LucideKeyRound size={17}/>
+                        </span>
+
+                        <div>
+                            <h2 id="demo-access-title" className={styles.demoTitle}>
+                                Demo access
+                            </h2>
+                            <p className={styles.demoDescription}>
+                                Registration is admin-managed. Use this account to explore the app.
+                            </p>
+                        </div>
+                    </div>
+
+                    <dl className={styles.credentials}>
+                        <div className={styles.credential}>
+                            <dt>Username</dt>
+                            <dd>{DEMO_CREDENTIALS.username}</dd>
+                        </div>
+                        <div className={styles.credential}>
+                            <dt>Password</dt>
+                            <dd>{DEMO_CREDENTIALS.password}</dd>
+                        </div>
+                    </dl>
+
+                    <button
+                        type="button"
+                        className={styles.fillButton}
+                        onClick={fillDemoCredentials}
+                    >
+                        Fill in demo credentials
+                        <LucideArrowDown size={15} aria-hidden="true"/>
+                    </button>
+                </aside>
 
                 <form
                     onSubmit={handleSubmit(onSubmit)}

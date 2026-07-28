@@ -1,5 +1,12 @@
+export type UserRole = "USER" | "ADMIN";
+
 export interface User {
   id: number;
   username: string;
-  role: string | null;
+  role: UserRole | null;
+}
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
 }
