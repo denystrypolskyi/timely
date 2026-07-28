@@ -65,6 +65,9 @@ public class SecurityConfig {
                                 "/api/users/login",
                                 "/api/users/logout")
                         .permitAll()
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/users/profile")
+                        .permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

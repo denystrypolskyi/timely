@@ -3,10 +3,10 @@ import { CreateUserRequest, User } from "@/types/user.types";
 import { getApiErrorMessage } from "./apiError";
 
 class UserService {
-  async getUser(): Promise<User> {
+  async getUser(): Promise<User | null> {
     try {
       const response = await axiosInstance.get<User>("/users/profile");
-      return response.data;
+      return response.status === 204 ? null : response.data;
     } catch (error) {
       throw new Error(getApiErrorMessage(error, "Failed to fetch user"));
     }

@@ -108,6 +108,10 @@ public class UserController {
 
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getLoggedInUser(@AuthenticationPrincipal CustomUserDetails user) {
+        if (user == null) {
+            return ResponseEntity.noContent().build();
+        }
+
         UserEntity foundUser = userService.getUserById(user.getId());
         return ResponseEntity.ok(userMapper.toDTO(foundUser));
     }

@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -64,12 +65,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.getContext().setAuthentication(auth);
 
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                if (clearInvalidBrowserSession(request, response, path)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\":\"TOKEN_EXPIRED\"}");
                 return;
 
             } catch (Exception e) {
+                if (clearInvalidBrowserSession(request, response, path)) {
+                    filterChain.doFilter(request, response);
+                    return;
+                }
+
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json");
                 response.getWriter().write("{\"error\":\"INVALID_TOKEN\"}");
@@ -87,6 +98,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         return jwtCookieService.read(request).orElse(null);
+    }
+
+    private boolean clearInvalidBrowserSession(HttpServletRequest request,
+                                               HttpServletResponse response,
+                                               String path) {
+        boolean hasBearerToken = request.getHeader("Authorization") != null;
+        if (!path.equals("/api/users/profile") || hasBearerToken) {
+            return false;
+        }
+
+        response.addHeader(HttpHeaders.SET_COOKIE, jwtCookieService.clear().toString());
+        return true;
     }
 }
 
