@@ -1,6 +1,7 @@
 import {useState} from "react";
 import styles from "./AddShiftModal.module.css";
 import {LucideClock, LucideX} from "lucide-react";
+import {useI18n} from "../../i18n/I18nContext";
 
 interface AddShiftModalProps {
     onClose: () => void;
@@ -22,6 +23,7 @@ const AddShiftModal = ({
                            onSubmit,
                            selectedDate,
                        }: AddShiftModalProps) => {
+    const {locale, t} = useI18n();
     const [shiftStart, setShiftStart] = useState(() => {
         const initialStart = new Date(selectedDate);
         initialStart.setHours(9, 0, 0, 0);
@@ -33,7 +35,7 @@ const AddShiftModal = ({
         return toDateTimeLocalValue(initialEnd);
     });
     const [error, setError] = useState("");
-    const selectedDateLabel = selectedDate.toLocaleDateString(undefined, {
+    const selectedDateLabel = selectedDate.toLocaleDateString(locale, {
         day: "numeric",
         month: "long",
         year: "numeric",
@@ -43,7 +45,7 @@ const AddShiftModal = ({
         e.preventDefault();
 
         if (!shiftStart || !shiftEnd) {
-            setError("Both shift start and end times are required.");
+            setError(t("bothTimesRequired"));
             return;
         }
 
@@ -54,12 +56,12 @@ const AddShiftModal = ({
             Number.isNaN(shiftStartDate.getTime()) ||
             Number.isNaN(shiftEndDate.getTime())
         ) {
-            setError("Enter a valid start and end time.");
+            setError(t("invalidTimes"));
             return;
         }
 
         if (shiftEndDate <= shiftStartDate) {
-            setError("Shift end must be later than shift start.");
+            setError(t("endAfterStart"));
             return;
         }
 
@@ -88,7 +90,7 @@ const AddShiftModal = ({
                         </span>
 
                         <h2 id="add-shift-title" className={styles.title}>
-                            Add shift
+                            {t("addShift")}
                         </h2>
                     </div>
 
@@ -96,7 +98,7 @@ const AddShiftModal = ({
                         type="button"
                         onClick={onClose}
                         className={styles.closeButton}
-                        aria-label="Close add shift modal"
+                        aria-label={t("closeAddShift")}
                     >
                         <LucideX size={20} />
                     </button>
@@ -109,11 +111,11 @@ const AddShiftModal = ({
 
                     <div>
                         <p className={styles.summaryTitle}>
-                            Shift time
+                            {t("shiftTime")}
                         </p>
 
                         <p className={styles.summaryText}>
-                            Choose a start and end time for this work period.
+                            {t("shiftTimeHelp")}
                         </p>
                     </div>
                 </div>
@@ -127,7 +129,7 @@ const AddShiftModal = ({
                             htmlFor="shiftStart"
                             className={styles.label}
                         >
-                            Start
+                            {t("start")}
                         </label>
 
                         <input
@@ -154,7 +156,7 @@ const AddShiftModal = ({
                             htmlFor="shiftEnd"
                             className={styles.label}
                         >
-                            End
+                            {t("end")}
                         </label>
 
                         <input
@@ -178,7 +180,7 @@ const AddShiftModal = ({
                         type="submit"
                         className={styles.submitButton}
                     >
-                        Save shift
+                        {t("saveShift")}
                     </button>
                 </form>
             </div>

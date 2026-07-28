@@ -135,89 +135,110 @@
     line-height: 1.4;
 }
 
-.fieldRow {
+.label {
+    color: #d4d4d8;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+}
+
+.form {
     display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.fieldGrid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 112px;
+    gap: 12px;
+}
+
+.controlGroup {
+    display: flex;
+    min-width: 0;
     flex-direction: column;
     gap: 8px;
 }
 
-.label {
-    color: #a1a1aa;
-
-    font-size: 13px;
-    font-weight: 600;
+.inputShell {
+    display: flex;
+    align-items: center;
+    height: 58px;
+    border: 1px solid #3f3f46;
+    border-radius: 16px;
+    background: #18181b;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.rateControl {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto auto;
-    align-items: center;
-    gap: 8px;
-
-    padding: 8px;
-
-    border: 1px solid #27272a;
-    border-radius: 16px;
-
-    background: #18181b;
+.inputShell:focus-within {
+    border-color: #14b8a6;
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
 }
 
 .hourlyRateInput {
     width: 100%;
-
-    height: 44px;
-    padding: 0 10px;
-
+    height: 100%;
+    padding: 0 16px;
     border: none;
-    border-radius: 12px;
-
-    background: #101012;
-    color: white;
-
-    font-size: 16px;
-    font-weight: 700;
-
+    border-radius: inherit;
+    background: transparent;
+    color: #fafafa;
+    font-size: 22px;
+    font-weight: 750;
+    letter-spacing: -0.02em;
     outline: none;
-    transition: 0.15s ease;
+    appearance: textfield;
 }
 
-.hourlyRateInput:disabled {
-    color: #a1a1aa;
-    cursor: not-allowed;
+.hourlyRateInput::-webkit-inner-spin-button,
+.hourlyRateInput::-webkit-outer-spin-button {
+    margin: 0;
+    appearance: none;
 }
 
-.hourlyRateInput:focus {
+.currencySelect {
+    width: 100%;
+    height: 58px;
+    padding: 0 14px;
+    border: 1px solid #3f3f46;
+    border-radius: 16px;
+    background: #18181b;
+    color: #fafafa;
+    font-size: 15px;
+    font-weight: 700;
+    outline: none;
+    cursor: pointer;
+}
+
+.currencySelect:focus {
+    border-color: #14b8a6;
     box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
 }
 
-.currency {
-    color: #a1a1aa;
-
-    font-size: 13px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.editButton {
-    display: flex;
+.saveButton {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-
-    width: 44px;
-    height: 44px;
-
-    border: 1px solid #27272a;
-    border-radius: 12px;
-
-    background: #101012;
-    color: white;
-
+    gap: 8px;
+    width: 100%;
+    min-height: 50px;
+    border: 0;
+    border-radius: 15px;
+    background: #f4f4f5;
+    color: #09090b;
+    font-size: 14px;
+    font-weight: 750;
     cursor: pointer;
-    transition: 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease;
 }
 
-.editButton:hover {
-    background: #27272a;
+.saveButton:hover {
+    background: #ffffff;
+}
+
+.saveButton:active {
+    transform: scale(0.99);
 }
 
 @media (max-width: 480px) {
@@ -236,5 +257,10 @@
         padding: 20px;
         padding-bottom: max(20px, env(safe-area-inset-bottom));
         border-radius: 24px 24px 18px 18px;
+    }
+
+    .fieldGrid {
+        grid-template-columns: minmax(0, 1fr) 104px;
+        gap: 9px;
     }
 }

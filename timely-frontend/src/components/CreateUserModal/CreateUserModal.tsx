@@ -4,12 +4,14 @@ import {LucideCheck, LucideShieldCheck, LucideUserPlus, LucideX} from "lucide-re
 import userService from "../../services/user.service";
 import {CreateUserRequest} from "../../types/user.types";
 import styles from "./CreateUserModal.module.css";
+import {useI18n} from "../../i18n/I18nContext";
 
 interface CreateUserModalProps {
     onClose: () => void;
 }
 
 const CreateUserModal = ({onClose}: CreateUserModalProps) => {
+    const {t} = useI18n();
     const {
         register,
         handleSubmit,
@@ -41,7 +43,7 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
         } catch (error: unknown) {
             const message = error instanceof Error
                 ? error.message
-                : "Failed to create account";
+                : t("createFailed");
             setErrorMessage(message);
         }
     };
@@ -57,9 +59,9 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
             >
                 <div className={styles.header}>
                     <div>
-                        <span className={styles.eyebrow}>Admin panel</span>
+                        <span className={styles.eyebrow}>{t("adminPanel")}</span>
                         <h2 id="create-user-title" className={styles.title}>
-                            Grant app access
+                            {t("grantAccess")}
                         </h2>
                     </div>
 
@@ -67,7 +69,7 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
                         type="button"
                         className={styles.closeButton}
                         onClick={onClose}
-                        aria-label="Close account creation"
+                        aria-label={t("closeAccountCreation")}
                     >
                         <LucideX size={20}/>
                     </button>
@@ -78,36 +80,36 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
                         <LucideShieldCheck size={20}/>
                     </span>
                     <p>
-                        Create login credentials for a new user. Their account will receive standard access.
+                        {t("createAccountHelp")}
                     </p>
                 </div>
 
                 <form className={styles.form} onSubmit={handleSubmit(onSubmit)}>
                     <div className={styles.formGroup}>
                         <label htmlFor="new-username" className={styles.label}>
-                            Username
+                            {t("username")}
                         </label>
                         <input
                             id="new-username"
                             type="text"
                             className={styles.input}
-                            placeholder="e.g. alex.smith"
+                            placeholder={t("usernameExample")}
                             autoComplete="off"
                             autoCapitalize="none"
                             spellCheck={false}
                             {...register("username", {
-                                required: "Username is required",
+                                required: t("usernameRequired"),
                                 minLength: {
                                     value: 3,
-                                    message: "Use at least 3 characters",
+                                    message: t("min3"),
                                 },
                                 maxLength: {
                                     value: 50,
-                                    message: "Use no more than 50 characters",
+                                    message: t("max50"),
                                 },
                                 pattern: {
                                     value: /^[A-Za-z0-9][A-Za-z0-9._-]*$/,
-                                    message: "Use letters, numbers, dots, dashes, or underscores",
+                                    message: t("usernamePattern"),
                                 },
                             })}
                         />
@@ -118,28 +120,28 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
 
                     <div className={styles.formGroup}>
                         <label htmlFor="new-password" className={styles.label}>
-                            Temporary password
+                            {t("temporaryPassword")}
                         </label>
                         <input
                             id="new-password"
                             type="password"
                             className={styles.input}
-                            placeholder="At least 12 characters"
+                            placeholder={t("passwordPlaceholder")}
                             autoComplete="new-password"
                             {...register("password", {
-                                required: "Password is required",
+                                required: t("passwordRequired"),
                                 minLength: {
                                     value: 12,
-                                    message: "Use at least 12 characters",
+                                    message: t("min12"),
                                 },
                                 maxLength: {
                                     value: 72,
-                                    message: "Use no more than 72 characters",
+                                    message: t("max72"),
                                 },
                             })}
                         />
                         <p className={styles.hint}>
-                            Share this securely—the password won&apos;t be shown again.
+                            {t("passwordShareHint")}
                         </p>
                         {errors.password && (
                             <p className={styles.fieldError}>{errors.password.message}</p>
@@ -155,7 +157,7 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
                     {createdUsername && (
                         <p className={styles.success} role="status">
                             <LucideCheck size={17} aria-hidden="true"/>
-                            Access granted to {createdUsername}
+                            {t("accessGranted", {username: createdUsername})}
                         </p>
                     )}
 
@@ -165,7 +167,7 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
                         disabled={isSubmitting}
                     >
                         <LucideUserPlus size={18} aria-hidden="true"/>
-                        {isSubmitting ? "Creating account…" : "Create account"}
+                        {isSubmitting ? t("creatingAccount") : t("createAccount")}
                     </button>
                 </form>
             </div>

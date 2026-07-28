@@ -1,9 +1,13 @@
 import {Shift} from "../types/shifts.types.ts";
 
-export const formatMinutesToHours = (minutes: number) => {
+export const formatMinutesToHours = (
+    minutes: number,
+    hoursLabel = "h",
+    minutesLabel = "m"
+) => {
   const hours = Math.floor(minutes / 60);
   const remainingMinutes = minutes % 60;
-  return `${hours}h ${remainingMinutes}m`;
+  return `${hours}${hoursLabel} ${remainingMinutes}${minutesLabel}`;
 };
 
 export const getCurrentYearMonth = () => {
@@ -32,7 +36,11 @@ export const isShiftOverlapping = (
 
 export const parseShiftsFromText = (
     text: string,
-    year: number
+    year: number,
+    messages?: {
+      invalidLine: (line: number, value: string) => string;
+      endAfterStart: (line: number) => string;
+    }
 ) => {
   const lines = text
       .split("\n")
@@ -46,6 +54,7 @@ export const parseShiftsFromText = (
 
     if (!match) {
       throw new Error(
+          messages?.invalidLine(index + 1, line) ??
           `Invalid format at line ${index + 1}: "${line}"`
       );
     }
@@ -78,6 +87,7 @@ export const parseShiftsFromText = (
 
     if (shiftEnd <= shiftStart) {
       throw new Error(
+          messages?.endAfterStart(index + 1) ??
           `Shift end must be after start at line ${index + 1}`
       );
     }

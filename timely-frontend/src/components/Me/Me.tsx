@@ -8,6 +8,7 @@ import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import SettingsModal from "../SettingsModal/SettingsModal";
 import PasteShiftsModal from "../ImportShiftsModal/PasteShiftsModal.tsx";
 import CreateUserModal from "../CreateUserModal/CreateUserModal";
+import {useI18n} from "../../i18n/I18nContext";
 
 import {
     ClipboardPaste,
@@ -29,15 +30,14 @@ import {
     parseShiftsFromText
 } from "../../utils/utils.ts";
 
-const formatShiftTime = (date: string) =>
-    new Date(date).toLocaleTimeString(undefined, {
+const formatShiftTime = (date: string, locale: string) =>
+    new Date(date).toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
     });
 
-const WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-
 const Me = () => {
+    const {locale, t} = useI18n();
     const {
         shifts,
         totalMinutes,
@@ -50,7 +50,7 @@ const Me = () => {
         currentMonth,
     } = useShifts();
     const {user, logout} = useAuth();
-    const {hourlyRate, updateHourlyRate} = useHourlyRate();
+    const {hourlyRate, updateHourlyRate, currency, updateCurrency} = useHourlyRate();
     const [isAddShiftModalOpen, setIsAddShiftModalOpen] =
         useState<boolean>(false);
     const [selectedDate, setSelectedDate] = useState<number | null>(null);
@@ -60,24 +60,22 @@ const Me = () => {
     const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
     const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
 
-    const [isEditable, setIsEditable] = useState<boolean>(false);
     const isAdmin = user?.role === "ADMIN";
 
     const selectedDateShifts = getShiftsForSelectedDate(shifts, selectedDate);
     const monthDate = new Date(currentYear, currentMonth - 1);
-    const monthLabel = monthDate.toLocaleString(undefined, {
+    const monthLabel = monthDate.toLocaleString(locale, {
         month: "long",
         year: "numeric",
     });
     const leadingDays = (new Date(currentYear, currentMonth - 1, 1).getDay() + 6) % 7;
-
-    const handleEditClick = () => {
-        setIsEditable(true);
-    };
+    const weekdays = Array.from({length: 7}, (_, index) => {
+        const monday = new Date(2024, 0, 1 + index);
+        return new Intl.DateTimeFormat(locale, {weekday: "short"}).format(monday);
+    });
 
     const handleSaveHourlyRate = (newRate: number) => {
         updateHourlyRate(newRate);
-        setIsEditable(false);
     };
 
     const toggleSettings = () => {
@@ -133,7 +131,11 @@ const Me = () => {
     ) => {
         const parsedShifts = parseShiftsFromText(
             text,
-            currentYear
+            currentYear,
+            {
+                invalidLine: (line, value) => t("invalidImportLine", {line, value}),
+                endAfterStart: (line) => t("importEndAfterStart", {line}),
+            }
         );
 
         for (const shift of parsedShifts) {
@@ -189,18 +191,18 @@ const Me = () => {
             <header className={styles.appHeader}>
                 <nav
                     className={`${styles.actions} ${isAdmin ? styles.adminActions : ""}`}
-                    aria-label="Account actions"
+                    aria-label={t("accountActions")}
                 >
                     {isAdmin && (
                         <button
                             type="button"
                             className={`${styles.iconButton} ${styles.actionButton} ${styles.adminButton}`}
                             onClick={() => setIsCreateUserOpen(true)}
-                            aria-label="Create user account"
-                            title="Create user account"
+                            aria-label={t("createUserAccount")}
+                            title={t("createUserAccount")}
                         >
                             <LucideUserPlus size={20}/>
-                            <span className={styles.actionLabel}>Access</span>
+                            <span className={styles.actionLabel}>{t("access")}</span>
                         </button>
                     )}
 
@@ -208,40 +210,40 @@ const Me = () => {
                         type="button"
                         className={`${styles.iconButton} ${styles.actionButton}`}
                         onClick={() => setIsImportOpen(true)}
-                        aria-label="Import shifts"
-                        title="Import shifts"
+                        aria-label={t("importShifts")}
+                        title={t("importShifts")}
                     >
                         <ClipboardPaste size={20} />
-                        <span className={styles.actionLabel}>Import</span>
+                        <span className={styles.actionLabel}>{t("import")}</span>
                     </button>
 
                     <button
                         type="button"
                         className={`${styles.iconButton} ${styles.actionButton}`}
                         onClick={toggleSettings}
-                        aria-label="Open settings"
-                        title="Settings"
+                        aria-label={t("openSettings")}
+                        title={t("settings")}
                     >
                         <LucideSettings size={20} />
-                        <span className={styles.actionLabel}>Settings</span>
+                        <span className={styles.actionLabel}>{t("settings")}</span>
                     </button>
 
                     <button
                         type="button"
                         className={`${styles.iconButton} ${styles.actionButton} ${styles.dangerButton}`}
                         onClick={() => logout()}
-                        aria-label="Log out"
-                        title="Log out"
+                        aria-label={t("logOut")}
+                        title={t("logOut")}
                     >
                         <LucideLogOut size={20} />
-                        <span className={styles.actionLabel}>Log out</span>
+                        <span className={styles.actionLabel}>{t("logOut")}</span>
                     </button>
                 </nav>
             </header>
 
             {error && (
                 <p className={styles.errorBanner} role="alert">
-                    We couldn&apos;t load your shifts. Please try again.
+                    {t("loadShiftsError")}
                 </p>
             )}
 
@@ -251,13 +253,13 @@ const Me = () => {
                         type="button"
                         className={styles.iconButton}
                         onClick={handlePreviousMonth}
-                        aria-label="Previous month"
+                        aria-label={t("previousMonth")}
                     >
                         <LucideArrowLeft size={21} />
                     </button>
 
                     <div className={styles.monthCopy}>
-                        <span className={styles.monthEyebrow}>Your schedule</span>
+                        <span className={styles.monthEyebrow}>{t("yourSchedule")}</span>
                         <h1 id="month-heading" className={styles.monthDisplay}>
                             {monthLabel}
                         </h1>
@@ -267,7 +269,7 @@ const Me = () => {
                         type="button"
                         className={styles.iconButton}
                         onClick={handleNextMonth}
-                        aria-label="Next month"
+                        aria-label={t("nextMonth")}
                     >
                         <LucideArrowRight size={21} />
                     </button>
@@ -275,7 +277,7 @@ const Me = () => {
 
                 <div className={styles.calendarCard}>
                     <div className={styles.weekdays} aria-hidden="true">
-                        {WEEKDAYS.map((weekday) => (
+                        {weekdays.map((weekday) => (
                             <span key={weekday}>{weekday}</span>
                         ))}
                     </div>
@@ -283,7 +285,7 @@ const Me = () => {
                     <div
                         className={styles.calendarContainer}
                         role="grid"
-                        aria-label={`${monthLabel} calendar`}
+                        aria-label={t("calendar", {month: monthLabel})}
                     >
                         {Array.from({length: leadingDays}, (_, index) => (
                             <span
@@ -307,7 +309,7 @@ const Me = () => {
                                     today.getFullYear() === currentYear &&
                                     today.getMonth() + 1 === currentMonth &&
                                     today.getDate() === day;
-                                const dateLabel = date.toLocaleDateString(undefined, {
+                                const dateLabel = date.toLocaleDateString(locale, {
                                     weekday: "long",
                                     day: "numeric",
                                     month: "long",
@@ -326,8 +328,13 @@ const Me = () => {
                                         `}
                                         aria-label={`${dateLabel}. ${
                                             hasShift
-                                                ? `${dayShifts.length} ${dayShifts.length === 1 ? "shift" : "shifts"} recorded.`
-                                                : "No shift recorded. Tap to add one."
+                                                ? t(
+                                                    dayShifts.length === 1
+                                                        ? "shiftRecordedCount"
+                                                        : "shiftsRecordedCount",
+                                                    {count: dayShifts.length}
+                                                )
+                                                : t("noShiftDay")
                                         }`}
                                         aria-selected={selectedDate === day}
                                         onClick={(event) => {
@@ -347,8 +354,8 @@ const Me = () => {
                     </div>
 
                     <div className={styles.calendarLegend}>
-                        <span><i className={styles.legendDot} /> Shift recorded</span>
-                        <span>Tap a day to add or view</span>
+                        <span><i className={styles.legendDot} /> {t("shiftRecorded")}</span>
+                        <span>{t("tapDay")}</span>
                     </div>
                 </div>
             </section>
@@ -358,8 +365,8 @@ const Me = () => {
                     onClose={toggleSettings}
                     onSave={handleSaveHourlyRate}
                     hourlyRate={hourlyRate}
-                    onEditClick={handleEditClick}
-                    isEditable={isEditable}
+                    currency={currency}
+                    onCurrencyChange={updateCurrency}
                 />
             )}
 
@@ -391,7 +398,7 @@ const Me = () => {
                         <div className={styles.dropdownHeader}>
                             <div>
                                 <span className={styles.dropdownEyebrow}>
-                                    Selected day
+                                    {t("selectedDay")}
                                 </span>
 
                                 <h2 id="selected-day-title" className={styles.dropdownTitle}>
@@ -399,7 +406,7 @@ const Me = () => {
                                         currentYear,
                                         currentMonth - 1,
                                         selectedDate
-                                    ).toLocaleDateString(undefined, {
+                                    ).toLocaleDateString(locale, {
                                         weekday: "long",
                                         day: "numeric",
                                         month: "long",
@@ -411,7 +418,7 @@ const Me = () => {
                                 type="button"
                                 className={styles.sheetCloseButton}
                                 onClick={() => setSelectedDate(null)}
-                                aria-label="Close shift details"
+                                aria-label={t("closeShiftDetails")}
                             >
                                 <LucideX size={20} />
                             </button>
@@ -427,32 +434,34 @@ const Me = () => {
                                         <div className={styles.shiftSummary}>
                                             <div className={styles.shiftMetric}>
                                                 <span className={styles.shiftLabel}>
-                                                    Start
+                                                    {t("start")}
                                                 </span>
 
                                                 <span className={styles.shiftValue}>
-                                                    {formatShiftTime(shift.shiftStart)}
+                                                    {formatShiftTime(shift.shiftStart, locale)}
                                                 </span>
                                             </div>
 
                                             <div className={styles.shiftMetric}>
                                                 <span className={styles.shiftLabel}>
-                                                    End
+                                                    {t("end")}
                                                 </span>
 
                                                 <span className={styles.shiftValue}>
-                                                    {formatShiftTime(shift.shiftEnd)}
+                                                    {formatShiftTime(shift.shiftEnd, locale)}
                                                 </span>
                                             </div>
 
                                             <div className={`${styles.shiftMetric} ${styles.durationMetric}`}>
                                                 <span className={styles.shiftLabel}>
-                                                    Duration
+                                                    {t("duration")}
                                                 </span>
 
                                                 <span className={styles.shiftValue}>
                                                     {formatMinutesToHours(
-                                                        shift.shiftDurationMinutes
+                                                        shift.shiftDurationMinutes,
+                                                        t("hoursShort"),
+                                                        t("minutesShort")
                                                     )}
                                                 </span>
                                             </div>
@@ -461,7 +470,7 @@ const Me = () => {
                                         <button
                                             type="button"
                                             className={styles.shiftDeleteButton}
-                                            aria-label="Delete shift"
+                                            aria-label={t("deleteShift")}
                                             onClick={() =>
                                                 handleDeleteShift(shift.id)
                                             }
@@ -472,7 +481,7 @@ const Me = () => {
                                 ))
                             ) : (
                                 <p className={styles.emptyState}>
-                                    No shifts recorded.
+                                    {t("noShiftsRecorded")}
                                 </p>
                             )}
                         </div>
@@ -483,7 +492,7 @@ const Me = () => {
                             onClick={() => setIsAddShiftModalOpen(true)}
                         >
                             <LucidePlus size={19} />
-                            Add another shift
+                            {t("addAnotherShift")}
                         </button>
                     </div>
                 </>
@@ -492,22 +501,25 @@ const Me = () => {
             <div className={styles.statsBar}>
                 <div className={styles.statCard}>
                 <span className={styles.statLabel}>
-                    Estimated salary
+                    {t("estimatedSalary")}
                 </span>
 
                     <span className={styles.statValue}>
-                    {((totalMinutes / 60) * hourlyRate).toFixed(2)} zł
+                    {new Intl.NumberFormat(locale, {
+                        style: "currency",
+                        currency,
+                    }).format((totalMinutes / 60) * hourlyRate)}
                 </span>
                 </div>
 
                 <div className={styles.statCard}>
                 <span className={styles.statLabel}>
-                    Worked time
+                    {t("workedTime")}
                 </span>
 
                     <span className={styles.statValue}>
-                    {Math.floor(totalMinutes / 60)}h{" "}
-                        {totalMinutes % 60}m
+                    {Math.floor(totalMinutes / 60)}{t("hoursShort")}{" "}
+                        {totalMinutes % 60}{t("minutesShort")}
                 </span>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import {useState} from "react";
 import styles from "./PasteShiftsModal.module.css";
 import {ClipboardPaste, LucideX} from "lucide-react";
+import {useI18n} from "../../i18n/I18nContext";
 
 interface ImportShiftsModalProps {
     onClose: () => void;
@@ -11,6 +12,7 @@ const PasteShiftsModal = ({
                                onClose,
                                onSubmit,
                            }: ImportShiftsModalProps) => {
+    const {t} = useI18n();
     const [text, setText] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
@@ -19,7 +21,7 @@ const PasteShiftsModal = ({
         e.preventDefault();
 
         if (!text.trim()) {
-            setError("Please enter at least one shift.");
+            setError(t("enterShift"));
             return;
         }
 
@@ -48,11 +50,11 @@ const PasteShiftsModal = ({
                 <div className={styles.header}>
                     <div>
                         <span className={styles.eyebrow}>
-                            Bulk entry
+                            {t("bulkEntry")}
                         </span>
 
                         <h2 id="paste-shifts-title" className={styles.title}>
-                            Paste shifts
+                            {t("pasteShifts")}
                         </h2>
                     </div>
 
@@ -60,7 +62,7 @@ const PasteShiftsModal = ({
                         type="button"
                         onClick={onClose}
                         className={styles.closeButton}
-                        aria-label="Close paste shifts modal"
+                        aria-label={t("closePasteShifts")}
                     >
                         <LucideX size={20} />
                     </button>
@@ -73,11 +75,11 @@ const PasteShiftsModal = ({
 
                     <div>
                         <p className={styles.summaryTitle}>
-                            Import multiple shifts
+                            {t("importMultiple")}
                         </p>
 
                         <p className={styles.summaryText}>
-                            Paste one shift per line using day, month, start, and end time.
+                            {t("importHelp")}
                         </p>
                     </div>
                 </div>
@@ -90,7 +92,7 @@ const PasteShiftsModal = ({
                         htmlFor="shiftImport"
                         className={styles.label}
                     >
-                        Shift list
+                        {t("shiftList")}
                     </label>
 
                     <textarea
@@ -108,7 +110,7 @@ const PasteShiftsModal = ({
                     />
 
                     <p className={styles.helpText}>
-                        Example format: <span>02.05 10:00-17:00</span>
+                        {t("exampleFormat")} <span>02.05 10:00-17:00</span>
                     </p>
 
                     {error && (
@@ -122,7 +124,7 @@ const PasteShiftsModal = ({
                         disabled={isLoading}
                         className={styles.submitButton}
                     >
-                        {isLoading ? "Importing..." : "Import shifts"}
+                        {isLoading ? t("importing") : t("importShifts")}
                     </button>
                 </form>
             </div>

@@ -6,6 +6,7 @@ import {useNavigate} from "react-router-dom";
 import {LucideArrowDown, LucideKeyRound} from "lucide-react";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import styles from "./Login.module.css";
+import {useI18n} from "../../i18n/I18nContext";
 
 const DEMO_CREDENTIALS: LoginFormValues = {
     username: "demo",
@@ -13,6 +14,7 @@ const DEMO_CREDENTIALS: LoginFormValues = {
 };
 
 const Login = () => {
+    const {t} = useI18n();
     const {
         register,
         handleSubmit,
@@ -28,7 +30,7 @@ const Login = () => {
             await login(data);
             navigate("/me", {replace: true});
         } catch (error: unknown) {
-            const message = error instanceof Error ? error.message : "Login failed";
+            const message = error instanceof Error ? error.message : t("loginFailed");
             setErrorMessage(message);
         }
     };
@@ -54,15 +56,15 @@ const Login = () => {
             <div className={styles.formWrapper}>
                 <div className={styles.header}>
                     <span className={styles.eyebrow}>
-                        Welcome back
+                        {t("welcomeBack")}
                     </span>
 
                     <h1 className={styles.title}>
-                        Log in
+                        {t("logIn")}
                     </h1>
 
                     <p className={styles.subtitle}>
-                        Sign in to see your shifts and monthly earnings.
+                        {t("loginSubtitle")}
                     </p>
                 </div>
 
@@ -74,21 +76,21 @@ const Login = () => {
 
                         <div>
                             <h2 id="demo-access-title" className={styles.demoTitle}>
-                                Demo access
+                                {t("demoAccess")}
                             </h2>
                             <p className={styles.demoDescription}>
-                                Registration is admin-managed. Use this account to explore the app.
+                                {t("demoDescription")}
                             </p>
                         </div>
                     </div>
 
                     <dl className={styles.credentials}>
                         <div className={styles.credential}>
-                            <dt>Username</dt>
+                            <dt>{t("username")}</dt>
                             <dd>{DEMO_CREDENTIALS.username}</dd>
                         </div>
                         <div className={styles.credential}>
-                            <dt>Password</dt>
+                            <dt>{t("password")}</dt>
                             <dd>{DEMO_CREDENTIALS.password}</dd>
                         </div>
                     </dl>
@@ -98,7 +100,7 @@ const Login = () => {
                         className={styles.fillButton}
                         onClick={fillDemoCredentials}
                     >
-                        Fill in demo credentials
+                        {t("fillDemo")}
                         <LucideArrowDown size={15} aria-hidden="true"/>
                     </button>
                 </aside>
@@ -112,11 +114,11 @@ const Login = () => {
                             htmlFor="username"
                             className={styles.label}
                         >
-                            Username
+                            {t("username")}
                         </label>
 
                         <input
-                            placeholder="Username"
+                            placeholder={t("username")}
                             id="username"
                             type="text"
                             className={styles.input}
@@ -124,7 +126,7 @@ const Login = () => {
                             autoCapitalize="none"
                             spellCheck={false}
                             {...register("username", {
-                                required: "Username is required",
+                                required: t("usernameRequired"),
                             })}
                         />
 
@@ -140,17 +142,17 @@ const Login = () => {
                             htmlFor="password"
                             className={styles.label}
                         >
-                            Password
+                            {t("password")}
                         </label>
 
                         <input
-                            placeholder="Password"
+                            placeholder={t("password")}
                             id="password"
                             type="password"
                             className={styles.input}
                             autoComplete="current-password"
                             {...register("password", {
-                                required: "Password is required",
+                                required: t("passwordRequired"),
                             })}
                         />
 
@@ -167,7 +169,7 @@ const Login = () => {
                             type="submit"
                             disabled={isLoggingIn}
                         >
-                            Log in
+                            {t("logIn")}
                         </button>
                     </div>
                 </form>

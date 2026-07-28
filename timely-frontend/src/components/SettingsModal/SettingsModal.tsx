@@ -1,30 +1,33 @@
 import {useState} from "react";
 import styles from "./SettingsModal.module.css";
-import {LucideCheck, LucideSettings, LucideSquarePen, LucideX} from "lucide-react";
+import {LucideCheck, LucideSettings, LucideX} from "lucide-react";
+import {useI18n} from "../../i18n/I18nContext";
+import {Currency, supportedCurrencies} from "../../hooks/useHourlyRate";
 
 interface SettingsModalProps {
     onClose: () => void;
     onSave: (newRate: number) => void;
     hourlyRate: number;
-    onEditClick: () => void;
-    isEditable: boolean;
+    currency: Currency;
+    onCurrencyChange: (currency: Currency) => void;
 }
 
 const SettingsModal = ({
                            onClose,
                            hourlyRate,
                            onSave,
-                           onEditClick,
-                           isEditable,
+                           currency,
+                           onCurrencyChange,
                        }: SettingsModalProps) => {
-    const [newHourlyRate, setNewHourlyRate] = useState<number>(hourlyRate);
+    const {t} = useI18n();
+    const [newHourlyRate, setNewHourlyRate] = useState(String(hourlyRate));
+    const [newCurrency, setNewCurrency] = useState<Currency>(currency);
 
-    const handleRateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setNewHourlyRate(Number(e.target.value));
-    };
-
-    const handleSave = () => {
-        onSave(newHourlyRate);
+    const handleSave = (event: React.FormEvent) => {
+        event.preventDefault();
+        onSave(Number(newHourlyRate));
+        onCurrencyChange(newCurrency);
+        onClose();
     };
 
     return (
@@ -38,11 +41,11 @@ const SettingsModal = ({
                 <div className={styles.header}>
                     <div>
                         <span className={styles.eyebrow}>
-                            Preferences
+                            {t("preferences")}
                         </span>
 
                         <h2 id="settings-title" className={styles.title}>
-                            Settings
+                            {t("settings")}
                         </h2>
                     </div>
 
@@ -50,7 +53,7 @@ const SettingsModal = ({
                         type="button"
                         onClick={onClose}
                         className={styles.closeButton}
-                        aria-label="Close settings modal"
+                        aria-label={t("closeSettings")}
                     >
                         <LucideX size={20}/>
                     </button>
@@ -63,50 +66,62 @@ const SettingsModal = ({
 
                     <div>
                         <p className={styles.summaryTitle}>
-                            Salary estimate
+                            {t("salaryEstimate")}
                         </p>
 
                         <p className={styles.summaryText}>
-                            Your hourly rate is used to calculate the monthly estimate.
+                            {t("salaryEstimateHelp")}
                         </p>
                     </div>
                 </div>
 
-                <div className={styles.fieldRow}>
-                    <label
-                        htmlFor="hourlyRate"
-                        className={styles.label}
-                    >
-                        Hourly rate
-                    </label>
+                <form className={styles.form} onSubmit={handleSave}>
+                    <div className={styles.fieldGrid}>
+                        <div className={styles.controlGroup}>
+                            <label htmlFor="hourlyRate" className={styles.label}>
+                                {t("hourlyRate")}
+                            </label>
 
-                    <div className={styles.rateControl}>
-                        <input
-                            type="number"
-                            id="hourlyRate"
-                            value={newHourlyRate}
-                            onChange={handleRateChange}
-                            disabled={!isEditable}
-                            className={styles.hourlyRateInput}
-                            min="0"
-                            step="0.01"
-                            inputMode="decimal"
-                        />
+                            <div className={styles.inputShell}>
+                                <input
+                                    type="number"
+                                    id="hourlyRate"
+                                    value={newHourlyRate}
+                                    onChange={(event) => setNewHourlyRate(event.target.value)}
+                                    className={styles.hourlyRateInput}
+                                    min="0"
+                                    step="0.01"
+                                    inputMode="decimal"
+                                    required
+                                />
+                            </div>
+                        </div>
 
-                        <span className={styles.currency}>
-                            zł/h
-                        </span>
+                        <div className={styles.controlGroup}>
+                            <label htmlFor="currency" className={styles.label}>
+                                {t("currency")}
+                            </label>
 
-                        <button
-                            type="button"
-                            onClick={!isEditable ? onEditClick : handleSave}
-                            className={styles.editButton}
-                            aria-label={!isEditable ? "Edit hourly rate" : "Save hourly rate"}
-                        >
-                            {!isEditable ? <LucideSquarePen size={18}/> : <LucideCheck size={18}/>}
-                        </button>
+                            <select
+                                id="currency"
+                                className={styles.currencySelect}
+                                value={newCurrency}
+                                onChange={(event) => setNewCurrency(event.target.value as Currency)}
+                            >
+                                {supportedCurrencies.map((currencyCode) => (
+                                    <option key={currencyCode} value={currencyCode}>
+                                        {currencyCode}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
                     </div>
-                </div>
+
+                    <button type="submit" className={styles.saveButton}>
+                        <LucideCheck size={18} aria-hidden="true"/>
+                        {t("saveChanges")}
+                    </button>
+                </form>
             </div>
         </div>
     );
