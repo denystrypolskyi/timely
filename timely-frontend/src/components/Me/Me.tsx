@@ -229,7 +229,7 @@ const Me = () => {
                     <button
                         type="button"
                         className={`${styles.iconButton} ${styles.actionButton} ${styles.dangerButton}`}
-                        onClick={logout}
+                        onClick={() => logout()}
                         aria-label="Log out"
                         title="Log out"
                     >

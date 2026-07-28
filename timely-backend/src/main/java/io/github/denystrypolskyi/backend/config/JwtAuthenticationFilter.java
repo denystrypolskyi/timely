@@ -2,6 +2,7 @@ package io.github.denystrypolskyi.backend.config;
 
 import io.github.denystrypolskyi.backend.model.CustomUserDetails;
 import io.github.denystrypolskyi.backend.service.CustomUserDetailsService;
+import io.github.denystrypolskyi.backend.service.JwtCookieService;
 import io.github.denystrypolskyi.backend.service.JWTService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -19,10 +20,14 @@ import java.io.IOException;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JWTService jwtService;
     private final CustomUserDetailsService userDetailsService;
+    private final JwtCookieService jwtCookieService;
 
-    public JwtAuthenticationFilter(JWTService jwtService, CustomUserDetailsService userDetailsService) {
+    public JwtAuthenticationFilter(JWTService jwtService,
+                                   CustomUserDetailsService userDetailsService,
+                                   JwtCookieService jwtCookieService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
+        this.jwtCookieService = jwtCookieService;
     }
 
     @Override
@@ -34,16 +39,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String path = request.getServletPath();
 
         if (path.equals("/api/users/login")
+                || path.equals("/api/users/logout")
                 || path.startsWith("/swagger-ui") || path.startsWith("/v3/api-docs")) {
             filterChain.doFilter(request, response);
             return;
         }
 
-        String header = request.getHeader("Authorization");
+        String token = getToken(request);
 
-        if (header != null && header.startsWith("Bearer ")) {
-            String token = header.substring(7);
-
+        if (token != null) {
             try {
                 JWTService.TokenClaims claims = jwtService.parseToken(token);
                 CustomUserDetails user = userDetailsService.loadUserById(claims.userId());
@@ -76,6 +80,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         filterChain.doFilter(request, response);
     }
 
+    private String getToken(HttpServletRequest request) {
+        String header = request.getHeader("Authorization");
+        if (header != null && header.startsWith("Bearer ")) {
+            return header.substring(7);
+        }
 
+        return jwtCookieService.read(request).orElse(null);
+    }
 }
 

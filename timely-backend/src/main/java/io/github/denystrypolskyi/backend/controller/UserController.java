@@ -6,6 +6,7 @@ import io.github.denystrypolskyi.backend.mapper.UserMapper;
 import io.github.denystrypolskyi.backend.model.CustomUserDetails;
 import io.github.denystrypolskyi.backend.model.UserEntity;
 import io.github.denystrypolskyi.backend.service.AuthService;
+import io.github.denystrypolskyi.backend.service.JwtCookieService;
 import io.github.denystrypolskyi.backend.service.UserService;
 
 import java.util.List;
@@ -14,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.CacheControl;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -29,14 +31,16 @@ public class UserController {
     public final AuthService authService;
     public final UserMapper userMapper;
     private final AppProperties appProperties;
+    private final JwtCookieService jwtCookieService;
 
     @Autowired
     public UserController(UserService userService, AuthService authService, UserMapper userMapper,
-                          AppProperties appProperties) {
+                          AppProperties appProperties, JwtCookieService jwtCookieService) {
         this.userService = userService;
         this.authService = authService;
         this.userMapper = userMapper;
         this.appProperties = appProperties;
+        this.jwtCookieService = jwtCookieService;
     }
 
     @PostMapping("/register")
@@ -63,7 +67,15 @@ public class UserController {
         String token = authService.login(request);
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.SET_COOKIE, jwtCookieService.create(token).toString())
                 .body(new TokenResponse(token));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout() {
+        return ResponseEntity.noContent()
+                .header(HttpHeaders.SET_COOKIE, jwtCookieService.clear().toString())
+                .build();
     }
 
     @GetMapping()

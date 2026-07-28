@@ -3,8 +3,4 @@ export interface LoginCredentials {
   password: string;
 }
 
-export interface AuthTokenResponse {
-  token: string;
-}
-
 export type LoginFormValues = LoginCredentials;
