@@ -155,7 +155,7 @@ const CreateUserModal = ({onClose}: CreateUserModalProps) => {
                     {createdUsername && (
                         <p className={styles.success} role="status">
                             <LucideCheck size={17} aria-hidden="true"/>
-                            Access granted to <strong>{createdUsername}</strong>
+                            Access granted to {createdUsername}
                         </p>
                     )}
 
