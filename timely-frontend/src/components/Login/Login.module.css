@@ -14,7 +14,7 @@
 
     background:
         radial-gradient(circle at 50% -10%, rgba(20, 184, 166, 0.12), transparent 38%),
-        #0a0a0a;
+        var(--bg);
 }
 
 .formWrapper {
@@ -25,10 +25,10 @@
 
     border-radius: 22px;
 
-    background: #101012;
-    border: 1px solid #27272a;
+    background: var(--surface);
+    border: 1px solid var(--border);
 
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 24px 60px var(--shadow);
 }
 
 .header {
@@ -40,7 +40,7 @@
 
     margin-bottom: 4px;
 
-    color: #71717a;
+    color: var(--text-subtle);
 
     font-size: 12px;
     font-weight: 600;
@@ -58,7 +58,7 @@
 .subtitle {
     max-width: 340px;
     margin-top: 7px;
-    color: #a1a1aa;
+    color: var(--text-muted);
     font-size: 14px;
     line-height: 1.5;
 }
@@ -154,7 +154,7 @@
 
 .credential dd {
     overflow: hidden;
-    color: #e4e4e7;
+    color: var(--text-secondary);
     font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
     font-size: 12px;
     font-weight: 600;
@@ -196,7 +196,7 @@
 }
 
 .label {
-    color: #a1a1aa;
+    color: var(--text-muted);
 
     font-size: 13px;
     font-weight: 600;
@@ -209,10 +209,10 @@
     padding: 0 14px;
 
     border-radius: 14px;
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
 
-    background: #18181b;
-    color: white;
+    background: var(--surface-raised);
+    color: var(--text);
 
     font-size: 16px;
     font-weight: 500;
@@ -222,7 +222,7 @@
 }
 
 .input::placeholder {
-    color: #71717a;
+    color: var(--text-subtle);
 }
 
 .input:focus {
@@ -250,8 +250,8 @@
     border: none;
     border-radius: 14px;
 
-    background: white;
-    color: #0a0a0a;
+    background: var(--solid);
+    color: var(--on-solid);
 
     font-size: 14px;
     font-weight: 700;
@@ -261,7 +261,7 @@
 }
 
 .button:hover {
-    background: #e4e4e7;
+    background: var(--text-secondary);
 }
 
 .serverError {

@@ -8,23 +8,23 @@
     gap: 7px;
     height: 40px;
     padding: 0 9px 0 11px;
-    border: 1px solid #303036;
+    border: 1px solid var(--border);
     border-radius: 12px;
-    background: rgba(17, 17, 19, 0.9);
-    color: #d4d4d8;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    background: var(--glass);
+    color: var(--text-secondary);
+    box-shadow: 0 8px 24px var(--shadow-soft);
     backdrop-filter: blur(14px);
 }
 .switcher select {
     border: 0;
     outline: 0;
     background: transparent;
-    color: #fafafa;
+    color: var(--text);
     font-size: 12px;
     font-weight: 750;
     cursor: pointer;
 }
-.switcher option { background: #18181b; color: #fafafa; }
+.switcher option { background: var(--surface-raised); color: var(--text); }
 .visuallyHidden {
     position: absolute;
     width: 1px;

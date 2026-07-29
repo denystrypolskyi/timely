@@ -8,7 +8,7 @@
 
     padding: 24px;
 
-    background: rgba(0, 0, 0, 0.72);
+    background: var(--overlay);
 
     z-index: 1000;
 }
@@ -20,12 +20,12 @@
     padding: 24px;
 
     border-radius: 20px;
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
 
-    background: #111111;
-    color: white;
+    background: var(--surface);
+    color: var(--text);
 
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.55);
+    box-shadow: 0 20px 50px var(--shadow);
 }
 
 .header {
@@ -51,18 +51,18 @@
     width: 36px;
     height: 36px;
 
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
     border-radius: 10px;
 
-    background: #18181b;
-    color: white;
+    background: var(--surface-raised);
+    color: var(--text);
 
     cursor: pointer;
     transition: 0.15s ease;
 }
 
 .closeButton:hover {
-    background: #27272a;
+    background: var(--border);
 }
 
 .form {
@@ -80,7 +80,7 @@
 .label {
     font-size: 14px;
     font-weight: 500;
-    color: #a1a1aa;
+    color: var(--text-muted);
 }
 
 .error {
@@ -102,8 +102,8 @@
     border: none;
     border-radius: 12px;
 
-    background: white;
-    color: black;
+    background: var(--solid);
+    color: var(--on-solid);
 
     font-size: 14px;
     font-weight: 600;
@@ -113,7 +113,7 @@
 }
 
 .confirmButton:hover {
-    background: #e4e4e7;
+    background: var(--text-secondary);
 }
 
 .confirmButton:disabled {
@@ -122,7 +122,7 @@
 }
 
 .confirmButton:disabled:hover {
-    background: white;
+    background: var(--solid);
 }
 
 .deleteButton {
@@ -133,7 +133,7 @@
     width: 36px;
     height: 36px;
 
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
     border-radius: 10px;
 
     background: transparent;
@@ -156,10 +156,10 @@
     resize: vertical;
 
     border-radius: 12px;
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
 
-    background: #18181b;
-    color: white;
+    background: var(--surface-raised);
+    color: var(--text);
 
     font-size: 14px;
     font-weight: 500;
@@ -170,7 +170,7 @@
 }
 
 .textarea::placeholder {
-    color: #71717a;
+    color: var(--text-subtle);
 }
 
 .textarea:focus {
@@ -180,7 +180,7 @@
 .helpText {
     margin-top: -4px;
 
-    color: #71717a;
+    color: var(--text-subtle);
 
     font-size: 13px;
     line-height: 1.4;

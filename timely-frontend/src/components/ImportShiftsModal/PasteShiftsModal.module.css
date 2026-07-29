@@ -12,7 +12,7 @@
         max(24px, env(safe-area-inset-bottom))
         max(24px, env(safe-area-inset-left));
 
-    background: rgba(0, 0, 0, 0.78);
+    background: var(--overlay);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     overscroll-behavior: contain;
@@ -26,13 +26,13 @@
 
     padding: 22px;
 
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
     border-radius: 22px;
 
-    background: #101012;
-    color: white;
+    background: var(--surface);
+    color: var(--text);
 
-    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 24px 60px var(--shadow);
     max-height: calc(100dvh - 48px);
     overflow-y: auto;
 }
@@ -51,7 +51,7 @@
 
     margin-bottom: 4px;
 
-    color: #71717a;
+    color: var(--text-subtle);
 
     font-size: 12px;
     font-weight: 600;
@@ -74,18 +74,18 @@
     width: 44px;
     height: 44px;
 
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
     border-radius: 12px;
 
-    background: #18181b;
-    color: white;
+    background: var(--surface-raised);
+    color: var(--text);
 
     cursor: pointer;
     transition: 0.15s ease;
 }
 
 .closeButton:hover {
-    background: #27272a;
+    background: var(--border);
 }
 
 .summary {
@@ -96,10 +96,10 @@
     margin-bottom: 18px;
     padding: 14px;
 
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
     border-radius: 16px;
 
-    background: #18181b;
+    background: var(--surface-raised);
 }
 
 .summaryIcon {
@@ -114,13 +114,13 @@
     border-radius: 14px;
 
     background: #0f766e;
-    color: white;
+    color: var(--accent-contrast);
 }
 
 .summaryTitle {
     margin: 0 0 2px;
 
-    color: #f4f4f5;
+    color: var(--text-soft);
 
     font-size: 14px;
     font-weight: 700;
@@ -129,7 +129,7 @@
 .summaryText {
     margin: 0;
 
-    color: #a1a1aa;
+    color: var(--text-muted);
 
     font-size: 13px;
     line-height: 1.4;
@@ -142,7 +142,7 @@
 }
 
 .label {
-    color: #a1a1aa;
+    color: var(--text-muted);
 
     font-size: 13px;
     font-weight: 600;
@@ -156,11 +156,11 @@
 
     resize: vertical;
 
-    border: 1px solid #27272a;
+    border: 1px solid var(--border);
     border-radius: 16px;
 
-    background: #18181b;
-    color: #f4f4f5;
+    background: var(--surface-raised);
+    color: var(--text-soft);
 
     font-family: inherit;
     font-size: 16px;
@@ -172,11 +172,11 @@
 }
 
 .textarea::placeholder {
-    color: #71717a;
+    color: var(--text-subtle);
 }
 
 .textarea:hover {
-    border-color: #3f3f46;
+    border-color: var(--border-strong);
 }
 
 .textarea:focus {
@@ -187,14 +187,14 @@
 .helpText {
     margin: 0;
 
-    color: #71717a;
+    color: var(--text-subtle);
 
     font-size: 13px;
     line-height: 1.4;
 }
 
 .helpText span {
-    color: #d4d4d8;
+    color: var(--text-secondary);
     font-weight: 700;
 }
 
@@ -225,8 +225,8 @@
     border: none;
     border-radius: 14px;
 
-    background: white;
-    color: #0a0a0a;
+    background: var(--solid);
+    color: var(--on-solid);
 
     font-size: 14px;
     font-weight: 700;
@@ -236,7 +236,7 @@
 }
 
 .submitButton:hover {
-    background: #e4e4e7;
+    background: var(--solid-hover);
 }
 
 .submitButton:disabled {

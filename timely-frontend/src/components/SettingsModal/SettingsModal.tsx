@@ -1,8 +1,9 @@
 import {useState} from "react";
 import styles from "./SettingsModal.module.css";
-import {LucideCheck, LucideSettings, LucideX} from "lucide-react";
+import {LucideCheck, LucideMoon, LucideSettings, LucideSun, LucideX} from "lucide-react";
 import {useI18n} from "../../i18n/I18nContext";
 import {Currency, supportedCurrencies} from "../../hooks/useHourlyRate";
+import {Theme, useTheme} from "../../theme/ThemeContext";
 
 interface SettingsModalProps {
     onClose: () => void;
@@ -20,13 +21,16 @@ const SettingsModal = ({
                            onCurrencyChange,
                        }: SettingsModalProps) => {
     const {t} = useI18n();
+    const {theme, setTheme} = useTheme();
     const [newHourlyRate, setNewHourlyRate] = useState(String(hourlyRate));
     const [newCurrency, setNewCurrency] = useState<Currency>(currency);
+    const [newTheme, setNewTheme] = useState<Theme>(theme);
 
     const handleSave = (event: React.FormEvent) => {
         event.preventDefault();
         onSave(Number(newHourlyRate));
         onCurrencyChange(newCurrency);
+        setTheme(newTheme);
         onClose();
     };
 
@@ -76,6 +80,42 @@ const SettingsModal = ({
                 </div>
 
                 <form className={styles.form} onSubmit={handleSave}>
+                    <fieldset className={styles.themeFieldset}>
+                        <legend className={styles.label}>{t("appearance")}</legend>
+
+                        <div className={styles.themeOptions}>
+                            <button
+                                type="button"
+                                className={`${styles.themeOption} ${
+                                    newTheme === "dark" ? styles.themeOptionActive : ""
+                                }`}
+                                aria-pressed={newTheme === "dark"}
+                                onClick={() => setNewTheme("dark")}
+                            >
+                                <LucideMoon size={18} aria-hidden="true"/>
+                                <span>{t("darkTheme")}</span>
+                                {newTheme === "dark" && (
+                                    <LucideCheck className={styles.themeCheck} size={16} aria-hidden="true"/>
+                                )}
+                            </button>
+
+                            <button
+                                type="button"
+                                className={`${styles.themeOption} ${
+                                    newTheme === "light" ? styles.themeOptionActive : ""
+                                }`}
+                                aria-pressed={newTheme === "light"}
+                                onClick={() => setNewTheme("light")}
+                            >
+                                <LucideSun size={18} aria-hidden="true"/>
+                                <span>{t("lightTheme")}</span>
+                                {newTheme === "light" && (
+                                    <LucideCheck className={styles.themeCheck} size={16} aria-hidden="true"/>
+                                )}
+                            </button>
+                        </div>
+                    </fieldset>
+
                     <div className={styles.fieldGrid}>
                         <div className={styles.controlGroup}>
                             <label htmlFor="hourlyRate" className={styles.label}>
