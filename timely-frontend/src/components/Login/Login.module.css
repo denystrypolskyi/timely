@@ -281,7 +281,7 @@
     .container {
         align-items: center;
         padding:
-            max(16px, env(safe-area-inset-top))
+            max(72px, calc(env(safe-area-inset-top) + 64px))
             max(12px, env(safe-area-inset-right))
             max(16px, env(safe-area-inset-bottom))
             max(12px, env(safe-area-inset-left));

@@ -145,6 +145,7 @@
     display: flex;
     flex-direction: column;
     gap: 8px;
+    min-width: 0;
 }
 
 .label {
@@ -169,8 +170,10 @@
 .timeInput {
     display: block;
     width: 100%;
+    max-width: 100%;
     min-width: 0;
-    height: 50px;
+    height: 48px;
+    min-height: 48px;
 
     padding: 0 14px;
 
@@ -182,7 +185,7 @@
 
     font-size: 16px;
     font-weight: 600;
-    line-height: 1;
+    line-height: normal;
     color-scheme: dark;
 
     outline: none;
@@ -196,6 +199,13 @@
 .timeInput:focus {
     border-color: #14b8a6;
     box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
+}
+
+.timeInput::-webkit-date-and-time-value {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    margin: 0;
 }
 
 .dateHint {
@@ -371,5 +381,10 @@
 
     .timeFields {
         gap: 8px;
+    }
+
+    .timeInput {
+        padding-right: 8px;
+        padding-left: 10px;
     }
 }

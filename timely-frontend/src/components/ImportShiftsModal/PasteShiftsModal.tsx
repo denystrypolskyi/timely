@@ -124,6 +124,7 @@ const PasteShiftsModal = ({
                         disabled={isLoading}
                         className={styles.submitButton}
                     >
+                        <ClipboardPaste size={17} aria-hidden="true" />
                         {isLoading ? t("importing") : t("importShifts")}
                     </button>
                 </form>
