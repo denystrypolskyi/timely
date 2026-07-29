@@ -169,6 +169,7 @@
 
 .timeInput {
     display: block;
+    box-sizing: border-box;
     width: 100%;
     max-width: 100%;
     min-width: 0;
@@ -380,11 +381,19 @@
     }
 
     .timeFields {
+        grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
         gap: 8px;
+        width: 100%;
+    }
+
+    .timeArrow {
+        width: 18px;
     }
 
     .timeInput {
         padding-right: 8px;
         padding-left: 10px;
+        -webkit-appearance: none;
+        appearance: none;
     }
 }
