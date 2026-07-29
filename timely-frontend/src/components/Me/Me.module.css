@@ -181,57 +181,134 @@
 
 .shiftInfo {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: 13px;
 
-  gap: 14px;
-
-  padding: 14px;
+  padding: 15px;
 
   border: 1px solid #27272a;
   border-radius: 16px;
 
-  background: #18181b;
+  background: linear-gradient(145deg, #1b1b1f, #17171a);
 }
 
 .shiftInfo + .shiftInfo {
   margin-top: 10px;
 }
 
-.shiftSummary {
-  flex: 1;
-
+.shiftTimeline {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
-
-  min-width: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(42px, 0.55fr) minmax(0, 1fr);
+  align-items: end;
+  gap: 8px;
+  width: 100%;
 }
 
-.shiftMetric {
+.shiftTimePoint {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-
+  gap: 5px;
   min-width: 0;
 }
 
-.durationMetric {
-  grid-column: 1 / -1;
+.endTimePoint {
+  align-items: flex-end;
+  text-align: right;
+}
+
+.shiftConnector {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding-bottom: 5px;
+  color: #5eead4;
+}
+
+.shiftConnector span {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, #3f3f46, #14b8a6);
 }
 
 .shiftLabel {
   color: #71717a;
 
-  font-size: 12px;
-  font-weight: 500;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
 .shiftValue {
   color: #f4f4f5;
 
-  font-size: 14px;
+  font-size: 22px;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.shiftFooter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding-top: 11px;
+  border-top: 1px solid #2a2a2f;
+}
+
+.durationSummary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: #e4e4e7;
+  font-size: 13px;
+}
+
+.durationSummary > span:last-child {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.durationIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border-radius: 10px;
+  background: rgba(20, 184, 166, 0.12);
+  color: #5eead4;
+}
+
+.durationLabel {
+  color: #71717a;
+  font-size: 10px;
+  font-weight: 650;
+  line-height: 1.1;
+}
+
+.durationSummary strong {
+  font-size: 13px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.nextDayBadge {
+  overflow: hidden;
+  margin-left: auto;
+  padding: 5px 8px;
+  border: 1px solid rgba(20, 184, 166, 0.2);
+  border-radius: 999px;
+  background: rgba(20, 184, 166, 0.08);
+  color: #5eead4;
+  font-size: 10px;
   font-weight: 700;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
@@ -241,8 +318,9 @@
   justify-content: center;
 
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
+  margin-left: auto;
 
   border: 1px solid #3f1d1d;
   border-radius: 12px;
@@ -252,6 +330,10 @@
 
   cursor: pointer;
   transition: 0.15s ease;
+}
+
+.nextDayBadge + .shiftDeleteButton {
+  margin-left: 0;
 }
 
 .shiftDeleteButton:hover {

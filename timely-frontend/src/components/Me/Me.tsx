@@ -14,6 +14,7 @@ import {
     ClipboardPaste,
     LucideArrowLeft,
     LucideArrowRight,
+    LucideClock,
     LucideLogOut,
     LucidePlus,
     LucideSettings,
@@ -169,12 +170,12 @@ const Me = () => {
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (
-                dropdownRef.current &&
-                dropdownRef.current.contains(event.target as Node)
-            ) {
+            const dropdown = dropdownRef.current;
+
+            if (!dropdown || dropdown.contains(event.target as Node)) {
                 return;
             }
+
             setSelectedDate(null);
         };
 
@@ -426,59 +427,100 @@ const Me = () => {
 
                         <div className={styles.shiftList}>
                             {selectedDateShifts.length > 0 ? (
-                                selectedDateShifts.map((shift) => (
-                                    <div
-                                        key={shift.id}
-                                        className={styles.shiftInfo}
-                                    >
-                                        <div className={styles.shiftSummary}>
-                                            <div className={styles.shiftMetric}>
-                                                <span className={styles.shiftLabel}>
-                                                    {t("start")}
-                                                </span>
+                                selectedDateShifts.map((shift) => {
+                                    const shiftStart = new Date(shift.shiftStart);
+                                    const shiftEnd = new Date(shift.shiftEnd);
+                                    const endsOnAnotherDay =
+                                        shiftStart.getFullYear() !== shiftEnd.getFullYear() ||
+                                        shiftStart.getMonth() !== shiftEnd.getMonth() ||
+                                        shiftStart.getDate() !== shiftEnd.getDate();
 
-                                                <span className={styles.shiftValue}>
-                                                    {formatShiftTime(shift.shiftStart, locale)}
-                                                </span>
-                                            </div>
-
-                                            <div className={styles.shiftMetric}>
-                                                <span className={styles.shiftLabel}>
-                                                    {t("end")}
-                                                </span>
-
-                                                <span className={styles.shiftValue}>
-                                                    {formatShiftTime(shift.shiftEnd, locale)}
-                                                </span>
-                                            </div>
-
-                                            <div className={`${styles.shiftMetric} ${styles.durationMetric}`}>
-                                                <span className={styles.shiftLabel}>
-                                                    {t("duration")}
-                                                </span>
-
-                                                <span className={styles.shiftValue}>
-                                                    {formatMinutesToHours(
-                                                        shift.shiftDurationMinutes,
-                                                        t("hoursShort"),
-                                                        t("minutesShort")
-                                                    )}
-                                                </span>
-                                            </div>
-                                        </div>
-
-                                        <button
-                                            type="button"
-                                            className={styles.shiftDeleteButton}
-                                            aria-label={t("deleteShift")}
-                                            onClick={() =>
-                                                handleDeleteShift(shift.id)
-                                            }
+                                    return (
+                                        <article
+                                            key={shift.id}
+                                            className={styles.shiftInfo}
                                         >
-                                            <LucideTrash size={18} />
-                                        </button>
-                                    </div>
-                                ))
+                                            <div className={styles.shiftTimeline}>
+                                                <div className={styles.shiftTimePoint}>
+                                                    <span className={styles.shiftLabel}>
+                                                        {t("start")}
+                                                    </span>
+
+                                                    <time
+                                                        className={styles.shiftValue}
+                                                        dateTime={shift.shiftStart}
+                                                    >
+                                                        {formatShiftTime(shift.shiftStart, locale)}
+                                                    </time>
+                                                </div>
+
+                                                <div
+                                                    className={styles.shiftConnector}
+                                                    aria-hidden="true"
+                                                >
+                                                    <span />
+                                                    <LucideArrowRight size={16} />
+                                                </div>
+
+                                                <div className={`${styles.shiftTimePoint} ${styles.endTimePoint}`}>
+                                                    <span className={styles.shiftLabel}>
+                                                        {t("end")}
+                                                    </span>
+
+                                                    <time
+                                                        className={styles.shiftValue}
+                                                        dateTime={shift.shiftEnd}
+                                                    >
+                                                        {formatShiftTime(shift.shiftEnd, locale)}
+                                                    </time>
+                                                </div>
+                                            </div>
+
+                                            <div className={styles.shiftFooter}>
+                                                <div className={styles.durationSummary}>
+                                                    <span className={styles.durationIcon}>
+                                                        <LucideClock size={15} aria-hidden="true" />
+                                                    </span>
+
+                                                    <span>
+                                                        <span className={styles.durationLabel}>
+                                                            {t("duration")}
+                                                        </span>
+                                                        <strong>
+                                                            {formatMinutesToHours(
+                                                                shift.shiftDurationMinutes,
+                                                                t("hoursShort"),
+                                                                t("minutesShort")
+                                                            )}
+                                                        </strong>
+                                                    </span>
+                                                </div>
+
+                                                {endsOnAnotherDay && (
+                                                    <span className={styles.nextDayBadge}>
+                                                        {t("nextDay")} ·{" "}
+                                                        {shiftEnd.toLocaleDateString(locale, {
+                                                            day: "numeric",
+                                                            month: "short",
+                                                        })}
+                                                    </span>
+                                                )}
+
+                                                <button
+                                                    type="button"
+                                                    className={styles.shiftDeleteButton}
+                                                    aria-label={t("deleteShift")}
+                                                    title={t("deleteShift")}
+                                                    onClick={() =>
+                                                        handleDeleteShift(shift.id)
+                                                    }
+                                                >
+                                                    <LucideTrash size={17} />
+                                                </button>
+                                            </div>
+                                        </article>
+                                    );
+                                })
                             ) : (
                                 <p className={styles.emptyState}>
                                     {t("noShiftsRecorded")}
@@ -524,7 +566,7 @@ const Me = () => {
                 </div>
             </div>
 
-            {isAddShiftModalOpen && (
+            {isAddShiftModalOpen && selectedDate !== null && (
                 <AddShiftModal
                     onClose={() => {
                         setIsAddShiftModalOpen(false);
@@ -535,7 +577,7 @@ const Me = () => {
                         new Date(
                             currentYear,
                             currentMonth - 1,
-                            selectedDate || 1
+                            selectedDate
                         )
                     }
                 />
