@@ -3,10 +3,10 @@ import {useShifts} from "../../hooks/useShifts";
 import {useAuth} from "../../hooks/useAuth";
 import {useHourlyRate} from "../../hooks/useHourlyRate";
 import styles from "./Me.module.css";
-import AddShiftModal from "../AddHoursModal/AddShiftModal";
+import AddShiftModal from "@/components/AddShiftModal/AddShiftModal";
 import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import SettingsModal from "../SettingsModal/SettingsModal";
-import PasteShiftsModal from "../ImportShiftsModal/PasteShiftsModal.tsx";
+import PasteShiftsModal from "@/components/PasteShiftsModal/PasteShiftsModal.tsx";
 import CreateUserModal from "../CreateUserModal/CreateUserModal";
 import {useI18n} from "../../i18n/I18nContext";
 

@@ -7,9 +7,6 @@ import {ThemeProvider} from "./theme/ThemeProvider";
 
 document.title = import.meta.env.VITE_APP_NAME || "Timely";
 
-// Remove tokens left by versions that stored JWTs in browser-accessible storage.
-localStorage.removeItem("jwtToken");
-
 const queryClient = new QueryClient();
 
 createRoot(document.getElementById("root")!).render(
