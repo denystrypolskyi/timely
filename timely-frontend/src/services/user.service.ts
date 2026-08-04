@@ -1,14 +1,29 @@
 import axiosInstance from "./axiosPrivate";
 import { CreateUserRequest, User } from "@/types/user.types";
 import { getApiErrorMessage } from "./apiError";
+import authService from "./auth.service";
 
 class UserService {
   async getUser(): Promise<User | null> {
     try {
       const response = await axiosInstance.get<User>("/users/profile");
-      return response.status === 204 ? null : response.data;
+      if (response.status !== 204) {
+        return response.data;
+      }
+
+      return this.restoreUserFromRefreshToken();
     } catch (error) {
       throw new Error(getApiErrorMessage(error, "Failed to fetch user"));
+    }
+  }
+
+  private async restoreUserFromRefreshToken(): Promise<User | null> {
+    try {
+      await authService.refreshSession();
+      const response = await axiosInstance.get<User>("/users/profile");
+      return response.status === 204 ? null : response.data;
+    } catch {
+      return null;
     }
   }
 

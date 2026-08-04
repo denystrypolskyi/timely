@@ -43,6 +43,19 @@ npm run dev
 - `npm run lint` - run ESLint
 - `npm run preview` - preview the production build locally
 
+## Authentication
+
+Authentication uses `HttpOnly` access-token and refresh-token cookies. Axios sends them with
+`withCredentials: true`; application code does not read or store either token.
+
+On startup, the current-user query requests `/users/profile`. A `204` response triggers one
+`/users/refresh` request followed by another profile request. During normal API usage, a protected
+request that returns `401` triggers a refresh and is retried once. Concurrent `401` responses share
+the same refresh request.
+
+If the refresh token is missing, expired, or invalid, protected requests redirect to `/login` and
+the startup current-user query resolves as unauthenticated.
+
 ## Deployment
 
 The app builds to `dist`. The included multi-stage Dockerfile builds the

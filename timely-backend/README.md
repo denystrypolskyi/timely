@@ -21,7 +21,7 @@ Backend API for a shift-tracking application. It handles user registration and l
 ## Requirements
 
 - Java 17+
-- Maven, or the included Maven wrapper
+- Maven
 - PostgreSQL database
 
 ## Environment
@@ -38,12 +38,8 @@ REGISTRATION_ENABLED=true
 
 JWT_SECRET=
 JWT_EXPIRATION_MS=3600000
+REFRESH_TOKEN_EXPIRATION_MS=2592000000
 ```
-
-`JWT_SECRET` must be a random value of at least 32 bytes. Keep it out of Git and back it up with the rest of your VPS secrets.
-
-The application uses the `dev` Spring profile by default. The production profile disables public registration, Swagger UI, and API docs unless explicitly configured. Keep registration disabled after creating the accounts you need.
-
 ## Run Locally
 
 ```bash
@@ -90,6 +86,8 @@ Main API groups:
 
 - `POST /api/users/register` - create a user
 - `POST /api/users/login` - log in and receive a JWT
+- `POST /api/users/refresh` - validate the refresh JWT and issue a new token pair
+- `POST /api/users/logout` - clear authentication cookies
 - `GET /api/users/profile` - get the current user profile
 - `PATCH /api/users/username` - update username
 - `PATCH /api/users/password` - update password
@@ -111,7 +109,7 @@ http://localhost:8080/swagger-ui/index.html
 Swagger UI and its API document endpoint are disabled in production.
 
 ## Authentication Notes
-
-- Passwords must contain 12-72 characters and fit within bcrypt's 72-byte input limit.
-- JWTs expire after one hour by default. Changing a password immediately invalidates previously issued JWTs.
+- Access JWTs expire after one hour by default. Login also creates a signed refresh JWT in an `HttpOnly`
+  cookie. Refresh JWTs expire after 30 days by default, and a successful refresh issues a new token pair.
+- Changing a password immediately invalidates existing access and refresh JWTs through `tokenVersion`.
 - Login and registration endpoints are rate-limited per client IP.
