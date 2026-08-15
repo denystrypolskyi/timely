@@ -56,7 +56,7 @@ public class ShiftController {
 
     @PostMapping
     public ResponseEntity<ShiftResponse> createShift(@AuthenticationPrincipal CustomUserDetails user,
-            @RequestBody @Valid CreateShiftRequest request) {
+                                                     @RequestBody @Valid CreateShiftRequest request) {
         ShiftEntity shift = shiftService.createShift(user, request.shiftStart(), request.shiftEnd());
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -65,7 +65,7 @@ public class ShiftController {
 
     @PutMapping("/{id}")
     public ResponseEntity<ShiftResponse> updateShift(@AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable Long id, @RequestBody @Valid UpdateShiftRequest request) {
+                                                     @PathVariable Long id, @RequestBody @Valid UpdateShiftRequest request) {
         ShiftEntity updatedShift = shiftService.updateShift(user, id, request.shiftStart(), request.shiftEnd());
 
         return ResponseEntity.ok(shiftMapper.toDto(updatedShift));
@@ -79,7 +79,7 @@ public class ShiftController {
 
     @GetMapping("/user/{year}/{month}")
     public ResponseEntity<List<ShiftResponse>> getUserShiftsForMonth(@AuthenticationPrincipal CustomUserDetails user,
-            @PathVariable int year, @PathVariable int month) {
+                                                                     @PathVariable int year, @PathVariable int month) {
         List<ShiftEntity> shifts = shiftService.getShiftsByUserAndMonth(user.getId(), year, month);
 
         List<ShiftResponse> response = shifts.stream().map(shiftMapper::toDto).toList();
