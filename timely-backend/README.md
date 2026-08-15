@@ -54,6 +54,23 @@ On Windows:
 
 The API runs on port `8080` by default.
 
+## Database migrations
+
+Flyway owns the PostgreSQL schema and Hibernate validates it at startup. The migration directory contains
+one baseline migration, `V1__initial_schema.sql`, which creates the complete schema for a new database.
+
+The migration history was intentionally reset during development. A database that ran an older migration
+chain must be recreated before using this baseline. For the root Docker Compose setup, stop the stack and
+remove its database volume, then start it again:
+
+```bash
+docker compose down --volumes
+docker compose up --build
+```
+
+This deletes all data in the Compose-managed PostgreSQL database. For a PostgreSQL instance managed outside
+Docker Compose, drop and recreate the application database (or its `public` schema) before starting the app.
+
 ## Tests
 
 ```bash
