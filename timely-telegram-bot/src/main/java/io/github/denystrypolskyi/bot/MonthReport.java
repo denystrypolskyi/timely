@@ -1,6 +1,7 @@
 package io.github.denystrypolskyi.bot;
 
 import java.time.Clock;
+import java.time.DayOfWeek;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +15,7 @@ public final class MonthReport {
     private static final DateTimeFormatter MONTH_FORMATTER =
             DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH);
     private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("MMM d (EEE)", Locale.ENGLISH);
+            DateTimeFormatter.ofPattern("dd MMM, EEE", Locale.ENGLISH);
     private MonthReport() {
     }
 
@@ -46,15 +47,22 @@ public final class MonthReport {
         for (Shift shift : sortedShifts) {
             long durationMinutes = ShiftText.durationMinutes(shift);
             totalMinutes += durationMinutes;
-            report.append('\n')
-                    .append('#')
-                    .append(shift.id())
-                    .append(" · ")
+            boolean isSunday = shift.start().atZone(timeZone).getDayOfWeek() == DayOfWeek.SUNDAY;
+            report.append('\n');
+            if (isSunday) {
+                report.append("<u>");
+            }
+            report
                     .append(DATE_FORMATTER.format(shift.start().atZone(timeZone)))
-                    .append(" · ")
+                    .append(" │ ")
                     .append(ShiftText.timeRange(shift, timeZone))
-                    .append(" · ")
-                    .append(ShiftText.duration(durationMinutes));
+                    .append(" │ ")
+                    .append(ShiftText.duration(durationMinutes))
+                    .append(" │ #")
+                    .append(shift.id());
+            if (isSunday) {
+                report.append("</u>");
+            }
         }
 
         report.append("\n\n⏱ Total · ").append(ShiftText.duration(totalMinutes));

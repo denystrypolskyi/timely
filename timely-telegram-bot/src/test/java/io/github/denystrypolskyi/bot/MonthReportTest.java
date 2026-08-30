@@ -71,10 +71,48 @@ class MonthReportTest {
         assertEquals("""
                 📅 July 2026
 
-                #1 · Jul 2 (Thu) · 08:00–16:30 · 8h 30m
-                #2 · Jul 3 (Fri) · 08:00–16:00 · 8h
+                02 Jul, Thu │ 08:00–16:30 │ 8h 30m │ #1
+                03 Jul, Fri │ 08:00–16:00 │ 8h │ #2
 
                 ⏱ Total · 16h 30m""", report);
+    }
+
+    @Test
+    void makesTheEndDateExplicitForAnOvernightShift() {
+        Shift overnight = new Shift(
+                7L,
+                null,
+                Instant.parse("2026-07-02T20:00:00Z"),
+                Instant.parse("2026-07-03T04:00:00Z")
+        );
+
+        String report = MonthReport.format(YearMonth.of(2026, 7), List.of(overnight), WARSAW);
+
+        assertEquals("""
+                📅 July 2026
+
+                02 Jul, Thu │ 22:00–Jul 3 06:00 │ 8h │ #7
+
+                ⏱ Total · 8h""", report);
+    }
+
+    @Test
+    void underlinesSundayShifts() {
+        Shift sunday = new Shift(
+                9L,
+                480L,
+                Instant.parse("2026-07-05T06:00:00Z"),
+                Instant.parse("2026-07-05T14:00:00Z")
+        );
+
+        String report = MonthReport.format(YearMonth.of(2026, 7), List.of(sunday), WARSAW);
+
+        assertEquals("""
+                📅 July 2026
+
+                <u>05 Jul, Sun │ 08:00–16:00 │ 8h │ #9</u>
+
+                ⏱ Total · 8h""", report);
     }
 
     @Test

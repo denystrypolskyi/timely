@@ -25,6 +25,14 @@ public class TelegramMessenger {
                 .build());
     }
 
+    public void sendHtml(Long chatId, String text) {
+        execute(SendMessage.builder()
+                .chatId(chatId)
+                .text(text)
+                .parseMode("HTML")
+                .build());
+    }
+
     public void sendConfirmation(
             Long chatId,
             String text,

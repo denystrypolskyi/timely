@@ -180,7 +180,7 @@ public class TelegramBot implements LongPollingSingleThreadUpdateConsumer {
         try {
             YearMonth month = MonthReport.parseRequestedMonth(text, clock, config.timeZone());
             List<Shift> shifts = backend.getShifts(month);
-            telegram.send(chatId, MonthReport.format(month, shifts, config.timeZone()));
+            telegram.sendHtml(chatId, MonthReport.format(month, shifts, config.timeZone()));
         } catch (DateTimeParseException exception) {
             telegram.send(chatId, "⚠️ Invalid month\n\nUse /month or /month YYYY-MM\nExample: /month 2026-07");
         } catch (BackendException exception) {
