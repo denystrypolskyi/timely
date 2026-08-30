@@ -71,8 +71,8 @@ class MonthReportTest {
         assertEquals("""
                 📅 July 2026
 
-                02 Jul, Thu │ 08:00–16:30 │ 8h 30m │ #1
-                03 Jul, Fri │ 08:00–16:00 │ 8h │ #2
+                02.07, Thu │ 08:00–16:30 │ 8h 30m │ #1
+                03.07, Fri │ 08:00–16:00 │ 8h │ #2
 
                 ⏱ Total · 16h 30m""", report);
     }
@@ -91,13 +91,13 @@ class MonthReportTest {
         assertEquals("""
                 📅 July 2026
 
-                02 Jul, Thu │ 22:00–Jul 3 06:00 │ 8h │ #7
+                02.07, Thu │ 22:00–03.07 06:00 │ 8h │ #7
 
                 ⏱ Total · 8h""", report);
     }
 
     @Test
-    void underlinesSundayShifts() {
+    void underlinesOnlyTheSundayWeekday() {
         Shift sunday = new Shift(
                 9L,
                 480L,
@@ -110,7 +110,7 @@ class MonthReportTest {
         assertEquals("""
                 📅 July 2026
 
-                <u>05 Jul, Sun │ 08:00–16:00 │ 8h │ #9</u>
+                05.07, <u>Sun</u> │ 08:00–16:00 │ 8h │ #9
 
                 ⏱ Total · 8h""", report);
     }

@@ -15,7 +15,9 @@ public final class MonthReport {
     private static final DateTimeFormatter MONTH_FORMATTER =
             DateTimeFormatter.ofPattern("MMMM uuuu", Locale.ENGLISH);
     private static final DateTimeFormatter DATE_FORMATTER =
-            DateTimeFormatter.ofPattern("dd MMM, EEE", Locale.ENGLISH);
+            DateTimeFormatter.ofPattern("dd.MM", Locale.ENGLISH);
+    private static final DateTimeFormatter WEEKDAY_FORMATTER =
+            DateTimeFormatter.ofPattern("EEE", Locale.ENGLISH);
     private MonthReport() {
     }
 
@@ -47,22 +49,25 @@ public final class MonthReport {
         for (Shift shift : sortedShifts) {
             long durationMinutes = ShiftText.durationMinutes(shift);
             totalMinutes += durationMinutes;
-            boolean isSunday = shift.start().atZone(timeZone).getDayOfWeek() == DayOfWeek.SUNDAY;
-            report.append('\n');
+            var start = shift.start().atZone(timeZone);
+            boolean isSunday = start.getDayOfWeek() == DayOfWeek.SUNDAY;
+            report.append('\n')
+                    .append(DATE_FORMATTER.format(start))
+                    .append(", ");
             if (isSunday) {
                 report.append("<u>");
             }
+            report.append(WEEKDAY_FORMATTER.format(start));
+            if (isSunday) {
+                report.append("</u>");
+            }
             report
-                    .append(DATE_FORMATTER.format(shift.start().atZone(timeZone)))
                     .append(" │ ")
                     .append(ShiftText.timeRange(shift, timeZone))
                     .append(" │ ")
                     .append(ShiftText.duration(durationMinutes))
                     .append(" │ #")
                     .append(shift.id());
-            if (isSunday) {
-                report.append("</u>");
-            }
         }
 
         report.append("\n\n⏱ Total · ").append(ShiftText.duration(totalMinutes));
