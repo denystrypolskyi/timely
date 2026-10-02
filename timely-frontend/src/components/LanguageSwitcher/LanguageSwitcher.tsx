@@ -7,7 +7,6 @@ const LanguageSwitcher = () => {
     const languageNames = {
         en: t("english"),
         uk: t("ukrainian"),
-        ru: t("russian"),
     };
     return (
         <label className={styles.switcher}>

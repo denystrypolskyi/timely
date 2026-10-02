@@ -1,7 +1,7 @@
 import {createContext, useContext} from "react";
 import {TranslationKey} from "./translations";
 
-export const supportedLanguages = ["en", "uk", "ru"] as const;
+export const supportedLanguages = ["en", "uk"] as const;
 export type Language = typeof supportedLanguages[number];
 
 export interface I18nValue {

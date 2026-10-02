@@ -3,7 +3,7 @@ import {I18nContext, Language, supportedLanguages} from "./I18nContext";
 import {TranslationKey, translations} from "./translations";
 
 const STORAGE_KEY = "timelyLanguage";
-const locales: Record<Language, string> = {en: "en-US", uk: "uk-UA", ru: "ru-RU"};
+const locales: Record<Language, string> = {en: "en-US", uk: "uk-UA"};
 
 const getInitialLanguage = (): Language => {
     const saved = localStorage.getItem(STORAGE_KEY);
