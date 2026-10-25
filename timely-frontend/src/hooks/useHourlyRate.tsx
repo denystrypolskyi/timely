@@ -4,7 +4,7 @@ const DEFAULT_HOURLY_RATE = 30.5;
 const HOURLY_RATE_STORAGE_KEY = "timelyHourlyRate";
 const LEGACY_HOURLY_RATE_STORAGE_KEY = "hourlyRate";
 const CURRENCY_STORAGE_KEY = "timelyCurrency";
-export const supportedCurrencies = ["PLN", "EUR", "USD", "UAH", "RUB"] as const;
+export const supportedCurrencies = ["PLN", "EUR", "USD", "UAH"] as const;
 export type Currency = typeof supportedCurrencies[number];
 
 const getInitialHourlyRate = () => {
@@ -25,9 +25,14 @@ const getInitialHourlyRate = () => {
 
 const getInitialCurrency = (): Currency => {
   const savedCurrency = localStorage.getItem(CURRENCY_STORAGE_KEY);
-  return supportedCurrencies.includes(savedCurrency as Currency)
-    ? savedCurrency as Currency
-    : "PLN";
+  if (supportedCurrencies.includes(savedCurrency as Currency)) {
+    return savedCurrency as Currency;
+  }
+
+  if (savedCurrency !== null) {
+    localStorage.setItem(CURRENCY_STORAGE_KEY, "PLN");
+  }
+  return "PLN";
 };
 
 export const useHourlyRate = () => {
