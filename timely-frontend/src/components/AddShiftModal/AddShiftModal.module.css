@@ -88,51 +88,9 @@
     background: var(--border);
 }
 
-.summary {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-
-    margin-bottom: 18px;
-    padding: 14px;
-
-    border: 1px solid var(--border);
-    border-radius: 16px;
-
-    background: var(--surface-raised);
-}
-
-.summaryIcon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-
-    flex: 0 0 auto;
-    width: 40px;
-    height: 40px;
-
-    border-radius: 14px;
-
-    background: #0f766e;
-    color: var(--accent-contrast);
-}
-
-.summaryTitle {
-    margin: 0 0 2px;
-
-    color: var(--text-soft);
-
-    font-size: 14px;
-    font-weight: 700;
-}
-
-.summaryText {
-    margin: 0;
-
-    color: var(--text-muted);
-
-    font-size: 13px;
-    line-height: 1.4;
+.closeButton:disabled {
+    cursor: wait;
+    opacity: 0.7;
 }
 
 .form {
@@ -144,8 +102,18 @@
 .fieldRow {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
     min-width: 0;
+    padding: 10px 8px;
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    background: var(--surface-raised);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.fieldRow:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
 }
 
 .label {
@@ -157,62 +125,74 @@
 
 .timeFields {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
     align-items: center;
-    gap: 10px;
+    gap: 6px;
 }
 
 .timeArrow {
-    margin-top: 4px;
-    color: #52525b;
+    justify-self: center;
+    color: var(--text-subtle);
 }
 
-.timeInput {
-    display: block;
-    box-sizing: border-box;
-    width: 100%;
-    max-width: 100%;
-    min-width: 0;
-    height: 48px;
-    min-height: 48px;
-
-    padding: 0 14px;
-
-    border: 1px solid var(--border);
-    border-radius: 14px;
-
-    background: var(--surface-raised);
-    color: var(--text);
-
-    font-size: 16px;
-    font-weight: 600;
-    line-height: normal;
-    color-scheme: inherit;
-
-    outline: none;
-    transition: 0.15s ease;
-}
-
-.timeInput:hover {
-    border-color: var(--border-strong);
-}
-
-.timeInput:focus {
-    border-color: #14b8a6;
-    box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.14);
-}
-
-.timeInput::-webkit-date-and-time-value {
+.timePicker {
     display: flex;
     align-items: center;
-    height: 100%;
-    margin: 0;
+    justify-content: center;
+    gap: 2px;
+    min-height: 44px;
+    color: var(--text);
+}
+
+.nativeTimeInput {
+    display: none;
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    color-scheme: inherit;
+    font: inherit;
+    font-size: 16px;
+    font-weight: 650;
+}
+
+.timeTextInput {
+    flex: 0 0 2.3ch;
+    width: 2.3ch;
+    min-width: 0;
+    padding: 4px 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--text);
+    font: inherit;
+    font-size: 18px;
+    font-weight: 650;
+    font-variant-numeric: tabular-nums;
+    text-align: center;
+}
+
+.timeSeparator {
+    font-size: 18px;
+    font-weight: 650;
+}
+
+.timeTextInput[aria-invalid="true"] {
+    color: #dc2626;
+}
+
+.timeTextInput:disabled {
+    opacity: 0.65;
 }
 
 .dateHint {
     color: var(--text-subtle);
     font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .endDateFieldset {
@@ -239,6 +219,7 @@
     gap: 3px;
 
     min-width: 0;
+    min-height: 64px;
     padding: 11px 12px;
 
     border: 1px solid var(--border);
@@ -254,10 +235,6 @@
 
     cursor: pointer;
     transition: 0.15s ease;
-}
-
-.dayOption:hover {
-    border-color: var(--border-strong);
 }
 
 .dayOptionActive {
@@ -279,12 +256,6 @@
 
 .dayOptionActive small {
     color: #5eead4;
-}
-
-.optionTitle {
-    display: flex;
-    align-items: center;
-    gap: 5px;
 }
 
 .durationPreview {
@@ -335,6 +306,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 8px;
 
     width: 100%;
     min-height: 50px;
@@ -351,11 +323,28 @@
     font-weight: 700;
 
     cursor: pointer;
-    transition: 0.15s ease;
+    transition: background 0.15s ease, transform 0.15s ease;
 }
 
-.submitButton:hover {
-    background: var(--solid-hover);
+.submitButton:disabled,
+.dayOption:disabled {
+    cursor: wait;
+    opacity: 0.7;
+}
+
+@media (hover: hover) {
+    .dayOption:not(.dayOptionActive):not(:disabled):hover {
+        border-color: var(--border-strong);
+    }
+
+    .submitButton:not(:disabled):hover {
+        background: var(--solid-hover);
+    }
+}
+
+.submitButton:not(:disabled):active,
+.dayOption:not(:disabled):active {
+    transform: scale(0.98);
 }
 
 @media (max-width: 480px) {
@@ -375,25 +364,14 @@
         padding-bottom: max(20px, env(safe-area-inset-bottom));
         border-radius: 24px 24px 18px 18px;
     }
+}
 
-    .summary {
-        padding: 12px;
+@media (pointer: coarse) {
+    .nativeTimeInput {
+        display: block;
     }
 
-    .timeFields {
-        grid-template-columns: minmax(0, 1fr) 18px minmax(0, 1fr);
-        gap: 8px;
-        width: 100%;
-    }
-
-    .timeArrow {
-        width: 18px;
-    }
-
-    .timeInput {
-        padding-right: 8px;
-        padding-left: 10px;
-        -webkit-appearance: none;
-        appearance: none;
+    .customTimePart {
+        display: none;
     }
 }

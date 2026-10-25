@@ -1,13 +1,93 @@
 import {useMemo, useState} from "react";
 import styles from "./AddShiftModal.module.css";
-import {LucideArrowRight, LucideClock, LucideMoon, LucideX} from "lucide-react";
+import {LucideArrowRight, LucideCheck, LucideX} from "lucide-react";
 import {useI18n} from "../../i18n/I18nContext";
 
 interface AddShiftModalProps {
     onClose: () => void;
-    onSubmit: (data: { shiftStart: string; shiftEnd: string }) => void;
+    onSubmit: (data: { shiftStart: string; shiftEnd: string }) => Promise<unknown>;
     selectedDate: Date;
 }
+
+interface TimePickerProps {
+    id: string;
+    label: string;
+    initialValue: string;
+    value: string | null;
+    onChange: (value: string | null) => void;
+    disabled: boolean;
+}
+
+const TimePicker = ({id, label, initialValue, value, onChange, disabled}: TimePickerProps) => {
+    const {t} = useI18n();
+    const [hourText, setHourText] = useState(initialValue.slice(0, 2));
+    const [minuteText, setMinuteText] = useState(initialValue.slice(3));
+
+    const parseTime = (hours: string, minutes: string) => {
+        if (!/^\d{1,2}$/.test(hours) || !/^\d{1,2}$/.test(minutes)) return null;
+        const hour = Number(hours);
+        const minute = Number(minutes);
+        if (hour > 23 || minute > 59) return null;
+
+        return `${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+    };
+
+    return (
+        <div className={styles.timePicker} id={id} role="group" aria-label={label}>
+            <input
+                className={styles.nativeTimeInput}
+                type="time"
+                aria-label={label}
+                value={value ?? ""}
+                onChange={(event) => onChange(event.target.value || null)}
+                disabled={disabled}
+            />
+            <input
+                className={`${styles.timeTextInput} ${styles.customTimePart}`}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label={`${label}: ${t("hour")}`}
+                aria-invalid={!/^\d{1,2}$/.test(hourText) || Number(hourText) > 23}
+                value={hourText}
+                maxLength={2}
+                disabled={disabled}
+                onFocus={(event) => event.currentTarget.select()}
+                onChange={(event) => {
+                    const nextHour = event.target.value;
+                    setHourText(nextHour);
+                    onChange(parseTime(nextHour, minuteText));
+                }}
+                onBlur={() => {
+                    if (parseTime(hourText, minuteText)) setHourText(hourText.padStart(2, "0"));
+                }}
+                placeholder="HH"
+            />
+            <span className={`${styles.timeSeparator} ${styles.customTimePart}`} aria-hidden="true">:</span>
+            <input
+                className={`${styles.timeTextInput} ${styles.customTimePart}`}
+                type="text"
+                inputMode="numeric"
+                autoComplete="off"
+                aria-label={`${label}: ${t("minute")}`}
+                aria-invalid={!/^\d{1,2}$/.test(minuteText) || Number(minuteText) > 59}
+                value={minuteText}
+                maxLength={2}
+                disabled={disabled}
+                onFocus={(event) => event.currentTarget.select()}
+                onChange={(event) => {
+                    const nextMinute = event.target.value;
+                    setMinuteText(nextMinute);
+                    onChange(parseTime(hourText, nextMinute));
+                }}
+                onBlur={() => {
+                    if (parseTime(hourText, minuteText)) setMinuteText(minuteText.padStart(2, "0"));
+                }}
+                placeholder="MM"
+            />
+        </div>
+    );
+};
 
 const timeToMinutes = (time: string) => {
     const [hours, minutes] = time.split(":").map(Number);
@@ -30,10 +110,11 @@ const AddShiftModal = ({
                            selectedDate,
                        }: AddShiftModalProps) => {
     const {locale, t} = useI18n();
-    const [startTime, setStartTime] = useState("09:00");
-    const [endTime, setEndTime] = useState("17:00");
+    const [startTime, setStartTime] = useState<string | null>("09:00");
+    const [endTime, setEndTime] = useState<string | null>("17:00");
     const [endDayOffset, setEndDayOffset] = useState<0 | 1>(0);
     const [error, setError] = useState("");
+    const [isSaving, setIsSaving] = useState(false);
 
     const nextDate = useMemo(() => {
         const date = new Date(selectedDate);
@@ -54,7 +135,7 @@ const AddShiftModal = ({
         ? timeToMinutes(endTime) - timeToMinutes(startTime) + endDayOffset * 24 * 60
         : 0;
 
-    const handleStartTimeChange = (nextStartTime: string) => {
+    const handleStartTimeChange = (nextStartTime: string | null) => {
         setStartTime(nextStartTime);
         setError("");
 
@@ -67,7 +148,7 @@ const AddShiftModal = ({
         }
     };
 
-    const handleEndTimeChange = (nextEndTime: string) => {
+    const handleEndTimeChange = (nextEndTime: string | null) => {
         setEndTime(nextEndTime);
         setError("");
 
@@ -78,11 +159,11 @@ const AddShiftModal = ({
         }
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!startTime || !endTime) {
-            setError(t("bothTimesRequired"));
+            setError(t("invalidTimes"));
             return;
         }
 
@@ -104,12 +185,18 @@ const AddShiftModal = ({
 
         setError("");
 
-        onSubmit({
-            shiftStart: shiftStartDate.toISOString(),
-            shiftEnd: shiftEndDate.toISOString(),
-        });
-
-        onClose();
+        setIsSaving(true);
+        try {
+            await onSubmit({
+                shiftStart: shiftStartDate.toISOString(),
+                shiftEnd: shiftEndDate.toISOString(),
+            });
+            onClose();
+        } catch (saveError) {
+            setError(saveError instanceof Error ? saveError.message : t("saveShiftFailed"));
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -136,44 +223,26 @@ const AddShiftModal = ({
                         onClick={onClose}
                         className={styles.closeButton}
                         aria-label={t("closeAddShift")}
+                        disabled={isSaving}
                     >
                         <LucideX size={20} />
                     </button>
                 </div>
 
-                <div className={styles.summary}>
-                    <div className={styles.summaryIcon}>
-                        <LucideClock size={20} />
-                    </div>
-
-                    <div>
-                        <p className={styles.summaryTitle}>
-                            {t("shiftTime")}
-                        </p>
-
-                        <p className={styles.summaryText}>
-                            {t("shiftTimeHelp")}
-                        </p>
-                    </div>
-                </div>
-
                 <form onSubmit={handleSubmit} className={styles.form}>
                     <div className={styles.timeFields}>
                         <div className={styles.fieldRow}>
-                            <label htmlFor="shiftStart" className={styles.label}>
+                            <span className={styles.label}>
                                 {t("start")}
-                            </label>
+                            </span>
 
-                            <input
+                            <TimePicker
                                 id="shiftStart"
-                                type="time"
+                                label={t("start")}
+                                initialValue="09:00"
                                 value={startTime}
-                                onChange={(event) =>
-                                    handleStartTimeChange(event.target.value)
-                                }
-                                className={styles.timeInput}
-                                step="300"
-                                required
+                                onChange={handleStartTimeChange}
+                                disabled={isSaving}
                             />
 
                             <span className={styles.dateHint}>
@@ -188,20 +257,17 @@ const AddShiftModal = ({
                         />
 
                         <div className={styles.fieldRow}>
-                            <label htmlFor="shiftEnd" className={styles.label}>
+                            <span className={styles.label}>
                                 {t("end")}
-                            </label>
+                            </span>
 
-                            <input
+                            <TimePicker
                                 id="shiftEnd"
-                                type="time"
+                                label={t("end")}
+                                initialValue="17:00"
                                 value={endTime}
-                                onChange={(event) =>
-                                    handleEndTimeChange(event.target.value)
-                                }
-                                className={styles.timeInput}
-                                step="300"
-                                required
+                                onChange={handleEndTimeChange}
+                                disabled={isSaving}
                             />
 
                             <span className={styles.dateHint}>
@@ -220,6 +286,7 @@ const AddShiftModal = ({
                                     endDayOffset === 0 ? styles.dayOptionActive : ""
                                 }`}
                                 aria-pressed={endDayOffset === 0}
+                                disabled={isSaving}
                                 onClick={() => {
                                     setEndDayOffset(0);
                                     setError("");
@@ -235,15 +302,13 @@ const AddShiftModal = ({
                                     endDayOffset === 1 ? styles.dayOptionActive : ""
                                 }`}
                                 aria-pressed={endDayOffset === 1}
+                                disabled={isSaving}
                                 onClick={() => {
                                     setEndDayOffset(1);
                                     setError("");
                                 }}
                             >
-                                <span className={styles.optionTitle}>
-                                    <LucideMoon size={15} aria-hidden="true" />
-                                    {t("nextDay")}
-                                </span>
+                                <span>{t("nextDay")}</span>
                                 <small>{formatDate(nextDate)}</small>
                             </button>
                         </div>
@@ -270,8 +335,9 @@ const AddShiftModal = ({
                         </p>
                     )}
 
-                    <button type="submit" className={styles.submitButton}>
-                        {t("saveShift")}
+                    <button type="submit" className={styles.submitButton} disabled={isSaving}>
+                        {!isSaving && <LucideCheck size={18} aria-hidden="true" />}
+                        {isSaving ? t("savingShift") : t("saveShift")}
                     </button>
                 </form>
             </div>

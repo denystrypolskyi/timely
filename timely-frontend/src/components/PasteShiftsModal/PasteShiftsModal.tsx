@@ -6,11 +6,13 @@ import {useI18n} from "../../i18n/I18nContext";
 interface ImportShiftsModalProps {
     onClose: () => void;
     onSubmit: (text: string) => Promise<void>;
+    year: number;
 }
 
 const PasteShiftsModal = ({
                                onClose,
                                onSubmit,
+                               year,
                            }: ImportShiftsModalProps) => {
     const {t} = useI18n();
     const [text, setText] = useState("");
@@ -33,7 +35,7 @@ const PasteShiftsModal = ({
 
             onClose();
         } catch (err) {
-            setError((err as Error).message);
+            setError(err instanceof Error ? err.message : t("importFailed"));
         } finally {
             setIsLoading(false);
         }
@@ -63,31 +65,25 @@ const PasteShiftsModal = ({
                         onClick={onClose}
                         className={styles.closeButton}
                         aria-label={t("closePasteShifts")}
+                        disabled={isLoading}
                     >
                         <LucideX size={20} />
                     </button>
-                </div>
-
-                <div className={styles.summary}>
-                    <div className={styles.summaryIcon}>
-                        <ClipboardPaste size={20} />
-                    </div>
-
-                    <div>
-                        <p className={styles.summaryTitle}>
-                            {t("importMultiple")}
-                        </p>
-
-                        <p className={styles.summaryText}>
-                            {t("importHelp")}
-                        </p>
-                    </div>
                 </div>
 
                 <form
                     onSubmit={handleSubmit}
                     className={styles.form}
                 >
+                    <p className={styles.instructions}>
+                        {t("importHelp", {year})}
+                    </p>
+
+                    <div className={styles.example}>
+                        <span>{t("exampleFormat")}</span>
+                        <code>02.05 10:00-17:00</code>
+                    </div>
+
                     <label
                         htmlFor="shiftImport"
                         className={styles.label}
@@ -98,23 +94,21 @@ const PasteShiftsModal = ({
                     <textarea
                         id="shiftImport"
                         value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        placeholder={`02.05 10:00-17:00
-03.05 12:00-20:30
-05.05 08:15-16:15`}
-                        rows={10}
+                        onChange={(e) => {
+                            setText(e.target.value);
+                            setError("");
+                        }}
+                        placeholder={t("pasteShiftsPlaceholder")}
+                        rows={6}
                         className={styles.textarea}
                         autoCapitalize="none"
                         autoCorrect="off"
                         spellCheck={false}
+                        disabled={isLoading}
                     />
 
-                    <p className={styles.helpText}>
-                        {t("exampleFormat")} <span>02.05 10:00-17:00</span>
-                    </p>
-
                     {error && (
-                        <p className={styles.error}>
+                        <p className={styles.error} role="alert">
                             {error}
                         </p>
                     )}

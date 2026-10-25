@@ -36,6 +36,7 @@ const formatShiftTime = (date: string, locale: string) =>
     new Date(date).toLocaleTimeString(locale, {
         hour: "2-digit",
         minute: "2-digit",
+        hourCycle: "h23",
     });
 
 const Me = () => {
@@ -597,6 +598,7 @@ const Me = () => {
                 <PasteShiftsModal
                     onClose={() => setIsImportOpen(false)}
                     onSubmit={handleManualImport}
+                    year={currentYear}
                 />
             )}
         </div>
