@@ -1,8 +1,5 @@
 package io.github.denystrypolskyi.backend.service;
 
-import io.github.denystrypolskyi.backend.model.CustomUserDetails;
-import io.github.denystrypolskyi.backend.model.Role;
-import io.github.denystrypolskyi.backend.model.UserEntity;
 import io.jsonwebtoken.JwtException;
 import org.junit.jupiter.api.Test;
 
@@ -13,32 +10,21 @@ class JWTServiceTest {
     private static final String SECRET = "a-secure-test-secret-that-is-long-enough";
 
     @Test
-    void generatedTokenContainsImmutableUserIdAndTokenVersion() {
-        JWTService service = new JWTService(SECRET, 60_000, "timely-backend", "timely-api");
-        UserEntity user = new UserEntity();
-        user.setId(42L);
-        user.setUsername("alice");
-        user.setRole(Role.USER);
-        user.setTokenVersion(3L);
+    void generatedTokenContainsUserId() {
+        JWTService service = new JWTService(SECRET, 60_000);
 
-        String token = service.generateToken(new CustomUserDetails(user));
-        JWTService.TokenClaims claims = service.parseToken(token);
+        String token = service.generateToken(42L);
 
-        assertEquals(42L, claims.userId());
-        assertEquals(3L, claims.tokenVersion());
+        assertEquals(42L, service.parseUserId(token));
     }
 
     @Test
-    void tokenForAnotherIssuerIsRejected() {
-        JWTService issuer = new JWTService(SECRET, 60_000, "first-issuer", "timely-api");
-        JWTService verifier = new JWTService(SECRET, 60_000, "second-issuer", "timely-api");
-        UserEntity user = new UserEntity();
-        user.setId(42L);
-        user.setUsername("alice");
-        user.setRole(Role.USER);
+    void tokenSignedWithAnotherSecretIsRejected() {
+        JWTService issuer = new JWTService(SECRET, 60_000);
+        JWTService verifier = new JWTService("another-secure-test-secret-that-is-long-enough", 60_000);
 
-        String token = issuer.generateToken(new CustomUserDetails(user));
+        String token = issuer.generateToken(42L);
 
-        assertThrows(JwtException.class, () -> verifier.parseToken(token));
+        assertThrows(JwtException.class, () -> verifier.parseUserId(token));
     }
 }

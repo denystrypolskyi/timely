@@ -7,23 +7,18 @@ import io.github.denystrypolskyi.backend.model.CustomUserDetails;
 import io.github.denystrypolskyi.backend.model.UserEntity;
 import io.github.denystrypolskyi.backend.service.AuthService;
 import io.github.denystrypolskyi.backend.service.JwtCookieService;
-import io.github.denystrypolskyi.backend.service.RefreshTokenService;
-import io.github.denystrypolskyi.backend.service.RefreshTokenCookieService;
 import io.github.denystrypolskyi.backend.service.UserService;
 
 import java.util.List;
 
 import jakarta.validation.Valid;
-import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.CacheControl;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -35,21 +30,15 @@ public class UserController {
     public final UserMapper userMapper;
     private final AppProperties appProperties;
     private final JwtCookieService jwtCookieService;
-    private final RefreshTokenCookieService refreshTokenCookieService;
-    private final RefreshTokenService refreshTokenService;
 
     @Autowired
     public UserController(UserService userService, AuthService authService, UserMapper userMapper,
-                          AppProperties appProperties, JwtCookieService jwtCookieService,
-                          RefreshTokenCookieService refreshTokenCookieService,
-                          RefreshTokenService refreshTokenService) {
+                          AppProperties appProperties, JwtCookieService jwtCookieService) {
         this.userService = userService;
         this.authService = authService;
         this.userMapper = userMapper;
         this.appProperties = appProperties;
         this.jwtCookieService = jwtCookieService;
-        this.refreshTokenCookieService = refreshTokenCookieService;
-        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/register")
@@ -72,38 +61,19 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseEntity<TokenResponse> login(@RequestBody @Valid LoginRequest request) {
-        AuthService.LoginResult result = authService.login(request);
+    public ResponseEntity<Void> login(@RequestBody @Valid LoginRequest request) {
+        String token = authService.login(request);
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .header(HttpHeaders.SET_COOKIE, jwtCookieService.create(result.accessToken()).toString())
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookieService.create(result.refreshToken()).toString())
-                .body(new TokenResponse(result.accessToken()));
+                .header(HttpHeaders.SET_COOKIE, jwtCookieService.create(token).toString())
+                .build();
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout() {
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, jwtCookieService.clear().toString())
-                .header(HttpHeaders.SET_COOKIE, refreshTokenCookieService.clear().toString())
                 .build();
-    }
-
-    @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refresh(HttpServletRequest request) {
-        return refreshTokenCookieService.read(request)
-                .flatMap(refreshTokenService::renew)
-                .map(result -> ResponseEntity.ok()
-                        .cacheControl(CacheControl.noStore())
-                        .header(HttpHeaders.SET_COOKIE, jwtCookieService.create(result.accessToken()).toString())
-                        .header(HttpHeaders.SET_COOKIE,
-                                refreshTokenCookieService.create(result.refreshToken()).toString())
-                        .body(new TokenResponse(result.accessToken())))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                        .cacheControl(CacheControl.noStore())
-                        .header(HttpHeaders.SET_COOKIE, jwtCookieService.clear().toString())
-                        .header(HttpHeaders.SET_COOKIE, refreshTokenCookieService.clear().toString())
-                        .build());
     }
 
     @GetMapping()

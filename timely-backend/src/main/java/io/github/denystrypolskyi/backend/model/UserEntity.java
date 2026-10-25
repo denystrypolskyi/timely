@@ -30,9 +30,6 @@ public class UserEntity {
     @Enumerated(EnumType.STRING)
     private Role role;
 
-    @Column(nullable = false)
-    private long tokenVersion;
-
     @Column(nullable = false, length = 63)
     private String timeZone = DEFAULT_TIME_ZONE;
 

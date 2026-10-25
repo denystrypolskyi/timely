@@ -1,9 +1,4 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import authService from "./auth.service";
-
-interface RetryableRequestConfig extends InternalAxiosRequestConfig {
-  _retry?: boolean;
-}
+import axios, { AxiosError } from "axios";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -13,27 +8,11 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const request = error.config as RetryableRequestConfig | undefined;
-
-    if (error.response?.status !== 401 || !request) {
-      return Promise.reject(error);
-    }
-
-    if (request._retry) {
+  (error: AxiosError) => {
+    if (error.response?.status === 401) {
       redirectToLogin();
-      return Promise.reject(error);
     }
-
-    request._retry = true;
-
-    try {
-      await authService.refreshSession();
-      return axiosInstance(request);
-    } catch (refreshError) {
-      redirectToLogin();
-      return Promise.reject(refreshError);
-    }
+    return Promise.reject(error);
   }
 );
 

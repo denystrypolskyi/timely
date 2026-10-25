@@ -38,7 +38,6 @@ REGISTRATION_ENABLED=true
 
 JWT_SECRET=
 JWT_EXPIRATION_MS=3600000
-REFRESH_TOKEN_EXPIRATION_MS=2592000000
 ```
 ## Run Locally
 
@@ -56,8 +55,8 @@ The API runs on port `8080` by default.
 
 ## Database migrations
 
-Flyway owns the PostgreSQL schema and Hibernate validates it at startup. The migration directory contains
-one baseline migration, `V1__initial_schema.sql`, which creates the complete schema for a new database.
+Flyway owns the PostgreSQL schema and Hibernate validates it at startup. The migration directory contains the
+baseline schema followed by versioned migrations that update existing databases in order.
 
 The migration history was intentionally reset during development. A database that ran an older migration
 chain must be recreated before using this baseline. For the root Docker Compose setup, stop the stack and
@@ -102,9 +101,8 @@ docker run --env-file .env -p 8080:8080 shift-backend
 Main API groups:
 
 - `POST /api/users/register` - create a user
-- `POST /api/users/login` - log in and receive a JWT
-- `POST /api/users/refresh` - validate the refresh JWT and issue a new token pair
-- `POST /api/users/logout` - clear authentication cookies
+- `POST /api/users/login` - log in and set the authentication cookie
+- `POST /api/users/logout` - clear the authentication cookie
 - `GET /api/users/profile` - get the current user profile
 - `PATCH /api/users/username` - update username
 - `PATCH /api/users/password` - update password
@@ -132,7 +130,9 @@ http://localhost:8080/swagger-ui/index.html
 Swagger UI and its API document endpoint are disabled in production.
 
 ## Authentication Notes
-- Access JWTs expire after one hour by default. Login also creates a signed refresh JWT in an `HttpOnly`
-  cookie. Refresh JWTs expire after 30 days by default, and a successful refresh issues a new token pair.
-- Changing a password immediately invalidates existing access and refresh JWTs through `tokenVersion`.
+- Login creates one signed JWT containing the user ID and a one-hour expiration by default. The JWT is stored in an
+  `HttpOnly`, `SameSite=Strict` cookie and is never stored in local storage or returned in the response body.
+- The signing secret stays on the backend in `JWT_SECRET` and must be at least 32 bytes. Production cookies are also
+  marked `Secure`, so they are sent only over HTTPS.
+- There is no refresh token. When the JWT expires, the user logs in again. Logout clears the browser cookie.
 - Login and registration endpoints are rate-limited per client IP.

@@ -153,7 +153,6 @@ class UserServiceTest {
         userService.updatePassword(1L, request);
 
         assertTrue(new BCryptPasswordEncoder(12).matches("new-password", user.getPassword()));
-        assertEquals(1L, user.getTokenVersion());
         verify(userRepository).save(user);
     }
 

@@ -7,6 +7,8 @@ services:
       POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in the root .env file}
       POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in the root .env file}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in the root .env file}
+    ports:
+      - "127.0.0.1:5432:5432"
     volumes:
       - timely-postgres-data:/var/lib/postgresql/data
     healthcheck:
@@ -14,43 +16,6 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: ./timely-frontend
-      args:
-        VITE_API_URL: http://localhost:8080/api
-        VITE_APP_NAME: Timely
-    ports:
-      - "127.0.0.1:3000:80"
-    restart: unless-stopped
-  backend:
-    ports:
-      - "127.0.0.1:8080:8080"
-    build:
-      context: ./timely-backend
-    env_file:
-      - ./timely-backend/.env
-    environment:
-      SPRING_PROFILES_ACTIVE: prod
-      DB_URL: jdbc:postgresql://timely-postgres:5432/${POSTGRES_DB}
-      DB_USERNAME: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
-    depends_on:
-      timely-postgres:
-        condition: service_healthy
-    restart: unless-stopped
-
-  telegram-bot:
-    build:
-      context: ./timely-telegram-bot
-    env_file:
-      - ./timely-telegram-bot/.env
-    environment:
-      BACKEND_URL: http://backend:8080
-    depends_on:
-      - backend
     restart: unless-stopped
 
 volumes:

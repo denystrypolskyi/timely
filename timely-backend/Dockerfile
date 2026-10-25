@@ -1,3 +1,5 @@
+# Production image. For local development, use `mvnw.cmd spring-boot:run`
+# (see the root README).
 FROM maven:3.9.16-eclipse-temurin-17 AS build
 
 WORKDIR /build

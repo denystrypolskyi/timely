@@ -1,3 +1,4 @@
+# Production image. For local development, use `npm run dev` (see the root README).
 # Stage 1: build the React application
 FROM node:22-alpine AS build
 

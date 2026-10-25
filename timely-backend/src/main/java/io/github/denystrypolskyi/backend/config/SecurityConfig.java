@@ -41,7 +41,7 @@ public class SecurityConfig {
             configuration.addAllowedOrigin(appProperties.getFrontendUrl());
         }
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
+        configuration.setAllowedHeaders(List.of("Content-Type"));
         configuration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
@@ -63,8 +63,7 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/users/login",
-                                "/api/users/logout",
-                                "/api/users/refresh")
+                                "/api/users/logout")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/users/profile")
