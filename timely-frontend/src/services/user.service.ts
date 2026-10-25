@@ -1,5 +1,5 @@
 import axiosInstance from "./axiosPrivate";
-import { CreateUserRequest, User } from "@/types/user.types";
+import { CreateUserRequest, UpdateTimeZoneRequest, User } from "@/types/user.types";
 import { getApiErrorMessage } from "./apiError";
 import axiosPublic from "./axiosPublic";
 
@@ -23,6 +23,15 @@ class UserService {
       return response.data;
     } catch (error) {
       throw new Error(getApiErrorMessage(error, "Failed to create account"));
+    }
+  }
+
+  async updateTimeZone(request: UpdateTimeZoneRequest): Promise<User> {
+    try {
+      const response = await axiosInstance.patch<User>("/users/timezone", request);
+      return response.data;
+    } catch (error) {
+      throw new Error(getApiErrorMessage(error, "Failed to update time zone"));
     }
   }
 }

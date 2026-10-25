@@ -7,31 +7,51 @@ import {Theme, useTheme} from "../../theme/ThemeContext";
 
 interface SettingsModalProps {
     onClose: () => void;
-    onSave: (newRate: number) => void;
+    onSave: (newRate: number, newCurrency: Currency, newTimeZone: string) => Promise<void>;
     hourlyRate: number;
     currency: Currency;
-    onCurrencyChange: (currency: Currency) => void;
+    timeZone: string;
 }
+
+const getSupportedTimeZones = () => {
+    const intl = Intl as typeof Intl & {
+        supportedValuesOf?: (key: "timeZone") => string[];
+    };
+
+    return intl.supportedValuesOf?.("timeZone") ?? [];
+};
 
 const SettingsModal = ({
                            onClose,
                            hourlyRate,
                            onSave,
                            currency,
-                           onCurrencyChange,
+                           timeZone,
                        }: SettingsModalProps) => {
     const {t} = useI18n();
     const {theme, setTheme} = useTheme();
     const [newHourlyRate, setNewHourlyRate] = useState(String(hourlyRate));
     const [newCurrency, setNewCurrency] = useState<Currency>(currency);
     const [newTheme, setNewTheme] = useState<Theme>(theme);
+    const [newTimeZone, setNewTimeZone] = useState(timeZone);
+    const [isSaving, setIsSaving] = useState(false);
+    const [saveError, setSaveError] = useState<string | null>(null);
+    const timeZones = Array.from(new Set([timeZone, ...getSupportedTimeZones()])).sort();
 
-    const handleSave = (event: React.FormEvent) => {
+    const handleSave = async (event: React.FormEvent) => {
         event.preventDefault();
-        onSave(Number(newHourlyRate));
-        onCurrencyChange(newCurrency);
-        setTheme(newTheme);
-        onClose();
+        setIsSaving(true);
+        setSaveError(null);
+
+        try {
+            await onSave(Number(newHourlyRate), newCurrency, newTimeZone);
+            setTheme(newTheme);
+            onClose();
+        } catch (error) {
+            setSaveError(error instanceof Error ? error.message : t("timeZoneUpdateFailed"));
+        } finally {
+            setIsSaving(false);
+        }
     };
 
     return (
@@ -157,9 +177,37 @@ const SettingsModal = ({
                         </div>
                     </div>
 
-                    <button type="submit" className={styles.saveButton}>
+                    <div className={styles.controlGroup}>
+                        <label htmlFor="timeZone" className={styles.label}>
+                            {t("timeZone")}
+                        </label>
+
+                        <select
+                            id="timeZone"
+                            className={styles.timeZoneSelect}
+                            value={newTimeZone}
+                            onChange={(event) => setNewTimeZone(event.target.value)}
+                            disabled={isSaving}
+                        >
+                            {timeZones.map((zone) => (
+                                <option key={zone} value={zone}>
+                                    {zone.replace(/_/g, " ")}
+                                </option>
+                            ))}
+                        </select>
+
+                        <p className={styles.fieldHelp}>{t("timeZoneHelp")}</p>
+                    </div>
+
+                    {saveError && (
+                        <p className={styles.saveError} role="alert">
+                            {saveError}
+                        </p>
+                    )}
+
+                    <button type="submit" className={styles.saveButton} disabled={isSaving}>
                         <LucideCheck size={18} aria-hidden="true"/>
-                        {t("saveChanges")}
+                        {isSaving ? t("savingChanges") : t("saveChanges")}
                     </button>
                 </form>
             </div>

@@ -9,6 +9,7 @@ import SettingsModal from "../SettingsModal/SettingsModal";
 import PasteShiftsModal from "@/components/PasteShiftsModal/PasteShiftsModal.tsx";
 import CreateUserModal from "../CreateUserModal/CreateUserModal";
 import {useI18n} from "../../i18n/I18nContext";
+import {Currency} from "../../hooks/useHourlyRate";
 
 import {
     ClipboardPaste,
@@ -50,7 +51,7 @@ const Me = () => {
         currentYear,
         currentMonth,
     } = useShifts();
-    const {user, logout} = useAuth();
+    const {user, logout, updateTimeZone} = useAuth();
     const {hourlyRate, updateHourlyRate, currency, updateCurrency} = useHourlyRate();
     const [isAddShiftModalOpen, setIsAddShiftModalOpen] =
         useState<boolean>(false);
@@ -75,8 +76,17 @@ const Me = () => {
         return new Intl.DateTimeFormat(locale, {weekday: "short"}).format(monday);
     });
 
-    const handleSaveHourlyRate = (newRate: number) => {
+    const handleSaveSettings = async (
+        newRate: number,
+        newCurrency: Currency,
+        newTimeZone: string
+    ) => {
+        if (newTimeZone !== user?.timeZone) {
+            await updateTimeZone({timeZone: newTimeZone});
+        }
+
         updateHourlyRate(newRate);
+        updateCurrency(newCurrency);
     };
 
     const toggleSettings = () => {
@@ -364,10 +374,10 @@ const Me = () => {
             {isSettingsOpen && (
                 <SettingsModal
                     onClose={toggleSettings}
-                    onSave={handleSaveHourlyRate}
+                    onSave={handleSaveSettings}
                     hourlyRate={hourlyRate}
                     currency={currency}
-                    onCurrencyChange={updateCurrency}
+                    timeZone={user?.timeZone ?? "UTC"}
                 />
             )}
 

@@ -20,6 +20,14 @@ export const useAuth = () => {
     onSettled: () => queryClient.setQueryData(meQueryKey, null),
   });
 
+  const updateTimeZoneMutation = useMutation({
+    mutationFn: userService.updateTimeZone,
+    onSuccess: async (updatedUser) => {
+      queryClient.setQueryData(meQueryKey, updatedUser);
+      await queryClient.invalidateQueries({ queryKey: ["shifts"] });
+    },
+  });
+
   const user = meQuery.data ?? null;
   const isAuthenticated = !!user?.username;
   const isCheckingAuth = meQuery.isLoading;
@@ -32,5 +40,6 @@ export const useAuth = () => {
     login: loginMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
     logout: logoutMutation.mutate,
+    updateTimeZone: updateTimeZoneMutation.mutateAsync,
   };
 };
