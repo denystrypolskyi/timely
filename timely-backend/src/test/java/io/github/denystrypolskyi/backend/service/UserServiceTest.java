@@ -9,6 +9,7 @@ import io.github.denystrypolskyi.backend.exception.ResourceNotFoundException;
 import io.github.denystrypolskyi.backend.model.Role;
 import io.github.denystrypolskyi.backend.model.UserEntity;
 import io.github.denystrypolskyi.backend.repository.UserRepository;
+import io.github.denystrypolskyi.backend.repository.RefreshSessionRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,6 +29,9 @@ import static org.mockito.Mockito.*;
 class UserServiceTest {
     @Mock
     private UserRepository userRepository;
+
+    @Mock
+    private RefreshSessionRepository refreshSessions;
 
     @Spy
     private PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(12);

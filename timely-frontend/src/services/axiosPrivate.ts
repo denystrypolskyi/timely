@@ -1,4 +1,5 @@
-import axios, { AxiosError } from "axios";
+import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axiosPublic from "./axiosPublic";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -6,10 +7,34 @@ const axiosInstance = axios.create({
   timeout: 10_000,
 });
 
+let refreshPromise: Promise<void> | null = null;
+
+export function refreshAccessToken(): Promise<void> {
+  if (!refreshPromise) {
+    refreshPromise = axiosPublic.post("/users/refresh").then(() => undefined)
+      .finally(() => { refreshPromise = null; });
+  }
+  return refreshPromise;
+}
+
+type RetryableRequest = InternalAxiosRequestConfig & { _retried?: boolean };
+
 axiosInstance.interceptors.response.use(
   (response) => response,
-  (error: AxiosError) => {
-    if (error.response?.status === 401) {
+  async (error: AxiosError) => {
+    const original = error.config as RetryableRequest | undefined;
+    if (error.response?.status === 401 && original && !original._retried) {
+      original._retried = true;
+      try {
+        await refreshAccessToken();
+      } catch (refreshError) {
+        if (axios.isAxiosError(refreshError) && refreshError.response?.status === 401) {
+          redirectToLogin();
+        }
+        return Promise.reject(refreshError);
+      }
+      return axiosInstance(original);
+    } else if (error.response?.status === 401) {
       redirectToLogin();
     }
     return Promise.reject(error);

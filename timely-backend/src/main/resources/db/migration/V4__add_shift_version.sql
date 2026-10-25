@@ -1,0 +1,2 @@
+ALTER TABLE public.shifts
+    ADD COLUMN version BIGINT NOT NULL DEFAULT 0;

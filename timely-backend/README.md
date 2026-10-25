@@ -38,6 +38,7 @@ REGISTRATION_ENABLED=true
 
 JWT_SECRET=
 JWT_EXPIRATION_MS=3600000
+REFRESH_EXPIRATION_DAYS=30
 ```
 ## Run Locally
 
@@ -101,8 +102,9 @@ docker run --env-file .env -p 8080:8080 shift-backend
 Main API groups:
 
 - `POST /api/users/register` - create a user
-- `POST /api/users/login` - log in and set the authentication cookie
-- `POST /api/users/logout` - clear the authentication cookie
+- `POST /api/users/login` - log in and set access and refresh cookies
+- `POST /api/users/refresh` - rotate the refresh token and renew the access cookie
+- `POST /api/users/logout` - revoke the refresh session and clear both cookies
 - `GET /api/users/profile` - get the current user profile
 - `PATCH /api/users/username` - update username
 - `PATCH /api/users/password` - update password
@@ -134,5 +136,8 @@ Swagger UI and its API document endpoint are disabled in production.
   `HttpOnly`, `SameSite=Strict` cookie and is never stored in local storage or returned in the response body.
 - The signing secret stays on the backend in `JWT_SECRET` and must be at least 32 bytes. Production cookies are also
   marked `Secure`, so they are sent only over HTTPS.
-- There is no refresh token. When the JWT expires, the user logs in again. Logout clears the browser cookie.
+- Login also sets an `HttpOnly` refresh cookie. Its opaque, rotating token is backed by a hashed
+  database record and lasts up to `REFRESH_EXPIRATION_DAYS` (30 by default). The frontend calls
+  `POST /api/users/refresh` when the access token expires; each successful refresh replaces the
+  refresh token. Logout removes the session, and a password change removes all refresh sessions.
 - Login and registration endpoints are rate-limited per client IP.

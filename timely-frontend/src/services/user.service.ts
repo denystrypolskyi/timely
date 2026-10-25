@@ -1,17 +1,22 @@
-import axiosInstance from "./axiosPrivate";
+import axiosInstance, { refreshAccessToken } from "./axiosPrivate";
 import { CreateUserRequest, UpdateTimeZoneRequest, User } from "@/types/user.types";
 import { getApiErrorMessage } from "./apiError";
-import axiosPublic from "./axiosPublic";
 
 class UserService {
   getUser = async (): Promise<User | null> => {
     try {
-      const response = await axiosPublic.get<User>("/users/profile");
+      let response = await axiosInstance.get<User>("/users/profile");
       if (response.status !== 204) {
         return response.data;
       }
-
-      return null;
+      // An expired access cookie makes the public profile endpoint return 204.
+      try {
+        await refreshAccessToken();
+        response = await axiosInstance.get<User>("/users/profile");
+        return response.status === 204 ? null : response.data;
+      } catch {
+        return null;
+      }
     } catch (error) {
       throw new Error(getApiErrorMessage(error, "Failed to fetch user"));
     }

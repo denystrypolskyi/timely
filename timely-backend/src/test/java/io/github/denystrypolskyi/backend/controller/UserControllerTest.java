@@ -6,6 +6,8 @@ import io.github.denystrypolskyi.backend.dto.UserResponse;
 import io.github.denystrypolskyi.backend.mapper.UserMapper;
 import io.github.denystrypolskyi.backend.service.AuthService;
 import io.github.denystrypolskyi.backend.service.JwtCookieService;
+import io.github.denystrypolskyi.backend.service.RefreshCookieService;
+import io.github.denystrypolskyi.backend.service.RefreshTokenService;
 import io.github.denystrypolskyi.backend.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -38,6 +41,12 @@ class UserControllerTest {
     @Mock
     private JwtCookieService jwtCookieService;
 
+    @Mock
+    private RefreshCookieService refreshCookieService;
+
+    @Mock
+    private RefreshTokenService refreshTokenService;
+
     @InjectMocks
     private UserController userController;
 
@@ -51,16 +60,19 @@ class UserControllerTest {
     }
 
     @Test
-    void login_shouldSetOneAuthenticationCookieWithoutReturningToken() {
+    void login_shouldSetAccessAndRefreshCookiesWithoutReturningTokens() {
         LoginRequest request = new LoginRequest("alice", "password1234");
-        when(authService.login(request)).thenReturn("signed-jwt");
+        Instant expiresAt = Instant.parse("2030-01-01T00:00:00Z");
+        when(authService.login(request)).thenReturn(new AuthService.Tokens("signed-jwt", "refresh", expiresAt));
         when(jwtCookieService.create("signed-jwt"))
                 .thenReturn(ResponseCookie.from("timely_access_token", "signed-jwt").build());
+        when(refreshCookieService.create("refresh", expiresAt))
+                .thenReturn(ResponseCookie.from("timely_refresh_token", "refresh").build());
 
         ResponseEntity<Void> response = userController.login(request);
 
         assertEquals(200, response.getStatusCode().value());
         assertNull(response.getBody());
-        assertEquals(1, response.getHeaders().getOrEmpty(HttpHeaders.SET_COOKIE).size());
+        assertEquals(2, response.getHeaders().getOrEmpty(HttpHeaders.SET_COOKIE).size());
     }
 }

@@ -9,6 +9,7 @@ import io.github.denystrypolskyi.backend.exception.ResourceNotFoundException;
 import io.github.denystrypolskyi.backend.model.Role;
 import io.github.denystrypolskyi.backend.model.UserEntity;
 import io.github.denystrypolskyi.backend.repository.UserRepository;
+import io.github.denystrypolskyi.backend.repository.RefreshSessionRepository;
 
 import java.time.ZoneId;
 import java.util.List;
@@ -23,11 +24,14 @@ import org.springframework.stereotype.Service;
 public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshSessionRepository refreshSessions;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
+                       RefreshSessionRepository refreshSessions) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.refreshSessions = refreshSessions;
     }
 
     @Transactional
@@ -116,6 +120,7 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(dto.newPassword()));
         userRepository.save(user);
+        refreshSessions.deleteByUserId(userId);
     }
 
 }

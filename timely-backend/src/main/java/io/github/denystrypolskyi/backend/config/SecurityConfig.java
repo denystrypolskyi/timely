@@ -63,7 +63,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.POST,
                                 "/api/users/login",
-                                "/api/users/logout")
+                                "/api/users/logout",
+                                "/api/users/refresh")
                         .permitAll()
                         .requestMatchers(HttpMethod.GET,
                                 "/api/users/profile")

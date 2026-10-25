@@ -13,20 +13,27 @@ public class AuthService {
 
     private final AuthenticationManager authenticationManager;
     private final JWTService jwtService;
+    private final RefreshTokenService refreshTokenService;
 
     @Autowired
     public AuthService(AuthenticationManager authenticationManager,
-                       JWTService jwtService) {
+                       JWTService jwtService, RefreshTokenService refreshTokenService) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.refreshTokenService = refreshTokenService;
     }
 
-    public String login(LoginRequest request) {
+    public Tokens login(LoginRequest request) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.username(), request.password())
         );
 
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
-        return jwtService.generateToken(principal.getId());
+        RefreshTokenService.IssuedToken refresh = refreshTokenService.create(principal.getId());
+        return new Tokens(jwtService.generateToken(principal.getId()), refresh.value(), refresh.expiresAt());
     }
+
+    public String accessToken(Long userId) { return jwtService.generateToken(userId); }
+
+    public record Tokens(String accessToken, String refreshToken, java.time.Instant refreshExpiresAt) {}
 }

@@ -7,11 +7,14 @@ import io.github.denystrypolskyi.backend.model.CustomUserDetails;
 import io.github.denystrypolskyi.backend.model.UserEntity;
 import io.github.denystrypolskyi.backend.service.AuthService;
 import io.github.denystrypolskyi.backend.service.JwtCookieService;
+import io.github.denystrypolskyi.backend.service.RefreshCookieService;
+import io.github.denystrypolskyi.backend.service.RefreshTokenService;
 import io.github.denystrypolskyi.backend.service.UserService;
 
 import java.util.List;
 
 import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.CacheControl;
@@ -30,15 +33,20 @@ public class UserController {
     public final UserMapper userMapper;
     private final AppProperties appProperties;
     private final JwtCookieService jwtCookieService;
+    private final RefreshCookieService refreshCookieService;
+    private final RefreshTokenService refreshTokenService;
 
     @Autowired
     public UserController(UserService userService, AuthService authService, UserMapper userMapper,
-                          AppProperties appProperties, JwtCookieService jwtCookieService) {
+                          AppProperties appProperties, JwtCookieService jwtCookieService,
+                          RefreshCookieService refreshCookieService, RefreshTokenService refreshTokenService) {
         this.userService = userService;
         this.authService = authService;
         this.userMapper = userMapper;
         this.appProperties = appProperties;
         this.jwtCookieService = jwtCookieService;
+        this.refreshCookieService = refreshCookieService;
+        this.refreshTokenService = refreshTokenService;
     }
 
     @PostMapping("/register")
@@ -62,18 +70,46 @@ public class UserController {
 
     @PostMapping("/login")
     public ResponseEntity<Void> login(@RequestBody @Valid LoginRequest request) {
-        String token = authService.login(request);
+        AuthService.Tokens tokens = authService.login(request);
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .header(HttpHeaders.SET_COOKIE, jwtCookieService.create(token).toString())
+                .header(HttpHeaders.SET_COOKIE, jwtCookieService.create(tokens.accessToken()).toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookieService.create(tokens.refreshToken(), tokens.refreshExpiresAt()).toString())
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<Void> refresh(HttpServletRequest request) {
+        if (!validOrigin(request)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        String token = refreshCookieService.read(request).orElse(null);
+        var rotated = refreshTokenService.rotate(token);
+        if (rotated.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .header(HttpHeaders.SET_COOKIE, jwtCookieService.clear().toString())
+                    .header(HttpHeaders.SET_COOKIE, refreshCookieService.clear().toString())
+                    .build();
+        }
+        var result = rotated.get();
+        return ResponseEntity.ok().cacheControl(CacheControl.noStore())
+                .header(HttpHeaders.SET_COOKIE, jwtCookieService.create(authService.accessToken(result.userId())).toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookieService.create(result.value(), result.expiresAt()).toString())
                 .build();
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout() {
+    public ResponseEntity<Void> logout(HttpServletRequest request) {
+        if (!validOrigin(request)) return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        refreshCookieService.read(request).ifPresent(refreshTokenService::revoke);
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, jwtCookieService.clear().toString())
+                .header(HttpHeaders.SET_COOKIE, refreshCookieService.clear().toString())
                 .build();
+    }
+
+    private boolean validOrigin(HttpServletRequest request) {
+        String allowed = appProperties.getFrontendUrl();
+        if (allowed == null) return false;
+        return allowed.replaceFirst("/$", "").equals(request.getHeader("Origin"));
     }
 
     @GetMapping()
