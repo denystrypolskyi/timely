@@ -47,4 +47,5 @@ services:
 
 volumes:
   postgres-data:
+    external: true
     name: work-tracker_timely-postgres-data

@@ -51,7 +51,10 @@ containers. The local `docker-compose.yml` remains the database-only development
 setup. Both files use the `timely` Compose project with `postgres`, `backend`,
 and `frontend` service names. The PostgreSQL volume retains its original Docker
 name, `work-tracker_timely-postgres-data`, so an existing deployment can reuse
-its data after the project is renamed.
+its data after the project is renamed. The production stack treats that volume
+as external. On a new VPS without it, create it once with
+`docker volume create work-tracker_timely-postgres-data` before starting the
+stack. An existing VPS needs no volume change.
 
 1. On the VPS, copy the root `.env.example` to `.env` and set the existing
    database name, user, and password. For an existing database, keep the same
@@ -106,7 +109,9 @@ its data after the project is renamed.
 For an existing deployment, back up PostgreSQL before updating. Flyway applies
 new migrations at backend startup. If it reports a migration mismatch, inspect
 the error and the database's migration history before changing the volume.
-`docker compose down --volumes` deletes the application database.
+The production Compose file does not delete its external database volume on
+`down --volumes`. The local development file still manages that same volume,
+so avoid `down --volumes` there if you need to keep its data.
 
 ## Screenshots
 
