@@ -11,16 +11,10 @@ public interface ShiftRepository extends JpaRepository<ShiftEntity, Long> {
 
     List<ShiftEntity> findByUserId(Long userId);
 
-    List<ShiftEntity> findByUserIdAndShiftStartGreaterThanEqualAndShiftStartLessThan(
-            Long userId,
-            Instant start,
-            Instant end
-    );
-
     @EntityGraph(attributePaths = "user")
-    List<ShiftEntity> findWithUserByUserIdAndShiftStartGreaterThanEqualAndShiftStartLessThan(
+    List<ShiftEntity> findWithUserByUserIdAndShiftStartLessThanAndShiftEndGreaterThanOrderByShiftStartAsc(
             Long userId,
-            Instant start,
-            Instant end
+            Instant end,
+            Instant start
     );
 }

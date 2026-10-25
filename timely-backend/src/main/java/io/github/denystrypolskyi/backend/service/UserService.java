@@ -2,6 +2,7 @@ package io.github.denystrypolskyi.backend.service;
 
 import io.github.denystrypolskyi.backend.dto.CreateUserRequest;
 import io.github.denystrypolskyi.backend.dto.UpdatePasswordRequest;
+import io.github.denystrypolskyi.backend.dto.UpdateTimeZoneRequest;
 import io.github.denystrypolskyi.backend.dto.UpdateUsernameRequest;
 import io.github.denystrypolskyi.backend.exception.DuplicateResourceException;
 import io.github.denystrypolskyi.backend.exception.ResourceNotFoundException;
@@ -9,6 +10,7 @@ import io.github.denystrypolskyi.backend.model.Role;
 import io.github.denystrypolskyi.backend.model.UserEntity;
 import io.github.denystrypolskyi.backend.repository.UserRepository;
 
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 
@@ -81,6 +83,22 @@ public class UserService {
         }
 
         user.setUsername(dto.username());
+        return userRepository.save(user);
+    }
+
+    @Transactional
+    public UserEntity updateTimeZone(Long userId, UpdateTimeZoneRequest dto) {
+        Objects.requireNonNull(userId, "User ID must be provided");
+        Objects.requireNonNull(dto, "Time zone update must be provided");
+
+        String timeZone = dto.timeZone().trim();
+        if (!ZoneId.getAvailableZoneIds().contains(timeZone)) {
+            throw new IllegalArgumentException("Unknown IANA time zone: " + timeZone);
+        }
+
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        user.setTimeZone(timeZone);
         return userRepository.save(user);
     }
 

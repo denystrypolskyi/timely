@@ -3,6 +3,7 @@ package io.github.denystrypolskyi.backend.controller;
 import java.util.List;
 
 import io.github.denystrypolskyi.backend.dto.CreateShiftRequest;
+import io.github.denystrypolskyi.backend.dto.MonthlyShiftResponse;
 import io.github.denystrypolskyi.backend.model.CustomUserDetails;
 import io.github.denystrypolskyi.backend.model.ShiftEntity;
 import jakarta.validation.Valid;
@@ -78,11 +79,24 @@ public class ShiftController {
     }
 
     @GetMapping("/user/{year}/{month}")
-    public ResponseEntity<List<ShiftResponse>> getUserShiftsForMonth(@AuthenticationPrincipal CustomUserDetails user,
-                                                                     @PathVariable int year, @PathVariable int month) {
-        List<ShiftEntity> shifts = shiftService.getShiftsByUserAndMonth(user.getId(), year, month);
+    public ResponseEntity<List<MonthlyShiftResponse>> getUserShiftsForMonth(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @PathVariable int year,
+            @PathVariable int month) {
+        ShiftService.MonthlyShifts result = shiftService.getShiftsByUserAndMonth(user.getId(), year, month);
 
-        List<ShiftResponse> response = shifts.stream().map(shiftMapper::toDto).toList();
+        List<MonthlyShiftResponse> response = result.shifts().stream()
+                .map(shift -> {
+                    ShiftResponse dto = shiftMapper.toDto(shift);
+                    return new MonthlyShiftResponse(
+                            dto.id(),
+                            dto.shiftDurationMinutes(),
+                            shiftService.durationInRangeMinutes(shift, result.monthStart(), result.monthEnd()),
+                            dto.shiftStart(),
+                            dto.shiftEnd(),
+                            dto.userId());
+                })
+                .toList();
 
         return ResponseEntity.ok(response);
     }

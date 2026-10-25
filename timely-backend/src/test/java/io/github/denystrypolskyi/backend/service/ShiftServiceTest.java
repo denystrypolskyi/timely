@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.time.Instant;
+import java.time.ZoneId;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -238,6 +240,52 @@ class ShiftServiceTest {
 
         assertThrows(ResourceNotFoundException.class, () -> shiftService.deleteShift(principal, 10L));
         verify(shiftRepository, never()).delete(any());
+    }
+
+    @Test
+    void getShiftsByUserAndMonth_shouldUseUserTimeZoneAndOverlapBoundaries() {
+        UserEntity user = userWithId(1L);
+        user.setTimeZone("Europe/Budapest");
+        ShiftEntity crossingStart = new ShiftEntity(
+                user,
+                Instant.parse("2026-02-28T22:00:00Z"),
+                Instant.parse("2026-03-01T02:00:00Z")
+        );
+        ShiftEntity crossingEnd = new ShiftEntity(
+                user,
+                Instant.parse("2026-03-31T20:00:00Z"),
+                Instant.parse("2026-03-31T23:00:00Z")
+        );
+        Instant monthStart = Instant.parse("2026-02-28T23:00:00Z");
+        Instant monthEnd = Instant.parse("2026-03-31T22:00:00Z");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(shiftRepository
+                .findWithUserByUserIdAndShiftStartLessThanAndShiftEndGreaterThanOrderByShiftStartAsc(
+                        1L, monthEnd, monthStart))
+                .thenReturn(List.of(crossingStart, crossingEnd));
+
+        ShiftService.MonthlyShifts result = shiftService.getShiftsByUserAndMonth(1L, 2026, 3);
+
+        assertEquals(monthStart, result.monthStart());
+        assertEquals(monthEnd, result.monthEnd());
+        assertEquals(List.of(crossingStart, crossingEnd), result.shifts());
+        assertEquals(180, shiftService.durationInRangeMinutes(crossingStart, monthStart, monthEnd));
+        assertEquals(120, shiftService.durationInRangeMinutes(crossingEnd, monthStart, monthEnd));
+    }
+
+    @Test
+    void durationInRangeMinutes_shouldExcludeShiftsTouchingOnlyTheBoundary() {
+        UserEntity user = userWithId(1L);
+        Instant monthStart = YearMonth.of(2026, 3).atDay(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
+        Instant monthEnd = YearMonth.of(2026, 4).atDay(1).atStartOfDay(ZoneId.of("UTC")).toInstant();
+        ShiftEntity endingAtStart = new ShiftEntity(
+                user, Instant.parse("2026-02-28T22:00:00Z"), monthStart);
+        ShiftEntity startingAtEnd = new ShiftEntity(
+                user, monthEnd, Instant.parse("2026-04-01T02:00:00Z"));
+
+        assertEquals(0, shiftService.durationInRangeMinutes(endingAtStart, monthStart, monthEnd));
+        assertEquals(0, shiftService.durationInRangeMinutes(startingAtEnd, monthStart, monthEnd));
     }
 
     private UserEntity userWithId(Long id) {

@@ -108,12 +108,18 @@ Main API groups:
 - `GET /api/users/profile` - get the current user profile
 - `PATCH /api/users/username` - update username
 - `PATCH /api/users/password` - update password
+- `PATCH /api/users/timezone` - update the current user's IANA time zone
 - `GET /api/shifts/user` - list shifts for the current user
 - `POST /api/shifts` - create a shift
 - `DELETE /api/shifts/{id}` - delete a shift
-- `GET /api/shifts/user/{year}/{month}` - list current user shifts for a month
+- `GET /api/shifts/user/{year}/{month}` - list shifts overlapping a month in the user's time zone
 
 Admin-only endpoints are also available for listing users, deleting users, and listing all shifts.
+
+The monthly shift response includes both `shiftDurationMinutes` (the complete shift) and
+`durationInRequestedMonthMinutes` (only the portion inside the requested local calendar month). Use the latter for
+monthly time and salary totals. Month intervals are half-open: a shift overlaps when it starts before the next month
+and ends after the requested month starts.
 
 ## API Docs
 

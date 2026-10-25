@@ -2,6 +2,7 @@ package io.github.denystrypolskyi.backend.service;
 
 import io.github.denystrypolskyi.backend.dto.CreateUserRequest;
 import io.github.denystrypolskyi.backend.dto.UpdatePasswordRequest;
+import io.github.denystrypolskyi.backend.dto.UpdateTimeZoneRequest;
 import io.github.denystrypolskyi.backend.dto.UpdateUsernameRequest;
 import io.github.denystrypolskyi.backend.exception.DuplicateResourceException;
 import io.github.denystrypolskyi.backend.exception.ResourceNotFoundException;
@@ -115,6 +116,30 @@ class UserServiceTest {
 
         assertThrows(DuplicateResourceException.class, () -> userService.updateUsername(1L, request));
         verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    void updateTimeZone_shouldSaveKnownIanaTimeZone() {
+        UserEntity user = userWithIdAndUsername(1L, "alice");
+        UpdateTimeZoneRequest request = new UpdateTimeZoneRequest("Europe/Budapest");
+
+        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.save(user)).thenReturn(user);
+
+        UserEntity result = userService.updateTimeZone(1L, request);
+
+        assertEquals("Europe/Budapest", result.getTimeZone());
+        verify(userRepository).save(user);
+    }
+
+    @Test
+    void updateTimeZone_shouldRejectUnknownOrFixedOffsetTimeZone() {
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.updateTimeZone(1L, new UpdateTimeZoneRequest("UTC+02:00")));
+        assertThrows(IllegalArgumentException.class,
+                () -> userService.updateTimeZone(1L, new UpdateTimeZoneRequest("Not/A_Time_Zone")));
+
+        verifyNoInteractions(userRepository);
     }
 
     @Test

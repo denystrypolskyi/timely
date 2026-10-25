@@ -11,6 +11,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 public class UserEntity {
+    public static final String DEFAULT_TIME_ZONE = "Europe/Warsaw";
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,6 +33,9 @@ public class UserEntity {
     @Column(nullable = false)
     private long tokenVersion;
 
+    @Column(nullable = false, length = 63)
+    private String timeZone = DEFAULT_TIME_ZONE;
+
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
@@ -40,6 +45,10 @@ public class UserEntity {
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = this.createdAt;
+
+        if (this.timeZone == null) {
+            this.timeZone = DEFAULT_TIME_ZONE;
+        }
 
         if (this.role == null) {
             this.role = Role.USER;

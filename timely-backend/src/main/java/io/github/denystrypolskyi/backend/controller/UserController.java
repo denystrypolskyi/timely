@@ -134,6 +134,14 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
+    @PatchMapping("/timezone")
+    public ResponseEntity<UserResponse> updateTimeZone(
+            @AuthenticationPrincipal CustomUserDetails user,
+            @RequestBody @Valid UpdateTimeZoneRequest dto) {
+        UserEntity updatedUser = userService.updateTimeZone(user.getId(), dto);
+        return ResponseEntity.ok(userMapper.toDTO(updatedUser));
+    }
+
     @GetMapping("/profile")
     public ResponseEntity<UserResponse> getLoggedInUser(@AuthenticationPrincipal CustomUserDetails user) {
         if (user == null) {

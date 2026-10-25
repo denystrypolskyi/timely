@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.Duration;
 import java.time.YearMonth;
 import java.time.ZoneId;
 import java.util.List;
@@ -88,14 +89,14 @@ public class ShiftService {
         return shift;
     }
 
-    public List<ShiftEntity> getShiftsByUserAndMonth(Long userId, int year, int month) {
+    public MonthlyShifts getShiftsByUserAndMonth(Long userId, int year, int month) {
 
         validateInputs(userId, year, month);
 
         YearMonth yearMonth = YearMonth.of(year, month);
-
-        ZoneId zone = ZoneId.of("Europe/Warsaw"); // TODO: add timeZone field to UserEntity for per-user timezone
-                                                  // support.
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+        ZoneId zone = ZoneId.of(user.getTimeZone());
 
         Instant start = yearMonth
                 .atDay(1)
@@ -108,9 +109,24 @@ public class ShiftService {
                 .atStartOfDay(zone)
                 .toInstant();
 
-        return shiftRepository
-                .findWithUserByUserIdAndShiftStartGreaterThanEqualAndShiftStartLessThan(
-                        userId, start, end);
+        List<ShiftEntity> shifts = shiftRepository
+                .findWithUserByUserIdAndShiftStartLessThanAndShiftEndGreaterThanOrderByShiftStartAsc(
+                        userId, end, start);
+
+        return new MonthlyShifts(shifts, start, end);
+    }
+
+    public long durationInRangeMinutes(ShiftEntity shift, Instant rangeStart, Instant rangeEnd) {
+        Instant overlapStart = shift.getShiftStart().isAfter(rangeStart) ? shift.getShiftStart() : rangeStart;
+        Instant overlapEnd = shift.getShiftEnd().isBefore(rangeEnd) ? shift.getShiftEnd() : rangeEnd;
+
+        if (!overlapStart.isBefore(overlapEnd)) {
+            return 0;
+        }
+        return Duration.between(overlapStart, overlapEnd).toMinutes();
+    }
+
+    public record MonthlyShifts(List<ShiftEntity> shifts, Instant monthStart, Instant monthEnd) {
     }
 
     private void validateInputs(Long userId, int year, int month) {
