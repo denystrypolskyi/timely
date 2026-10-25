@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.Duration;
@@ -40,6 +41,7 @@ public class ShiftService {
         return shiftRepository.findByUserId(userId);
     }
 
+    @Transactional
     public ShiftEntity createShift(CustomUserDetails customUserDetails, Instant shiftStart, Instant shiftEnd) {
         Objects.requireNonNull(customUserDetails, "Authenticated user must be provided");
         Objects.requireNonNull(shiftStart, "Shift start must be provided");
@@ -53,6 +55,7 @@ public class ShiftService {
         return shiftRepository.save(shift);
     }
 
+    @Transactional
     public ShiftEntity updateShift(
             CustomUserDetails currentUser,
             Long shiftId,
@@ -74,6 +77,7 @@ public class ShiftService {
         return shiftRepository.save(shift);
     }
 
+    @Transactional
     public ShiftEntity deleteShift(CustomUserDetails customUserDetails, Long id) {
         Objects.requireNonNull(customUserDetails, "Authenticated user must be provided");
         Objects.requireNonNull(id, "Shift ID must be provided");
