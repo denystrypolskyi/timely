@@ -48,9 +48,10 @@ are not used by this local workflow.
 
 `docker-compose.prod.yml` runs PostgreSQL, the backend, and the frontend in
 containers. The local `docker-compose.yml` remains the database-only development
-setup. Both files use the `work-tracker` Compose project and the same named
-PostgreSQL volume, so an existing VPS deployment with that project name keeps
-its database when switched to the production file.
+setup. Both files use the `timely` Compose project with `postgres`, `backend`,
+and `frontend` service names. The PostgreSQL volume retains its original Docker
+name, `work-tracker_timely-postgres-data`, so an existing deployment can reuse
+its data after the project is renamed.
 
 1. On the VPS, copy the root `.env.example` to `.env` and set the existing
    database name, user, and password. For an existing database, keep the same
@@ -84,7 +85,17 @@ its database when switched to the production file.
    on the VPS loopback interface. PostgreSQL has no host port in this setup.
    After editing the host Nginx configuration, run `sudo nginx -t` and
    `sudo systemctl reload nginx`.
-4. Start or update the stack from the repository root:
+4. If the old `work-tracker` stack is running on the VPS, stop its containers
+   after backing up the database. This preserves its PostgreSQL volume and
+   frees ports 3000 and 8080 for the renamed stack:
+
+   ```bash
+   docker compose -p work-tracker -f docker-compose.prod.yml down --remove-orphans
+   ```
+
+   On a development machine with the old database-only stack, use
+   `docker compose -p work-tracker down --remove-orphans` instead.
+5. Start or update the stack from the repository root:
 
    ```bash
    docker compose -f docker-compose.prod.yml up -d --build

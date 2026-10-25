@@ -1,7 +1,7 @@
-name: work-tracker
+name: timely
 
 services:
-  timely-postgres:
+  postgres:
     image: postgres:17-alpine
     environment:
       POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in the root .env file}
@@ -10,7 +10,7 @@ services:
     ports:
       - "127.0.0.1:5432:5432"
     volumes:
-      - timely-postgres-data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
       interval: 5s
@@ -19,4 +19,5 @@ services:
     restart: unless-stopped
 
 volumes:
-  timely-postgres-data:
+  postgres-data:
+    name: work-tracker_timely-postgres-data
