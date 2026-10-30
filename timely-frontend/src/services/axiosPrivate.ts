@@ -9,9 +9,19 @@ const axiosInstance = axios.create({
 
 let refreshPromise: Promise<void> | null = null;
 
+async function refreshIfNeeded(): Promise<void> {
+  // Another tab may have refreshed while this one was waiting for the lock.
+  const profile = await axiosPublic.get("/users/profile");
+  if (profile.status === 204) {
+    await axiosPublic.post("/users/refresh");
+  }
+}
+
 export function refreshAccessToken(): Promise<void> {
   if (!refreshPromise) {
-    refreshPromise = axiosPublic.post("/users/refresh").then(() => undefined)
+    refreshPromise = (navigator.locks
+      ? navigator.locks.request("timely-refresh", refreshIfNeeded)
+      : refreshIfNeeded())
       .finally(() => { refreshPromise = null; });
   }
   return refreshPromise;

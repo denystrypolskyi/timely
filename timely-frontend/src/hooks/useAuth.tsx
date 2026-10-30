@@ -37,6 +37,7 @@ export const useAuth = () => {
     isAuthenticated,
     isCheckingAuth,
     isAuthError: meQuery.isError,
+    retryAuth: meQuery.refetch,
     login: loginMutation.mutateAsync,
     isLoggingIn: loginMutation.isPending,
     logout: logoutMutation.mutate,

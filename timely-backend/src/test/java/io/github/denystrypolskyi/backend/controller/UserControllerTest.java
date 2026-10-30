@@ -17,7 +17,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockHttpServletRequest;
 import java.time.Instant;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -74,5 +76,42 @@ class UserControllerTest {
         assertEquals(200, response.getStatusCode().value());
         assertNull(response.getBody());
         assertEquals(2, response.getHeaders().getOrEmpty(HttpHeaders.SET_COOKIE).size());
+    }
+
+    @Test
+    void refreshAcceptsApiOriginEvenWhenConfiguredFrontendOriginDiffers() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/users/refresh");
+        request.setScheme("https");
+        request.setServerName("app.example.com");
+        request.setServerPort(443);
+        request.addHeader("Origin", "https://app.example.com");
+        when(appProperties.getFrontendUrl()).thenReturn("https://old.example.com");
+        when(refreshCookieService.read(request)).thenReturn(Optional.of("current-refresh"));
+        Instant expiresAt = Instant.parse("2030-01-01T00:00:00Z");
+        when(refreshTokenService.rotate("current-refresh"))
+                .thenReturn(Optional.of(new RefreshTokenService.RotatedToken(7L, "next-refresh", expiresAt)));
+        when(authService.accessToken(7L)).thenReturn("next-access");
+        when(jwtCookieService.create("next-access"))
+                .thenReturn(ResponseCookie.from("timely_access_token", "next-access").build());
+        when(refreshCookieService.create("next-refresh", expiresAt))
+                .thenReturn(ResponseCookie.from("timely_refresh_token", "next-refresh").build());
+
+        ResponseEntity<Void> response = userController.refresh(request);
+
+        assertEquals(200, response.getStatusCode().value());
+        assertEquals(2, response.getHeaders().getOrEmpty(HttpHeaders.SET_COOKIE).size());
+    }
+
+    @Test
+    void refreshRejectsForeignOrigin() {
+        MockHttpServletRequest request = new MockHttpServletRequest("POST", "/api/users/refresh");
+        request.setScheme("https");
+        request.setServerName("app.example.com");
+        request.setServerPort(443);
+        request.addHeader("Origin", "https://other.example.com");
+        when(appProperties.getFrontendUrl()).thenReturn("https://app.example.com");
+
+        assertEquals(403, userController.refresh(request).getStatusCode().value());
+        verifyNoInteractions(refreshTokenService);
     }
 }

@@ -1,3 +1,4 @@
+import axios from "axios";
 import axiosInstance, { refreshAccessToken } from "./axiosPrivate";
 import { CreateUserRequest, UpdateTimeZoneRequest, User } from "@/types/user.types";
 import { getApiErrorMessage } from "./apiError";
@@ -14,8 +15,11 @@ class UserService {
         await refreshAccessToken();
         response = await axiosInstance.get<User>("/users/profile");
         return response.status === 204 ? null : response.data;
-      } catch {
-        return null;
+      } catch (error) {
+        if (axios.isAxiosError(error) && error.response?.status === 401) {
+          return null;
+        }
+        throw error;
       }
     } catch (error) {
       throw new Error(getApiErrorMessage(error, "Failed to fetch user"));

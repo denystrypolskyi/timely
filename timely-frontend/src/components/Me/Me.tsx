@@ -8,6 +8,7 @@ import LoadingSpinner from "../LoadingSpinner/LoadingSpinner";
 import SettingsModal from "../SettingsModal/SettingsModal";
 import PasteShiftsModal from "@/components/PasteShiftsModal/PasteShiftsModal.tsx";
 import CreateUserModal from "../CreateUserModal/CreateUserModal";
+import WorkHoursModal from "../WorkHoursModal";
 import {useI18n} from "../../i18n/I18nContext";
 import {Currency} from "../../hooks/useHourlyRate";
 
@@ -17,6 +18,7 @@ import {
     LucideArrowRight,
     LucideClock,
     LucideLogOut,
+    LucideList,
     LucidePlus,
     LucideSettings,
     LucideTrash,
@@ -59,6 +61,7 @@ const Me = () => {
     const [selectedDate, setSelectedDate] = useState<number | null>(null);
     const [dropdownPosition, setDropdownPosition] = useState({top: 0, left: 0});
     const [isImportOpen, setIsImportOpen] = useState(false);
+    const [isWorkHoursOpen, setIsWorkHoursOpen] = useState(false);
     const dropdownRef = useRef<HTMLDivElement | null>(null);
     const [isSettingsOpen, setIsSettingsOpen] = useState<boolean>(false);
     const [isCreateUserOpen, setIsCreateUserOpen] = useState(false);
@@ -286,6 +289,12 @@ const Me = () => {
                         <LucideArrowRight size={21} />
                     </button>
                 </div>
+
+                <button type="button" className={styles.workHoursButton}
+                        onClick={() => setIsWorkHoursOpen(true)}>
+                    <LucideList size={18} aria-hidden="true" />
+                    {t("timesheet")}
+                </button>
 
                 <div className={styles.calendarCard}>
                     <div className={styles.weekdays} aria-hidden="true">
@@ -599,6 +608,15 @@ const Me = () => {
                     onClose={() => setIsImportOpen(false)}
                     onSubmit={handleManualImport}
                     year={currentYear}
+                />
+            )}
+            {isWorkHoursOpen && (
+                <WorkHoursModal
+                    shifts={shifts}
+                    year={currentYear}
+                    month={currentMonth}
+                    timeZone={user?.timeZone || Intl.DateTimeFormat().resolvedOptions().timeZone}
+                    onClose={() => setIsWorkHoursOpen(false)}
                 />
             )}
         </div>

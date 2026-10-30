@@ -1,12 +1,17 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import LoadingSpinner from "./LoadingSpinner/LoadingSpinner";
+import AuthCheckError from "./AuthCheckError";
 
 const DefaultRedirect = () => {
-  const { isAuthenticated, isCheckingAuth } = useAuth();
+  const { isAuthenticated, isCheckingAuth, isAuthError, retryAuth } = useAuth();
 
   if (isCheckingAuth) {
     return <LoadingSpinner />
+  }
+
+  if (isAuthError) {
+    return <AuthCheckError retry={() => void retryAuth()} />;
   }
 
   return isAuthenticated ? (

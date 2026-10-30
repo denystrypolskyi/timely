@@ -11,6 +11,7 @@ import io.github.denystrypolskyi.backend.service.RefreshCookieService;
 import io.github.denystrypolskyi.backend.service.RefreshTokenService;
 import io.github.denystrypolskyi.backend.service.UserService;
 
+import java.net.URI;
 import java.util.List;
 
 import jakarta.validation.Valid;
@@ -107,9 +108,32 @@ public class UserController {
     }
 
     private boolean validOrigin(HttpServletRequest request) {
-        String allowed = appProperties.getFrontendUrl();
-        if (allowed == null) return false;
-        return allowed.replaceFirst("/$", "").equals(request.getHeader("Origin"));
+        String origin = request.getHeader("Origin");
+        if (origin == null) return false;
+        try {
+            URI supplied = URI.create(origin);
+            String allowed = appProperties.getFrontendUrl();
+            return sameOrigin(supplied, URI.create(request.getScheme() + "://" + request.getServerName()
+                    + ":" + request.getServerPort()))
+                    || (allowed != null && sameOrigin(supplied, URI.create(allowed)));
+        } catch (IllegalArgumentException exception) {
+            return false;
+        }
+    }
+
+    private static boolean sameOrigin(URI first, URI second) {
+        return first.getScheme() != null && first.getHost() != null
+                && (first.getRawPath() == null || first.getRawPath().isEmpty())
+                && first.getRawQuery() == null && first.getRawFragment() == null
+                && first.getRawUserInfo() == null
+                && first.getScheme().equalsIgnoreCase(second.getScheme())
+                && first.getHost().equalsIgnoreCase(second.getHost())
+                && port(first) == port(second);
+    }
+
+    private static int port(URI uri) {
+        if (uri.getPort() != -1) return uri.getPort();
+        return "https".equalsIgnoreCase(uri.getScheme()) ? 443 : 80;
     }
 
     @GetMapping()
